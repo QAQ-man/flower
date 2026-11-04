@@ -249,7 +249,7 @@
             clearInterval(pollingTimer);
             pollingTimer = setInterval(async () => {
                 try {
-                    const res = await fetch(`http://localhost:8080/api/orders/checkPay/${subscribeOrderNo}`);
+                    const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/checkPay/${subscribeOrderNo}`);
                     const result = await res.json();
                     
                     if (result.code === 200 && result.data === true) {
@@ -289,7 +289,7 @@
         // ⭐ 第四步：真实升级会员逻辑
         async function submitSubscribe(memberId, targetLevel) {
             try {
-                const res = await fetch(`http://localhost:8080/api/members/upgrade`, {
+                const res = await fetch(`https://api.zhuys.dpdns.org/api/members/upgrade`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ memberId: memberId, newLevel: targetLevel })
