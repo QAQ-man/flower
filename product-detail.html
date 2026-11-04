@@ -119,7 +119,7 @@
         async function fetchProductDetail(id) {
             try {
                 // 完美对接您的 GoodsController 中的 @GetMapping("/{id}")
-                const res = await fetch(`http://localhost:8080/api/goods/${id}`);
+                const res = await fetch(`https://api.zhuys.dpdns.org/api/goods/${id}`);
                 const result = await res.json();
 
                 if (result.code === 200 && result.data) {
