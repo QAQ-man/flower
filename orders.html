@@ -242,7 +242,7 @@
 
     try {
       // ⚠️ 注意：如果你的前端是 file:// 协议打开，跨域会报错，请用 Live Server 或配置后端 CORS
-      const response = await fetch(`http://localhost:8080/api/orders/list?${params.toString()}`, {
+      const response = await fetch(`https://api.zhuys.dpdns.org/api/orders/list?${params.toString()}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -283,7 +283,7 @@
   // ================== 2. 统计接口（调用后端，永远不传 status 参数） ==================
 async function fetchStatistics() {
   try {
-    const res = await fetch('http://localhost:8080/api/orders/statistics', {
+    const res = await fetch('https://api.zhuys.dpdns.org/api/orders/statistics', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     }).then(r => r.json());
@@ -506,7 +506,7 @@ async function fetchStatistics() {
       try {
         // 1. 获取所有勾选订单的详情
         const promises = selectedOrderIds.map(id => 
-          fetch(`http://localhost:8080/api/orders/${id}`).then(r => r.json())
+          fetch(`https://api.zhuys.dpdns.org/api/orders/${id}`).then(r => r.json())
         );
         const results = await Promise.all(promises);
   
@@ -619,7 +619,7 @@ async function fetchStatistics() {
               keyword: keyword
           });
           
-          const res = await fetch(`http://localhost:8080/api/orders/export?${params.toString()}`);
+          const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/export?${params.toString()}`);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
   
           // 获取文件名
@@ -655,7 +655,7 @@ async function fetchStatistics() {
         const select = document.getElementById('formGoods');
         select.innerHTML = '<option value="">加载中...</option>';
         try {
-            const res = await fetch('http://localhost:8080/api/goods/list?page=1&pageSize=100');
+            const res = await fetch('https://api.zhuys.dpdns.org/api/goods/list?page=1&pageSize=100');
             const result = await res.json();
             if (result.code === 200 && result.data.records) {
                 let html = '<option value="">请选择商品</option>';
@@ -706,7 +706,7 @@ async function fetchStatistics() {
               const orderNo = 'FH' + Date.now();
               
               // 1. 创建订单主表
-              const res1 = await fetch('http://localhost:8080/api/orders', {
+              const res1 = await fetch('https://api.zhuys.dpdns.org/api/orders', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -723,7 +723,7 @@ async function fetchStatistics() {
                   // 2. 插入商品明细（需要有 OrderItem 的接口）
                   // 如果你后端没写 OrderItem 的 Controller，这步会失败，你可以先注释掉
                   /*
-                  await fetch('http://localhost:8080/api/orderItem/add', {
+                  await fetch('https://api.zhuys.dpdns.org/api/orderItem/add', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
@@ -756,7 +756,7 @@ async function fetchStatistics() {
     async function invoiceOrder(orderId) {
       if (!confirm('确认要为该订单开具电子发票吗？')) return;
       try {
-          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/invoice`, { method: 'PUT' });
+          const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${orderId}/invoice`, { method: 'PUT' });
           const result = await res.json();
           if (result.code === 200) {
               alert('开票成功！已更新状态。');
@@ -773,7 +773,7 @@ async function fetchStatistics() {
     async function resendOrder(orderId) {
       if (!confirm('确认要生成【补发单】吗？将自动进入待配花队列。')) return;
       try {
-          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/resend`, { method: 'POST' });
+          const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${orderId}/resend`, { method: 'POST' });
           const result = await res.json();
           if (result.code === 200) {
               alert('补发订单已生成！');
@@ -798,7 +798,7 @@ async function fetchStatistics() {
 	  async function invoiceOrder(orderId) {
 	      if (!confirm('确认要为该订单开具电子发票吗？')) return;
 	      try {
-	          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/invoice`, { method: 'PUT' });
+	          const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${orderId}/invoice`, { method: 'PUT' });
 	          const result = await res.json();
 	          if (result.code === 200) {
 	              fetchOrders(); // 刷新列表状态
@@ -828,7 +828,7 @@ async function fetchStatistics() {
 	  async function resendOrder(orderId) {
 	      if (!confirm('确认要生成【补发单】吗？将自动进入待配花队列。')) return;
 	      try {
-	          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/resend`, { method: 'POST' });
+	          const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${orderId}/resend`, { method: 'POST' });
 	          const result = await res.json();
 	          if (result.code === 200) {
 	              alert('补发订单已生成！');
@@ -845,7 +845,7 @@ async function fetchStatistics() {
 	    async function deleteOrder(orderId) {
 	        if (!confirm('确定要取消并删除该订单吗？此操作不可恢复。')) return;
 	        try {
-	            const res = await fetch(`http://localhost:8080/api/orders/${orderId}`, { method: 'DELETE' });
+	            const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${orderId}`, { method: 'DELETE' });
 	            const result = await res.json();
 	            if (result.code === 200) {
 	                alert('订单已取消/删除');
