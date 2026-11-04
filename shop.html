@@ -365,7 +365,7 @@
                 }, 300);
             }
     
-            // 渲染商品网格【已修改图片为后端完整地址 + onerror兜底】
+            // 渲染商品网格【已修改：直接使用完整url，不再拼接/images/】
             function renderProducts(products) {
                 const grid = document.getElementById('productGrid');
                 if (products.length === 0) {
@@ -376,7 +376,7 @@
                     <!-- 点击整个卡片跳转 -->
                     <div onclick="goToDetail(${p.id})" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer border border-gray-100">
                         <div class="w-full h-56 rounded-xl overflow-hidden relative mb-4">
-                            <img src="${p.imageMain ? `https://api.zhuys.dpdns.org/images/${p.imageMain}` : 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
+                            <img src="${p.imageMain || 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
                             onerror="this.src='https://api.zhuys.dpdns.org/images/baixiang.jpg'"
                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                         </div>
@@ -416,7 +416,7 @@
                 showToast('已加入购物车');
             }
     
-            // 购物车图片同步修改兜底地址
+            // 购物车图片【同步修改，直接使用完整url】
             function updateCartUI() {
                 const badge = document.getElementById('cartBadge');
                 const itemsDiv = document.getElementById('cartItems');
@@ -437,7 +437,7 @@
                 } else {
                     itemsDiv.innerHTML = cart.map((item, index) => `
                         <div class="flex items-center gap-3">
-                            <img src="${item.imageMain ? `https://api.zhuys.dpdns.org/images/${item.imageMain}` : 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
+                            <img src="${item.imageMain || 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
                             onerror="this.src='https://api.zhuys.dpdns.org/images/baixiang.jpg'"
                             class="w-16 h-16 rounded-lg object-cover"/>
                             <div class="flex-1">
@@ -522,7 +522,7 @@
                         } 
                         // 第二步：点击确认支付
                         else {
-                            // 检查是否登录（如果您希望必须登录才能买，放开下面几行注释）
+                            // 如果您希望必须登录才能买，放开下面几行注释
                             /*
                             const userStr = localStorage.getItem('shopUser');
                             if (!userStr) {
