@@ -365,7 +365,7 @@
   
     async function loadOrderDetail(id) {
         try {
-            const res = await fetch(`http://localhost:8080/api/orders/${id}`);
+            const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${id}`);
             const result = await res.json();
             
             console.log("最新返回：", result);
@@ -563,7 +563,7 @@
   
     async function submitDispatch(id) {
         try {
-            const res = await fetch(`http://localhost:8080/api/orders/${id}/dispatch`, { method: 'PUT' });
+            const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${id}/dispatch`, { method: 'PUT' });
             const result = await res.json();
             if (result.code === 200) {
                 toast('出库成功，状态已更新！');
@@ -621,7 +621,7 @@
         if (!confirm('确定要发起退款吗？退款后订单将进入售后处理状态。')) return;
         
         try {
-            const res = await fetch(`http://localhost:8080/api/orders/${currentOrderId}/refund`, {
+            const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${currentOrderId}/refund`, {
                 method: 'PUT'
             });
             const result = await res.json();
@@ -643,7 +643,7 @@
         if (!confirm('确定要生成补发订单吗？将复制当前商品生成一条新的待配花订单。')) return;
         
         try {
-            const res = await fetch(`http://localhost:8080/api/orders/${currentOrderId}/resend`, {
+            const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/${currentOrderId}/resend`, {
                 method: 'POST'
             });
             const result = await res.json();
