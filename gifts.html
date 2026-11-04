@@ -90,7 +90,7 @@
                 try {
                     // 假设您的数据库中，礼盒的 category 字段叫 "节庆礼盒"（或者"节日礼盒"）
                     // 如果没查出数据，请检查数据库里商品的 category 字段是否和这里一致
-                    const res = await fetch('http://localhost:8080/api/goods/list?page=1&pageSize=20&status=1&category=节庆礼盒');
+                    const res = await fetch('https://api.zhuys.dpdns.org/api/goods/list?page=1&pageSize=20&status=1&category=节庆礼盒');
                     const result = await res.json();
     
                     if (result.code === 200 && result.data.records) {
