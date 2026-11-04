@@ -376,7 +376,7 @@
                     <!-- 点击整个卡片跳转 -->
                     <div onclick="goToDetail(${p.id})" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer border border-gray-100">
                         <div class="w-full h-56 rounded-xl overflow-hidden relative mb-4">
-                            <img src="${p.imageMain || 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
+                            <img src="${p.imageMain ? `https://api.zhuys.dpdns.org/images/${p.imageMain}` : 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
                             onerror="this.src='https://api.zhuys.dpdns.org/images/baixiang.jpg'"
                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                         </div>
@@ -437,7 +437,7 @@
                 } else {
                     itemsDiv.innerHTML = cart.map((item, index) => `
                         <div class="flex items-center gap-3">
-                            <img src="${item.imageMain || 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
+                            <img src="${item.imageMain ? `https://api.zhuys.dpdns.org/images/${item.imageMain}` : 'https://api.zhuys.dpdns.org/images/baixiang.jpg'}" 
                             onerror="this.src='https://api.zhuys.dpdns.org/images/baixiang.jpg'"
                             class="w-16 h-16 rounded-lg object-cover"/>
                             <div class="flex-1">
