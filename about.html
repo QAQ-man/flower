@@ -13,7 +13,7 @@
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="w-full min-h-screen text-gray-800 antialiased">
+<body class="w-full min-h-screen text-gray-800 antialiased overflow-x-hidden">
 
     <!-- 顶部导航栏 -->
     <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
@@ -27,22 +27,24 @@
             
             <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                 <a href="shop.html" class="hover:text-rose-500 transition">首页</a>
-                <!-- ⭐ 修改了这里，加入智能跳转 -->
                 <a href="javascript:void(0)" onclick="goToMemberCenter()" class="hover:text-rose-500 transition">会员订阅</a>
                 <a href="gifts.html" class="hover:text-rose-500 transition">节日礼盒</a>
                 <a href="about.html" class="text-rose-500">关于我们</a>
             </nav>
 
             <div class="flex items-center gap-5">
-                <a href="shop.html" class="text-gray-600 hover:text-rose-500 transition relative">
+                <!-- 购物车 -->
+                <button onclick="toggleCart()" class="text-gray-600 hover:text-rose-500 transition relative">
                     <iconify-icon class="text-[22px]" icon="solar:cart-large-2-linear"></iconify-icon>
-                </a>
+                    <span id="cartBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[10px] flex items-center justify-center rounded-full hidden">0</span>
+                </button>
 
-                <div class="relative group py-4">
+                <!-- 用户头像 & 点击下拉菜单【全站统一】 -->
+                <div class="relative" id="userWrap">
                     <button id="userBtn" class="text-gray-600 hover:text-rose-500 transition flex items-center">
                         <iconify-icon class="text-[22px]" icon="solar:user-circle-linear"></iconify-icon>
                     </button>
-                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                    <div id="userMenu" class="hidden absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 transition-all duration-200 z-50">
                         <div class="absolute -top-2 right-3 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
                         <div class="py-2 relative bg-white rounded-2xl">
 							<a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
@@ -51,9 +53,9 @@
                             <a href="my-orders.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
                                 <iconify-icon class="text-[18px]" icon="solar:bill-list-linear"></iconify-icon> 我的订单
                             </a>
-                            <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                            <div onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer">
                                 <iconify-icon class="text-[18px]" icon="solar:logout-3-linear"></iconify-icon> 退出登录
-                            </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -91,40 +93,115 @@
         <p>产地直采 · 冷链直达 · 保证新鲜</p>
     </footer>
 
+    <!-- 登录弹窗 和其他页面保持一致 -->
+    <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-[400px] overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="loginModalContent">
+            <div class="relative h-32 bg-gradient-to-r from-rose-400 to-rose-300 flex items-center justify-center">
+                <h2 class="serif text-2xl font-bold text-white tracking-widest">WELCOME BACK</h2>
+                <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-white/70 hover:text-white transition">
+                    <iconify-icon class="text-[24px]" icon="solar:close-circle-linear"></iconify-icon>
+                </button>
+            </div>
+            <div class="p-8">
+                <div class="flex justify-center gap-8 mb-8 border-b border-gray-100 pb-2">
+                    <button id="tabLogin" onclick="switchTab('login')" class="text-lg font-bold text-gray-900 border-b-2 border-rose-500 pb-2">登录</button>
+                    <button id="tabRegister" onclick="switchTab('register')" class="text-lg font-medium text-gray-400 pb-2 hover:text-gray-600 transition">注册</button>
+                </div>
+
+                <form id="formLogin" onsubmit="handleLogin(event)">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:user-linear"></iconify-icon>
+                            <input id="loginPhone" type="text" placeholder="请输入手机号" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:lock-password-linear"></iconify-icon>
+                            <input id="loginPassword" type="password" placeholder="请输入密码" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 mb-6">
+                        <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer">
+                            <input type="checkbox" class="accent-rose-500" checked> 记住我
+                        </label>
+                        <a href="#" class="text-sm text-rose-500 hover:underline">忘记密码？</a>
+                    </div>
+                    <button type="submit" class="w-full h-12 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition shadow-lg shadow-rose-500/30">
+                        立即登录
+                    </button>
+                </form>
+
+                <form id="formRegister" class="hidden" onsubmit="handleRegister(event)">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:user-linear"></iconify-icon>
+                            <input id="regName" type="text" placeholder="设置昵称" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:phone-linear"></iconify-icon>
+                            <input id="regPhone" type="text" placeholder="请输入手机号" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:lock-password-linear"></iconify-icon>
+                            <input id="regPassword" type="password" placeholder="设置密码" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full h-12 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition mt-6 shadow-lg shadow-gray-900/30">
+                        注册并登录
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full text-sm shadow-2xl z-50 transform -translate-y-10 opacity-0 transition-all duration-300 pointer-events-none">
+        提示
+    </div>
+
     <script>
+        let cart = JSON.parse(localStorage.getItem('shopCart') || '[]');
+
         document.addEventListener('DOMContentLoaded', () => {
             updateUserAvatar();
+            updateCartUI();
         });
 
-        // ⭐ 会员中心智能跳转
+        function toggleCart() {
+            window.location.href = 'shop.html';
+        }
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            if (totalQty > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = totalQty;
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // 会员智能跳转
         function goToMemberCenter() {
             const userStr = localStorage.getItem('shopUser');
             if (!userStr) {
                 window.location.href = 'subscribe.html';
                 return;
             }
-
             const user = JSON.parse(userStr);
             const level = user.memberLevel || '普通用户';
-
-            if (level === '铂金会员') {
-                window.location.href = 'vip-platinum.html';
-            } else if (level === '金卡会员') {
-                window.location.href = 'vip-gold.html';
-            } else if (level === '普通会员') {
-                window.location.href = 'vip-normal.html';
-            } else {
-                window.location.href = 'subscribe.html';
-            }
+            if (level === '铂金会员') window.location.href = 'vip-platinum.html';
+            else if (level === '金卡会员') window.location.href = 'vip-gold.html';
+            else if (level === '普通会员') window.location.href = 'vip-normal.html';
+            else window.location.href = 'subscribe.html';
         }
 
-            function updateUserAvatar() {
+        // 更新头像菜单，全站统一
+        function updateUserAvatar() {
             const userStr = localStorage.getItem('shopUser');
             const userBtn = document.getElementById('userBtn');
+            const userMenu = document.getElementById('userMenu');
             
             if (userStr && userBtn) {
                 const user = JSON.parse(userStr);
-                // 👇 修改这里：如果有 avatar 字段则用图片，没有则用默认首字母
                 if (user.avatar && user.avatar.trim() !== '') {
                     userBtn.innerHTML = `
                         <img src="${user.avatar}" alt="头像" class="w-8 h-8 rounded-full object-cover border border-gray-200"/>
@@ -136,24 +213,115 @@
                         </div>
                     `;
                 }
-                
-                // 点击头像去个人中心
-                userBtn.onclick = function() {
-                    window.location.href = 'profile.html';
+                userBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('hidden');
                 };
             } else if (userBtn) {
-                // 如果没登录，点击头像去首页或弹出登录框
+                userBtn.innerHTML = `<iconify-icon class="text-[22px]" icon="solar:user-circle-linear"></iconify-icon>`;
                 userBtn.onclick = function() {
-                    window.location.href = 'shop.html';
+                    openLoginModal();
                 };
             }
         }
 
+        // 登录弹窗全套
+        function openLoginModal() {
+            const modal = document.getElementById('loginModal');
+            const content = document.getElementById('loginModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        function closeLoginModal() {
+            const modal = document.getElementById('loginModal');
+            const content = document.getElementById('loginModalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+        function switchTab(type) {
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+            const formLogin = document.getElementById('formLogin');
+            const formRegister = document.getElementById('formRegister');
+            if (type === 'login') {
+                tabLogin.className = 'text-lg font-bold text-gray-900 border-b-2 border-rose-500 pb-2';
+                tabRegister.className = 'text-lg font-medium text-gray-400 pb-2 hover:text-gray-600 transition';
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+            } else {
+                tabRegister.className = 'text-lg font-bold text-gray-900 border-b-2 border-rose-500 pb-2';
+                tabLogin.className = 'text-lg font-medium text-gray-400 pb-2 hover:text-gray-600 transition';
+                formRegister.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            try {
+                const res = await fetch('https://api.zhuys.dpdns.org/api/members/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone, password: password })
+                });
+                const result = await res.json();
+                if (result.code === 200) {
+                    localStorage.setItem('shopUser', JSON.stringify(result.data));
+                    showToast('欢迎回来，' + result.data.memberName);
+                    closeLoginModal();
+                    updateUserAvatar();
+                } else {
+                    showToast(result.msg || '登录失败');
+                }
+            } catch (e) { showToast('网络异常，请稍后再试'); }
+        }
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            try {
+                const res = await fetch('https://api.zhuys.dpdns.org/api/members/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ memberName: name, phone: phone, password: password })
+                });
+                const result = await res.json();
+                if (result.code === 200) {
+                    localStorage.setItem('shopUser', JSON.stringify(result.data));
+                    showToast('注册成功，已自动登录');
+                    closeLoginModal();
+                    updateUserAvatar();
+                } else {
+                    showToast(result.msg || '注册失败');
+                }
+            } catch (e) { showToast('网络异常，请稍后再试'); }
+        }
         function logoutUser() {
             if (confirm('确定要退出登录吗？')) {
                 localStorage.removeItem('shopUser');
                 location.reload();
             }
+        }
+        // 点击空白关闭下拉菜单
+        document.addEventListener('click', ()=>{
+            const userMenu = document.getElementById('userMenu');
+            if(userMenu) userMenu.classList.add('hidden');
+        })
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.remove('-translate-y-10', 'opacity-0');
+            setTimeout(() => { toast.classList.add('-translate-y-10', 'opacity-0'); }, 2000);
         }
     </script>
 </body>
