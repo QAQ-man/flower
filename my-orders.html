@@ -153,7 +153,7 @@
             const phone = user.phone || '';
 
             try {
-                const res = await fetch(`http://localhost:8080/api/orders/myList?memberId=${memberId}&phone=${phone}`);
+                const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/myList?memberId=${memberId}&phone=${phone}`);
                 const result = await res.json();
 
                 if (result.code === 200 && result.data) {
