@@ -301,11 +301,11 @@
     // ==========================================
     async function loadUserProfile() {
         try {
-            const roleRes = await fetch('http://localhost:8080/api/sysRole');
+            const roleRes = await fetch('https://api.zhuys.dpdns.org/api/sysRole');
             const roleResult = await roleRes.json();
             if (roleResult.code === 200) roleCache = roleResult.data;
 
-            const response = await fetch(`http://localhost:8080/api/sysUser/${CURRENT_USER_ID}`);
+            const response = await fetch(`https://api.zhuys.dpdns.org/api/sysUser/${CURRENT_USER_ID}`);
             const text = await response.text();
             if (!text) return;
             const result = JSON.parse(text);
@@ -330,7 +330,7 @@
             mfaSms: document.getElementById('userMfaSms').checked ? 1 : 0
         };
         try {
-            const response = await fetch('http://localhost:8080/api/sysUser', {
+            const response = await fetch('https://api.zhuys.dpdns.org/api/sysUser', {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
             const result = await response.json();
@@ -341,7 +341,7 @@
 
     function removeDevices() {
         if (confirm('确定要移除除当前设备外的所有登录设备吗？\n移除后其他设备将需要重新登录。')) {
-            fetch('http://localhost:8080/api/sysUser/' + CURRENT_USER_ID + '/removeDevices', { method: 'PUT' })
+            fetch('https://api.zhuys.dpdns.org/api/sysUser/' + CURRENT_USER_ID + '/removeDevices', { method: 'PUT' })
             .then(res => res.json())
             .then(result => {
                 if (result.code === 200) showToast('已移除其他设备，仅保留当前登录');
@@ -356,7 +356,7 @@
         if (!newPassword) return;
         if (newPassword.length < 6) { showToast('密码长度不能少于6位', 'error'); return; }
         try {
-            const response = await fetch('http://localhost:8080/api/sysUser/updatePassword', {
+            const response = await fetch('https://api.zhuys.dpdns.org/api/sysUser/updatePassword', {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: CURRENT_USER_ID, newPassword: newPassword })
             });
@@ -371,7 +371,7 @@
     // ==========================================
     async function loadRoleMatrix() {
         try {
-            const matrixRes = await fetch('http://localhost:8080/api/sysRolePermission/matrix');
+            const matrixRes = await fetch('https://api.zhuys.dpdns.org/api/sysRolePermission/matrix');
             const matrixResult = await matrixRes.json();
             if (matrixResult.code !== 200) { showToast('加载权限矩阵失败', 'error'); return; }
             
@@ -421,7 +421,7 @@
         const memberList = document.querySelector('#paneRole ul');
         memberList.innerHTML = '<li class="py-4 text-center text-white/40 text-[12px]">加载中...</li>';
         try {
-            const userRes = await fetch('http://localhost:8080/api/sysUser/listWithRole');
+            const userRes = await fetch('https://api.zhuys.dpdns.org/api/sysUser/listWithRole');
             const userResult = await userRes.json();
             if (userResult.code !== 200) { memberList.innerHTML = '<li class="py-4 text-center text-red-400">加载失败</li>'; return; }
             memberList.innerHTML = '';
@@ -475,7 +475,7 @@
 
         try {
             const response = await fetch(
-                `http://localhost:8080/api/sysUser/${userId}/status?status=${newStatus}`,
+                `https://api.zhuys.dpdns.org/api/sysUser/${userId}/status?status=${newStatus}`,
                 { method: 'PUT' }
             );
             const result = await response.json();
@@ -509,7 +509,7 @@
         matrix['1'] = superAdminPerms;
 
         try {
-            const response = await fetch('http://localhost:8080/api/sysRolePermission/matrix/save', {
+            const response = await fetch('https://api.zhuys.dpdns.org/api/sysRolePermission/matrix/save', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ rolePermissions: matrix })
             });
@@ -538,7 +538,7 @@
       const container = document.getElementById('notifyListContainer');
       container.innerHTML = '<div class="py-4 text-center text-white/40 text-[12px]">加载中...</div>';
       try {
-          const response = await fetch('http://localhost:8080/api/notifySetting');
+          const response = await fetch('https://api.zhuys.dpdns.org/api/notifySetting');
           const text = await response.text();
           if (!text) { container.innerHTML = '<div class="py-4 text-center text-red-400 text-[12px]">后端接口未返回任何内容</div>'; return; }
           let result;
@@ -583,7 +583,7 @@
       });
       if (payloadList.length === 0) { showToast('没有可保存的设置', 'error'); return; }
       try {
-          const response = await fetch('http://localhost:8080/api/notifySetting/batch', {
+          const response = await fetch('https://api.zhuys.dpdns.org/api/notifySetting/batch', {
               method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadList)
           });
           const result = await response.json();
@@ -599,7 +599,7 @@
         const tbody = document.getElementById('logTableBody');
         tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-white/40">加载中...</td></tr>';
         try {
-            const response = await fetch('http://localhost:8080/api/sysOperateLog/list');
+            const response = await fetch('https://api.zhuys.dpdns.org/api/sysOperateLog/list');
             const text = await response.text();
             if (!text) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">后端返回为空</td></tr>'; return; }
             let result;
