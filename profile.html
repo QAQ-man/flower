@@ -235,7 +235,7 @@
                     // 第二步：去后端拉取最新数据（如果后端没图，坚决不能覆盖本地的图！）
                     if (currentUser.id) {
                         try {
-                            const res = await fetch(`http://localhost:8080/api/members/${currentUser.id}`);
+                            const res = await fetch(`https://api.zhuys.dpdns.org/api/members/${currentUser.id}`);
                             const result = await res.json();
                             if (result.code === 200 && result.data) {
                                 const freshUser = result.data;
@@ -308,7 +308,7 @@
                         avatarEl.innerHTML = `<img src="${base64Url}" class="w-full h-full object-cover" />`;
         
                         // 2. 存入数据库
-                        fetch(`http://localhost:8080/api/members/${currentUser.id}`, {
+                        fetch(`https://api.zhuys.dpdns.org/api/members/${currentUser.id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: currentUser.id, avatar: base64Url })
@@ -344,7 +344,7 @@
                     const memberId = user.id || 0;
                     const phone = user.phone || '';
                     try {
-                        const res = await fetch(`http://localhost:8080/api/orders/myList?memberId=${memberId}&phone=${phone}`);
+                        const res = await fetch(`https://api.zhuys.dpdns.org/api/orders/myList?memberId=${memberId}&phone=${phone}`);
                         const result = await res.json();
                         if (result.code === 200 && result.data) {
                             renderRecentOrders(result.data.slice(0, 3));
@@ -409,7 +409,7 @@
                     if (!user.id) return;
         
                     try {
-                        const res = await fetch(`http://localhost:8080/api/members/coupon/list?memberId=${user.id}`);
+                        const res = await fetch(`https://api.zhuys.dpdns.org/api/members/coupon/list?memberId=${user.id}`);
                         const result = await res.json();
                         const coupons = result.data || [];
         
@@ -433,12 +433,12 @@
                     if ((user.points || 0) < needPoints) { alert('您的积分不足，无法兑换！'); return; }
                     
                     try {
-                        const res = await fetch(`http://localhost:8080/api/members/coupon/exchange?memberId=${user.id}&threshold=${needPoints}&discount=${discountAmount}`, { method: 'POST' });
+                        const res = await fetch(`https://api.zhuys.dpdns.org/api/members/coupon/exchange?memberId=${user.id}&threshold=${needPoints}&discount=${discountAmount}`, { method: 'POST' });
                         const result = await res.json();
         
                         if (result.code === 200) {
                             alert('兑换成功！');
-                            const userRes = await fetch(`http://localhost:8080/api/members/${user.id}`);
+                            const userRes = await fetch(`https://api.zhuys.dpdns.org/api/members/${user.id}`);
                             const userData = await userRes.json();
                             localStorage.setItem('shopUser', JSON.stringify(userData.data));
                             
