@@ -448,7 +448,7 @@
 	
 	async function loadFlowerPrices() {
 	    try {
-	        var res = await fetch('http://localhost:8080/api/flowerStock/priceMap');
+	        var res = await fetch('https://api.zhuys.dpdns.org/api/flowerStock/priceMap');
 	        var result = await res.json();
 	        if (result.code === 200 && result.data) {
 	            flowerPriceMap = result.data;
