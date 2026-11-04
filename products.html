@@ -289,7 +289,7 @@
                 fetchPurchaseOrder();   // 采购单
                 
                 // ⭐ 1. 直接请求侧边栏的预警数据（解决卡在"加载中"的问题）
-                fetch('http://localhost:8080/api/dashboard/getData')
+                fetch('https://api.zhuys.dpdns.org/api/dashboard/getData')
                     .then(r => r.json())
                     .then(res => {
                         if (res.code === 200 && res.data && res.data.warnFlower) {
@@ -323,7 +323,7 @@
   // ================== 1. 商品品类 ==================
   async function fetchCategories() {
       try {
-          const res = await fetch('http://localhost:8080/api/goods/categories');
+          const res = await fetch('https://api.zhuys.dpdns.org/api/goods/categories');
           const result = await res.json();
           if (result.code === 200 && result.data) {
               const container = document.getElementById('categoryBtns');
@@ -357,7 +357,7 @@
 
   // ================== 2. 商品统计 ==================
   function fetchStatistics() {
-      fetch('http://localhost:8080/api/goods/statistics')
+      fetch('https://api.zhuys.dpdns.org/api/goods/statistics')
           .then(r => r.json())
           .then(res => {
               if (res.code === 200) {
@@ -379,7 +379,7 @@
             keyword: keyword
         });
     
-        fetch('http://localhost:8080/api/goods/list?' + params.toString())
+        fetch('https://api.zhuys.dpdns.org/api/goods/list?' + params.toString())
             .then(r => r.json())
             .then(res => {
                 if (res.code === 200) {
@@ -594,7 +594,7 @@
       if (!confirm(`确定要【${actionText}】商品「${goodsName}」吗？`)) return;
 
       try {
-          const res = await fetch(`http://localhost:8080/api/goods/${id}/status?status=${newStatus}`, {
+          const res = await fetch(`https://api.zhuys.dpdns.org/api/goods/${id}/status?status=${newStatus}`, {
               method: 'PUT'
           });
           const result = await res.json();
@@ -616,7 +616,7 @@
       if (!confirm(`确定要永久删除草稿商品「${goodsName}」吗？`)) return;
 
       try {
-          const res = await fetch(`http://localhost:8080/api/goods/${id}`, {
+          const res = await fetch(`https://api.zhuys.dpdns.org/api/goods/${id}`, {
               method: 'DELETE'
           });
           const result = await res.json();
@@ -635,7 +635,7 @@
   // ================== 4. 花材库存 ==================
   async function fetchFlowerStock() {
       try {
-          const res = await fetch('http://localhost:8080/api/flowerStock/list');
+          const res = await fetch('https://api.zhuys.dpdns.org/api/flowerStock/list');
           const result = await res.json();
           if (result.code === 200 && result.data) {
               renderFlowerStockTable(result.data);
@@ -746,7 +746,7 @@
       if (!container) return;
 
       try {
-          const res = await fetch('http://localhost:8080/api/coldStorage/list');
+          const res = await fetch('https://api.zhuys.dpdns.org/api/coldStorage/list');
           const result = await res.json();
           if (result.code === 200 && result.data) {
               renderColdStorage(result.data);
@@ -807,7 +807,7 @@
         if (!tbody) return;
     
         try {
-            const res = await fetch('http://localhost:8080/api/purchaseOrder/list');
+            const res = await fetch('https://api.zhuys.dpdns.org/api/purchaseOrder/list');
             const result = await res.json();
     
             if (result.code === 200 && result.data) {
@@ -876,7 +876,7 @@
         if (!container) return;
   
         try {
-            const res = await fetch('http://localhost:8080/api/stockTransfer/list');
+            const res = await fetch('https://api.zhuys.dpdns.org/api/stockTransfer/list');
             const result = await res.json();
   
             if (result.code === 200 && result.data) {
@@ -924,7 +924,7 @@
   async function approveTransfer(id) {
       if (!confirm('确定同意该调拨申请吗？')) return;
       try {
-          const res = await fetch(`http://localhost:8080/api/stockTransfer/${id}/approve`, { method: 'PUT' });
+          const res = await fetch(`https://api.zhuys.dpdns.org/api/stockTransfer/${id}/approve`, { method: 'PUT' });
           const result = await res.json();
           if (result.code === 200) {
               alert('已同意');
@@ -941,7 +941,7 @@
   async function rejectTransfer(id) {
       if (!confirm('确定驳回该调拨申请吗？')) return;
       try {
-          const res = await fetch(`http://localhost:8080/api/stockTransfer/${id}/reject`, { method: 'PUT' });
+          const res = await fetch(`https://api.zhuys.dpdns.org/api/stockTransfer/${id}/reject`, { method: 'PUT' });
           const result = await res.json();
           if (result.code === 200) {
               alert('已驳回');
@@ -1016,7 +1016,7 @@
       btn.textContent = '提交中...';
   
       try {
-          const res = await fetch('http://localhost:8080/api/purchaseOrder/create', {
+          const res = await fetch('https://api.zhuys.dpdns.org/api/purchaseOrder/create', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -1051,7 +1051,7 @@
       btn.innerHTML = '<iconify-icon class="animate-spin" icon="solar:refresh-linear"></iconify-icon> 导出中...';
   
       try {
-          const res = await fetch('http://localhost:8080/api/export/flowerLedger', {
+          const res = await fetch('https://api.zhuys.dpdns.org/api/export/flowerLedger', {
               method: 'GET'
           });
   
@@ -1124,7 +1124,7 @@
             document.querySelectorAll('[id^="statusDropdown-"]').forEach(el => el.classList.add('hidden'));
   
             // ⭐ 修改点：URL 改为 /{id}/status?status=xxx
-            const res = await fetch(`http://localhost:8080/api/purchaseOrder/${id}/status?status=${encodeURIComponent(newStatus)}`, {
+            const res = await fetch(`https://api.zhuys.dpdns.org/api/purchaseOrder/${id}/status?status=${encodeURIComponent(newStatus)}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' }
                 // 不需要 body 了，因为参数在 URL 里
