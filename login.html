@@ -220,7 +220,7 @@
       if (res.roleId !== 1) {
         // 非系统管理员：先查权限，按优先级选择第一个有权限的页面
         try {
-          const permRes = await fetch('http://localhost:8080/api/sysRolePermission/permKeys/' + res.roleId);
+          const permRes = await fetch('https://api.zhuys.dpdns.org/api/sysRolePermission/permKeys/' + res.roleId);
           const permResult = await permRes.json();
           const permKeys = (permResult.code === 200 && permResult.data) ? permResult.data : [];
 
