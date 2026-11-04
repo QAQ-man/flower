@@ -378,7 +378,7 @@
 
     async function loadGoodsDetail(id) {
         try {
-            var res = await fetch('http://localhost:8080/api/goods/' + id);
+            var res = await fetch('https://api.zhuys.dpdns.org/api/goods/' + id);
             var result = await res.json();
             
             if (result.code === 200 && result.data) {
@@ -701,7 +701,7 @@
     if (currentGoodsId) payload.id = currentGoodsId;
 
     try {
-      var res = await fetch('http://localhost:8080' + url, {
+      var res = await fetch('https://api.zhuys.dpdns.org' + url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
