@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>订单管理 · 花加 FLOWERPLUS 运营中台</title>
+<script src="./js/user.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+  aside nav a[data-perm] {
+      visibility: hidden;
+  }
+  aside nav a[data-perm].nav-ready {
+      visibility: visible;
+  }
+</style>
+</head>
+<body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- 侧边导航 -->
+<aside class="w-[236px] shrink-0 h-full bg-[#140c0e] border-r border-white/[0.06] flex flex-col">
+<div class="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+<span class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#e11d48] to-[#8b0f24] flex items-center justify-center">
+<iconify-icon class="text-white text-[16px]" icon="solar:flower-2-bold"></iconify-icon>
+</span>
+<div class="leading-tight">
+<p class="serif text-[15px] tracking-[0.18em] text-white">FLOWERPLUS</p>
+<p class="text-[10px] tracking-[0.24em] text-white/40">运营中台</p>
+</div>
+</div>
+<nav class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-3 py-4">
+  <p class="px-3 pb-2 text-[11px] tracking-[0.2em] text-white/30">概览</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="dashboard.html" data-perm="dashboard:view">
+      <iconify-icon class="text-[17px]" icon="solar:widget-4-bold"></iconify-icon> 数据看板
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">经营管理</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="orders.html" data-perm="order:view">
+    <iconify-icon class="text-[17px]" icon="solar:bag-check-bold"></iconify-icon> 订单管理
+
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="products.html" data-perm="goods:view">
+    <iconify-icon class="text-[17px]" icon="solar:box-bold"></iconify-icon> 商品与花材
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="members.html" data-perm="member:view">
+    <iconify-icon class="text-[17px]" icon="solar:users-group-rounded-bold"></iconify-icon> 会员管理
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">系统</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="settings.html" data-perm="settings:view">
+    <iconify-icon class="text-[17px]" icon="solar:settings-bold"></iconify-icon> 系统设置
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="register.html" data-perm="shop:view">
+    <iconify-icon class="text-[17px]" icon="solar:shop-bold"></iconify-icon> 门店入驻
+  </a>
+
+  <!-- 下面的"花材预警"卡片保持不变 -->
+  <div class="mt-6 mx-1 rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#c8102e]/20 to-transparent p-4">
+    <p class="text-[12px] text-white flex items-center gap-1.5">
+      <iconify-icon class="text-[#e6a6b0]" icon="solar:bell-bing-bold"></iconify-icon> 花材预警
+    </p>
+    <p class="mt-2 text-[11px] leading-relaxed text-white/50" id="flowerWarnText">
+      加载中…
+    </p>
+    <a class="mt-3 inline-flex items-center gap-1 text-[11px] text-[#e6a6b0] hover:text-white transition" href="products.html">
+      立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+    </a>
+  </div>
+</nav>
+<div class="shrink-0 p-3 border-t border-white/[0.06]">
+<div class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/[0.04] transition">
+    <span id="sideAvatar" class="w-9 h-9 rounded-full bg-[#c8102e]/25 border border-[#c8102e]/40 flex items-center justify-center text-[12px] text-[#f0c3ca]">?</span>
+    <div class="min-w-0 flex-1 leading-tight">
+        <p id="sideRealName" class="text-[12px] text-white truncate">加载中...</p>
+        <p id="sideRoleName" class="text-[10px] text-white/40 truncate">加载中...</p>
+    </div>
+    <a class="text-white/35 hover:text-[#e6a6b0] transition" href="javascript:void(0)" onclick="logout()" title="退出登录">
+        <iconify-icon class="text-[17px]" icon="solar:logout-3-linear"></iconify-icon>
+    </a>
+</div>
+</div>
+</aside>
+<!-- 主区域 -->
+<div class="flex-1 min-w-0 flex flex-col">
+<header class="h-16 shrink-0 flex items-center gap-4 px-8 bg-[#0f080a]/80 backdrop-blur border-b border-white/[0.06]">
+<nav class="flex items-center gap-2 text-[12px]">
+<a class="text-white/40 hover:text-white transition" href="dashboard.html">数据看板</a>
+<iconify-icon class="text-white/25" icon="solar:alt-arrow-right-linear"></iconify-icon>
+<span class="text-white">订单管理</span>
+</nav>
+<div class="ml-6 flex-1 max-w-[320px] flex items-center gap-2 h-9 rounded-lg border border-white/10 bg-white/[0.03] px-3">
+<iconify-icon class="text-white/35" icon="solar:magnifer-linear"></iconify-icon>
+<input class="flex-1 bg-transparent outline-none text-[12px] text-white placeholder:text-white/25" placeholder="订单号 / 手机号 / 收花人" type="text"/>
+</div>
+<div class="ml-auto flex items-center gap-3">
+<!-- 导出报表 -->
+<button class="h-9 px-3.5 rounded-lg border border-white/10 text-[12px] text-white/60 hover:text-white hover:border-white/25 transition flex items-center gap-1.5" type="button" onclick="exportOrders(this)">
+  <iconify-icon icon="solar:export-linear"></iconify-icon> 导出报表
+</button>
+
+<!-- 代客下单 (改为点击弹窗) -->
+<button class="h-9 px-4 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white flex items-center gap-1.5 transition" type="button" onclick="openOrderModal()">
+  <iconify-icon icon="solar:add-circle-linear"></iconify-icon> 代客下单
+</button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden px-8 py-6">
+<!-- 概览小卡 (ID 用于 JS 更新数据) -->
+<section class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<p class="text-[11px] text-white/45">今日订单</p>
+<p class="mt-1.5 serif text-[22px] text-white"><span id="statToday">0</span> <span class="text-[12px] text-white/40">单</span></p>
+</div>
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<p class="text-[11px] text-white/45">待配花</p>
+<p class="mt-1.5 serif text-[22px] text-amber-300"><span id="statPending">0</span> <span class="text-[12px] text-white/40">单</span></p>
+</div>
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<p class="text-[11px] text-white/45">已支付</p>
+<p class="mt-1.5 serif text-[22px] text-sky-300"><span id="statPaid">0</span> <span class="text-[12px] text-white/40">单</span></p>
+</div>
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<p class="text-[11px] text-white/45">售后处理中</p>
+<p class="mt-1.5 serif text-[22px] text-rose-300"><span id="statAftersale">0</span> <span class="text-[12px] text-white/40">单</span></p>
+</div>
+</section>
+<!-- 订单表 -->
+<section class="mt-5 rounded-2xl border border-white/[0.08] bg-[#150c0e]">
+<!-- 状态标签 (修改 data-tab 匹配数据库真实值) -->
+<div class="flex items-center gap-1 px-5 pt-4 border-b border-white/[0.06] overflow-x-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<button class="tab-btn shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-[#c8102e] text-white" data-tab="all" onclick="filterBy(this,'all')" type="button">全部订单 <span class="text-white/35" id="tabAllCount">0</span></button>
+<button class="tab-btn shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="pending" onclick="filterBy(this,'pending')" type="button">待配花 <span class="text-white/35" id="tabPendingCount">0</span></button>
+<button class="tab-btn shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="paid" onclick="filterBy(this,'paid')" type="button">已支付 <span class="text-white/35" id="tabPaidCount">0</span></button>
+<button class="tab-btn shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="finished" onclick="filterBy(this,'finished')" type="button">已完成 <span class="text-white/35" id="tabFinishedCount">0</span></button>
+<button class="tab-btn shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="aftersale" onclick="filterBy(this,'aftersale')" type="button">售后 / 退款 <span class="text-white/35" id="tabAftersaleCount">0</span></button>
+</div>
+<!-- 筛选栏 (渠道下拉框匹配数据库真实值) -->
+<div class="flex flex-wrap items-center gap-3 px-5 py-4">
+<div class="flex items-center gap-2 h-9 px-3 rounded-lg border border-white/10 bg-white/[0.03]">
+<iconify-icon class="text-white/35 text-[15px]" icon="solar:calendar-linear"></iconify-icon>
+<span class="text-[12px] text-white/60">2026-09-17</span>
+<span class="text-white/25">→</span>
+<span class="text-[12px] text-white/60">2026-09-23</span>
+</div>
+<select id="channelSelect" class="h-9 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-[12px] text-white/70 outline-none">
+  <option value="" class="bg-[#150c0e] text-white">全部渠道</option>
+  <option value="微信小程序" class="bg-[#150c0e] text-white">微信小程序</option>
+  <option value="APP" class="bg-[#150c0e] text-white">APP</option>
+  <option value="门店" class="bg-[#150c0e] text-white">门店</option>
+  <option value="H5" class="bg-[#150c0e] text-white">H5</option>
+</select>
+<div class="flex items-center gap-2 h-9 px-3 rounded-lg border border-white/10 bg-white/[0.03] flex-1 min-w-[200px] max-w-[280px]">
+<iconify-icon class="text-white/35 text-[15px]" icon="solar:magnifer-linear"></iconify-icon>
+<input class="flex-1 bg-transparent outline-none text-[12px] text-white placeholder:text-white/25" id="kw" onkeydown="if(event.key==='Enter') onFilterClick()" placeholder="输入订单号 / 花材名称筛选" type="text"/>
+</div>
+<button class="h-9 px-4 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-[12px] text-white/70 transition" onclick="onFilterClick()" type="button">筛选</button>
+<span class="ml-auto text-[12px] text-white/35">共 <span class="text-white/70" id="countText">0</span> 条结果</span>
+</div>
+<!-- 表格 -->
+<div class="overflow-x-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<table class="w-full min-w-[1080px] text-[12px]">
+<thead>
+<tr class="text-white/35 text-left border-y border-white/[0.06] bg-white/[0.015]">
+<th class="font-normal px-5 py-3 w-10"><input class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox" onchange="toggleSelectAll(this)"/></th>
+<th class="font-normal px-3 py-3">订单号</th>
+<th class="font-normal px-3 py-3">下单时间</th>
+<th class="font-normal px-3 py-3">会员 / 收花人</th>
+<th class="font-normal px-3 py-3">商品明细</th>
+<th class="font-normal px-3 py-3">渠道</th>
+<th class="font-normal px-3 py-3 text-right">实付金额</th>
+<th class="font-normal px-3 py-3">状态</th>
+<th class="font-normal px-5 py-3 text-right">操作</th>
+</tr>
+</thead>
+<!-- tbody 内容由 JS 动态生成 -->
+<tbody class="divide-y divide-white/[0.05]" id="orderBody">
+</tbody>
+</table>
+</div>
+<div class="hidden flex-col items-center justify-center py-16" id="emptyState">
+<span class="w-14 h-14 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
+<iconify-icon class="text-[24px] text-white/35" icon="solar:inbox-line-linear"></iconify-icon>
+</span>
+<p class="mt-4 text-[13px] text-white/60">没有匹配的订单</p>
+<p class="mt-1 text-[11px] text-white/30">请调整筛选条件或清空关键词后重试</p>
+</div>
+<!-- 分页 (由 JS 动态生成) -->
+<div class="flex items-center justify-between px-5 py-4 border-t border-white/[0.06]">
+<div class="flex items-center gap-4">
+<label class="flex items-center gap-2 text-[12px] text-white/40 cursor-pointer">
+
+              </label>
+<button class="text-[12px] text-white/55 hover:text-white transition flex items-center gap-1.5" type="button" onclick="batchPrint()">
+<iconify-icon icon="solar:tag-horizontal-linear"></iconify-icon> 批量打印面单
+              </button>
+</div>
+<div class="flex items-center gap-1.5 text-[12px]" id="paginationContainer">
+<!-- 分页按钮由 JS 动态生成 -->
+</div>
+</div>
+</section>
+<p class="mt-4 pb-2 text-[11px] text-white/25">提示：点击任意订单号或「配花发货」可进入订单详情，查看花材配比、配送轨迹与售后记录。</p>
+</main>
+</div>
+</div>
+<script>
+  // ================== 全局状态 ==================
+  let currentTab = 'all';      // 当前选中的 Tab
+  let currentPage = 1;         // 当前页码
+  const pageSize = 20;         // 每页条数
+  let totalPages = 1;          // 总页数
+  let selectedOrderIds = [];   // 选中的订单 ID 列表
+
+  // ================== 页面初始化 ==================
+  document.addEventListener('DOMContentLoaded', () => {
+      fetchStatistics(); // 先获取全量统计
+      fetchOrders();     // 再获取订单列表
+  });
+
+  // ================== 1. 获取订单列表 ==================
+  async function fetchOrders() {
+    const keyword = document.getElementById('kw').value.trim();
+    const channel = document.getElementById('channelSelect').value;
+
+    // 构建查询参数
+    const params = new URLSearchParams({
+      page: currentPage,
+      pageSize: pageSize,
+      status: currentTab === 'all' ? '' : currentTab, // 'all' 不传
+      keyword: keyword,
+      channel: channel // 如果后端支持渠道筛选，请传此参数
+    });
+
+    try {
+      // ⚠️ 注意：如果你的前端是 file:// 协议打开，跨域会报错，请用 Live Server 或配置后端 CORS
+      const response = await fetch(`http://localhost:8080/api/orders/list?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const res = await response.json();
+
+      if (res.code === 200) {
+        const { records, total, pages } = res.data;
+        totalPages = pages;
+
+        // 渲染表格
+        renderTable(records);
+        // 渲染分页
+        renderPagination();
+        // 更新总条数
+        document.getElementById('countText').textContent = total;
+
+        // 前端模拟统计（如果后端没有统计接口，就用当前页数据统计，不准确）
+        fetchStatistics();
+
+        // 空状态处理
+        const emptyState = document.getElementById('emptyState');
+        if (records.length === 0) {
+          emptyState.classList.remove('hidden');
+          emptyState.classList.add('flex');
+        } else {
+          emptyState.classList.add('hidden');
+          emptyState.classList.remove('flex');
+        }
+      } else {
+        console.error('后端返回错误:', res.msg);
+      }
+    } catch (error) {
+      console.error('网络请求失败:', error);
+      alert('数据加载失败，请检查后端服务是否启动');
+    }
+  }
+
+  // ================== 2. 统计接口（调用后端，永远不传 status 参数） ==================
+async function fetchStatistics() {
+  try {
+    const res = await fetch('http://localhost:8080/api/orders/statistics', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    }).then(r => r.json());
+
+    if (res.code === 200) {
+      const d = res.data;
+      // 顶部小卡
+      document.getElementById('statToday').textContent     = d.todayCount || 0;
+      document.getElementById('statPending').textContent   = d.pendingCount || 0;
+      document.getElementById('statPaid').textContent      = d.paidCount || 0;
+      document.getElementById('statAftersale').textContent = d.aftersaleCount || 0;
+
+      // Tab 数量（全量，不随 Tab 变化）
+      document.getElementById('tabAllCount').textContent        = d.allCount || 0;
+      document.getElementById('tabPendingCount').textContent    = d.pendingCount || 0;
+      document.getElementById('tabPaidCount').textContent       = d.paidCount || 0;
+      document.getElementById('tabFinishedCount').textContent   = d.finishedCount || 0;
+      document.getElementById('tabAftersaleCount').textContent  = d.aftersaleCount || 0;
+    } else {
+      console.error('统计接口返回错误:', res.msg);
+    }
+  } catch (e) {
+    console.error('统计接口请求失败:', e);
+  }
+}
+
+   // ================== 3. 渲染表格 (字段完全对应后端实体) ==================
+   function renderTable(orders) {
+     const tbody = document.getElementById('orderBody');
+     tbody.innerHTML = '';
+ 
+     orders.forEach(order => {
+       // 状态标签映射 (根据你数据库真实值匹配)
+       let statusHtml = '';
+       let actionHtml = '';
+       
+       if (order.status === 'pending') {
+         statusHtml = `<span class="px-2 py-0.5 rounded-md text-[11px] bg-amber-400/12 border border-amber-400/30 text-amber-300">待配花</span>`;
+         actionHtml = `<a class="text-[#e6a6b0] hover:text-white transition" href="order-detail.html?id=${order.id}">配花发货</a>
+                               <span class="text-white/15 mx-1.5">|</span>
+                               <button class="text-white/45 hover:text-white transition" type="button" onclick="printOrder('${order.id}')">打印</button>
+                               <span class="text-white/15 mx-1.5">|</span>
+                               <button class="text-red-400 hover:text-white transition" type="button" onclick="deleteOrder('${order.id}')">取消</button>`;
+       } else if (order.status === 'paid') {
+         statusHtml = `<span class="px-2 py-0.5 rounded-md text-[11px] bg-blue-400/12 border border-blue-400/30 text-blue-300">已支付</span>`;
+         actionHtml = `<a class="text-[#e6a6b0] hover:text-white transition" href="order-detail.html?id=${order.id}">去配花</a>
+                       <span class="text-white/15 mx-1.5">|</span>
+                       <button class="text-white/45 hover:text-white transition" type="button" onclick="printOrder('${order.id}')">打印</button>`;
+       } else if (order.status === 'finished') {
+         statusHtml = `<span class="px-2 py-0.5 rounded-md text-[11px] bg-emerald-400/12 border border-emerald-400/30 text-emerald-300">已完成</span>`;
+         // ⭐ 如果开了发票，展示备注
+         if (order.remark && order.remark.includes('发票')) {
+             statusHtml += `<p class="text-[11px] text-[#e6a6b0] mt-1">${order.remark}</p>`;
+         }
+         actionHtml = `<a class="text-[#e6a6b0] hover:text-white transition" href="order-detail.html?id=${order.id}">查看详情</a>
+                       <span class="text-white/15 mx-1.5">|</span>
+                       <button class="text-white/45 hover:text-white transition" type="button" onclick="invoiceOrder('${order.id}')">开发票</button>`;
+       } else if (order.status === 'aftersale') {
+         statusHtml = `<span class="px-2 py-0.5 rounded-md text-[11px] bg-rose-400/12 border border-rose-400/30 text-rose-300">售后处理</span>`;
+         actionHtml = `<a class="text-[#e6a6b0] hover:text-white transition" href="order-detail.html?id=${order.id}">处理售后</a>
+                       <span class="text-white/15 mx-1.5">|</span>
+                       <button class="text-white/45 hover:text-white transition" type="button" onclick="resendOrder('${order.id}')">补发</button>`;
+       } else {
+         // 兜底显示原始状态值
+         statusHtml = `<span class="px-2 py-0.5 rounded-md text-[11px] bg-gray-400/12 border border-gray-400/30 text-gray-300">${order.status}</span>`;
+         actionHtml = `<a class="text-[#e6a6b0] hover:text-white transition" href="order-detail.html?id=${order.id}">查看</a>`;
+       }
+ 
+       // ⭐ 格式化时间 (兼容带 T 或者不带 T 的格式，截取 MM-dd HH:mm)
+       let timeStr = '';
+       if (order.createdAt) {
+         timeStr = order.createdAt.replace('T', ' ').substring(5, 16);
+       }
+ 
+       // 图片占位
+       const imgUrl = order.productImage || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+';
+ 
+       // 收花人信息 (优先取 displayName/displayPhone，如果没有再取 receiverName/receiverPhone)
+       const displayName = order.displayName || order.receiverName || '未知收花人';
+       const displayPhone = order.displayPhone || order.receiverPhone || '';
+       const receiverAddress = order.receiverAddress || '';
+ 
+       // 渠道 (匹配数据库真实值)
+       const channelText = order.channel || '未知渠道';
+ 
+       const trHtml = `
+         <tr class="row hover:bg-white/[0.03] transition" data-id="${order.id}">
+           <td class="px-5 py-4"><input class="w-3.5 h-3.5 accent-[#c8102e] row-checkbox" type="checkbox" value="${order.id}" onchange="updateSelectedIds()"/></td>
+           <td class="px-3 py-4">
+             <a class="text-white hover:text-[#e6a6b0] transition" href="order-detail.html?id=${order.id}">${order.orderNo}</a>
+             <p class="text-[11px] text-white/30 mt-0.5">${order.shopId ? '门店自营' : '总部直营'}</p>
+           </td>
+           <td class="px-3 py-4 text-white/55">${timeStr}</td>
+           <td class="px-3 py-4">
+             <p class="text-white/85">${displayName}</p>
+             <p class="text-[11px] text-white/35">${displayPhone} · ${receiverAddress}</p>
+           </td>
+           <td class="px-3 py-4">
+             <div class="flex items-center gap-2.5">
+               <span class="w-9 h-9 rounded-lg overflow-hidden bg-white/5 shrink-0">
+                 <img alt="商品图" class="w-full h-full object-cover" src="${imgUrl}"/>
+               </span>
+               <span class="text-white/60">${order.productName || '商品明细'}</span>
+             </div>
+           </td>
+           <td class="px-3 py-4 text-white/55">${channelText}</td>
+           <td class="px-3 py-4 text-right text-white">￥${order.realPay || '0.00'}</td>
+           <td class="px-3 py-4">${statusHtml}</td>
+           <td class="px-5 py-4 text-right whitespace-nowrap">
+             ${actionHtml}
+           </td>
+         </tr>
+       `;
+       tbody.insertAdjacentHTML('beforeend', trHtml);
+     });
+ 
+     // 重置表头全选状态
+     const headerCheckbox = document.querySelector('thead input[type="checkbox"]');
+     if (headerCheckbox) headerCheckbox.checked = false;
+     selectedOrderIds = [];
+   }
+
+  // ================== 4. 渲染分页 ==================
+  function renderPagination() {
+    const container = document.getElementById('paginationContainer');
+    container.innerHTML = '';
+
+    // 上一页
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'w-8 h-8 rounded-lg border border-white/10 text-white/40 hover:text-white transition flex items-center justify-center';
+    prevBtn.innerHTML = '<iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>';
+    prevBtn.disabled = currentPage <= 1;
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; fetchOrders(); } };
+    container.appendChild(prevBtn);
+
+    // 页码 (简化逻辑：最多显示 5 个页码)
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.className = `w-8 h-8 rounded-lg flex items-center justify-center ${i === currentPage ? 'bg-[#c8102e] text-white' : 'border border-white/10 text-white/60 hover:text-white transition'}`;
+      pageBtn.textContent = i;
+      pageBtn.onclick = () => { currentPage = i; fetchOrders(); };
+      container.appendChild(pageBtn);
+    }
+
+    // 省略号 + 最后一页
+    if (endPage < totalPages) {
+      const ellipsis = document.createElement('span');
+      ellipsis.className = 'px-1 text-white/25';
+      ellipsis.textContent = '…';
+      container.appendChild(ellipsis);
+
+      const lastBtn = document.createElement('button');
+      lastBtn.className = 'w-8 h-8 rounded-lg border border-white/10 text-white/60 hover:text-white transition flex items-center justify-center';
+      lastBtn.textContent = totalPages;
+      lastBtn.onclick = () => { currentPage = totalPages; fetchOrders(); };
+      container.appendChild(lastBtn);
+    }
+
+    // 下一页
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'w-8 h-8 rounded-lg border border-white/10 text-white/40 hover:text-white transition flex items-center justify-center';
+    nextBtn.innerHTML = '<iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon>';
+    nextBtn.disabled = currentPage >= totalPages;
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; fetchOrders(); } };
+    container.appendChild(nextBtn);
+  }
+
+  // ================== 5. 切换 Tab ==================
+  function filterBy(btn, tab) {
+    if (tab) currentTab = tab;
+    currentPage = 1;
+
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach(el => {
+      const isActive = el.dataset.tab === currentTab;
+      el.className = 'tab-btn shrink-0 px-4 py-2.5 text-[13px] border-b-2 transition ' +
+        (isActive ? 'border-[#c8102e] text-white' : 'border-transparent text-white/45 hover:text-white');
+    });
+
+    fetchOrders();
+  }
+
+  // ================== 6. 筛选按钮点击 ==================
+  function onFilterClick() {
+    currentPage = 1;
+    fetchOrders();
+  }
+
+  // ================== 7. 全选逻辑 ==================
+  function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.row-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+    updateSelectedIds();
+  }
+
+  function updateSelectedIds() {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    selectedOrderIds = Array.from(checkboxes).map(cb => cb.value);
+    const allCheckboxes = document.querySelectorAll('.row-checkbox');
+    const headerCheckbox = document.querySelector('thead input[type="checkbox"]');
+    if (headerCheckbox) {
+      headerCheckbox.checked = allCheckboxes.length > 0 && selectedOrderIds.length === allCheckboxes.length;
+    }
+  }
+
+  // ================== 8. 批量操作 (对接后端) ==================
+    // 批量打印面单
+    async function batchPrint() {
+      if (selectedOrderIds.length === 0) {
+        alert('请先勾选需要打印面单的订单');
+        return;
+      }
+  
+      try {
+        // 1. 获取所有勾选订单的详情
+        const promises = selectedOrderIds.map(id => 
+          fetch(`http://localhost:8080/api/orders/${id}`).then(r => r.json())
+        );
+        const results = await Promise.all(promises);
+  
+        // 2. 提取订单数据并生成面单 HTML
+        let labelsHtml = '';
+        let count = 0;
+  
+        results.forEach(res => {
+          if (res.code === 200 && res.data && res.data.order) {
+            const order = res.data.order;
+            count++;
+            
+            // 生成每一张面单（宽度400px，高度260px，适合快递单热敏纸）
+            labelsHtml += `
+              <div class="print-label">
+                <div class="label-header">
+                  <h1>花加 FLOWERPLUS</h1>
+                  <span>NO. ${order.orderNo}</span>
+                </div>
+                <div class="label-body">
+                  <div class="row"><span class="label">收件人：</span><span class="value name">${order.receiverName}</span></div>
+                  <div class="row"><span class="label">电&nbsp;&nbsp;话：</span><span class="value phone">${order.receiverPhone}</span></div>
+                  <div class="row"><span class="label">地&nbsp;&nbsp;址：</span><span class="value address">${order.receiverAddress}</span></div>
+                  <div class="row"><span class="label">备&nbsp;&nbsp;注：</span><span class="value">${order.cardMessage || '无'}</span></div>
+                </div>
+                <div class="label-footer">
+                  <span>渠道：${order.channel || '自营'}</span>
+                  <span>实付：￥${order.realPay}</span>
+                </div>
+              </div>
+            `;
+          }
+        });
+  
+        if (count === 0) {
+          alert('未能获取到订单数据');
+          return;
+        }
+  
+        // 3. 将 HTML 塞入隐藏区
+        const container = document.getElementById('printLabelsTemplate');
+        container.innerHTML = labelsHtml;
+  
+        // 4. 打开新窗口并调起打印
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>批量打印面单</title>
+              <style>
+                /* 快递面单打印专用样式 */
+                body { margin: 0; padding: 20px; font-family: sans-serif; background: #fff; }
+                .print-label {
+                  width: 100mm; /* 标准热敏纸宽度 */
+                  height: 150mm;
+                  border: 2px solid #000;
+                  margin-bottom: 20px;
+                  page-break-after: always; /* 强制分页，一张面单打一页 */
+                  box-sizing: border-box;
+                  display: flex;
+                  flex-direction: column;
+                }
+                .label-header { padding: 10px; border-bottom: 2px solid #000; display: flex; justify-content: space-between; align-items: center; }
+                .label-header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+                .label-header span { font-size: 14px; font-weight: bold; }
+                .label-body { flex: 1; padding: 15px; }
+                .row { margin-bottom: 12px; font-size: 14px; line-height: 1.5; }
+                .label { color: #666; font-size: 13px; }
+                .value { font-weight: bold; font-size: 15px; }
+                .value.name { font-size: 20px; }
+                .value.phone { font-size: 18px; }
+                .value.address { font-size: 16px; }
+                .label-footer { padding: 10px 15px; border-top: 1px dashed #000; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; }
+                
+                /* 打印时的页面设置 */
+                @media print {
+                  @page { size: 100mm 150mm; margin: 0; }
+                  body { padding: 0; }
+                  .print-label { width: 100%; height: 100%; margin: 0; border: none; }
+                }
+              </style>
+            </head>
+            <body>
+              ${labelsHtml}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        
+        // 延迟一下自动调起打印
+        setTimeout(() => { printWindow.print(); }, 500);
+  
+      } catch (e) {
+        console.error('批量打印失败:', e);
+        alert('网络异常，无法获取订单数据');
+      }
+    }
+
+  
+  // ================== 导出报表 ==================
+  async function exportOrders(btn) {
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<iconify-icon class="animate-spin" icon="solar:refresh-linear"></iconify-icon> 导出中...';
+  
+      try {
+          const keyword = document.getElementById('kw').value.trim();
+          const params = new URLSearchParams({
+              status: currentTab === 'all' ? '' : currentTab,
+              keyword: keyword
+          });
+          
+          const res = await fetch(`http://localhost:8080/api/orders/export?${params.toString()}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  
+          // 获取文件名
+          const disposition = res.headers.get('Content-Disposition') || '';
+          let filename = '订单报表.xlsx';
+          const match = disposition.match(/filename\*=UTF-8''(.+)/);
+          if (match && match[1]) filename = decodeURIComponent(match[1]);
+  
+          // 下载
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+      } catch (e) {
+          console.error(e);
+          alert("导出失败：" + e.message);
+      } finally {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+      }
+  }
+  
+    // 代客下单弹窗打开
+    async function openOrderModal() {
+        ['formName', 'formPhone', 'formAddress', 'formAmount'].forEach(id => document.getElementById(id).value = '');
+        
+        // 拉取商品列表
+        const select = document.getElementById('formGoods');
+        select.innerHTML = '<option value="">加载中...</option>';
+        try {
+            const res = await fetch('http://localhost:8080/api/goods/list?page=1&pageSize=100');
+            const result = await res.json();
+            if (result.code === 200 && result.data.records) {
+                let html = '<option value="">请选择商品</option>';
+                result.data.records.forEach(g => {
+                    html += `<option value="${g.id}" data-price="${g.price}" data-name="${g.goodsName}">${g.goodsName} (￥${g.price})</option>`;
+                });
+                select.innerHTML = html;
+            }
+        } catch (e) {
+            select.innerHTML = '<option value="">加载失败</option>';
+        }
+  
+        document.getElementById('orderModal').classList.remove('hidden');
+        document.getElementById('orderModal').classList.add('flex');
+    }
+  
+    function updateFormAmount() {
+        const select = document.getElementById('formGoods');
+        const option = select.options[select.selectedIndex];
+        const price = option.getAttribute('data-price');
+        document.getElementById('formAmount').value = price || '';
+    }
+  function closeOrderModal() {
+      document.getElementById('orderModal').classList.add('hidden');
+      document.getElementById('orderModal').classList.remove('flex');
+  }
+  
+  // ================== 提交订单 ==================
+      async function submitOrder() {
+          const goodsId = document.getElementById('formGoods').value;
+          const select = document.getElementById('formGoods');
+          const option = select.options[select.selectedIndex];
+          const goodsName = option.getAttribute('data-name');
+          const amount = parseFloat(document.getElementById('formAmount').value || '0');
+          
+          const name = document.getElementById('formName').value.trim();
+          const phone = document.getElementById('formPhone').value.trim();
+          const address = document.getElementById('formAddress').value.trim();
+          const channel = document.getElementById('formChannel').value;
+    
+          if (!goodsId) { alert('请选择商品'); return; }
+          if (!name || !phone || !address || amount <= 0) { alert('请填写完整信息'); return; }
+    
+          const btn = document.getElementById('formSubmitBtn');
+          btn.disabled = true; btn.textContent = '提交中...';
+    
+          try {
+              const orderNo = 'FH' + Date.now();
+              
+              // 1. 创建订单主表
+              const res1 = await fetch('http://localhost:8080/api/orders', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      shopId: 1, memberId: 0, orderNo: orderNo,
+                      receiverName: name, receiverPhone: phone, receiverAddress: address,
+                      totalAmount: amount, realPay: amount, channel: channel, status: 'pending'
+                  })
+              });
+              const result1 = await res1.json();
+    
+              if (result1.code === 200) {
+                  const newOrderId = result1.data; // 拿到刚才生成的订单 ID
+    
+                  // 2. 插入商品明细（需要有 OrderItem 的接口）
+                  // 如果你后端没写 OrderItem 的 Controller，这步会失败，你可以先注释掉
+                  /*
+                  await fetch('http://localhost:8080/api/orderItem/add', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                          orderId: newOrderId,
+                          goodsId: goodsId,
+                          goodsName: goodsName,
+                          price: amount,
+                          quantity: 1,
+                          subtotal: amount
+                      })
+                  });
+                  */
+    
+                  alert('代客下单成功！');
+                  closeOrderModal();
+                  fetchOrders(); 
+                  fetchStatistics(); 
+              } else {
+                  alert('下单失败：' + result1.msg);
+              }
+          } catch (e) {
+              alert('网络异常');
+          } finally {
+              btn.disabled = false; btn.textContent = '提交订单';
+          }
+      }
+  
+  
+    // 2. 开发票
+    async function invoiceOrder(orderId) {
+      if (!confirm('确认要为该订单开具电子发票吗？')) return;
+      try {
+          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/invoice`, { method: 'PUT' });
+          const result = await res.json();
+          if (result.code === 200) {
+              alert('开票成功！已更新状态。');
+              fetchOrders(); 
+          } else {
+              alert('操作失败：' + result.msg);
+          }
+      } catch (e) {
+          alert('网络异常');
+      }
+    }
+  
+    // 3. 补发花材
+    async function resendOrder(orderId) {
+      if (!confirm('确认要生成【补发单】吗？将自动进入待配花队列。')) return;
+      try {
+          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/resend`, { method: 'POST' });
+          const result = await res.json();
+          if (result.code === 200) {
+              alert('补发订单已生成！');
+              fetchOrders(); 
+              fetchStatistics();
+          } else {
+              alert('操作失败：' + result.msg);
+          }
+      } catch (e) {
+          alert('网络异常');
+      }
+    }
+	
+	  // ================== 9. 单行操作 (真实逻辑) ==================
+	  
+	  // 1. 打印面单
+	  function printOrder(orderId) {
+	      window.print(); 
+	  }
+	
+	  // 2. 开发票 (更新状态 + 弹出模拟发票供打印/下载)
+	  async function invoiceOrder(orderId) {
+	      if (!confirm('确认要为该订单开具电子发票吗？')) return;
+	      try {
+	          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/invoice`, { method: 'PUT' });
+	          const result = await res.json();
+	          if (result.code === 200) {
+	              fetchOrders(); // 刷新列表状态
+	              
+	              // 弹出模拟发票窗口
+	              const printWindow = window.open('', '_blank', 'width=800,height=600');
+	              const invHtml = document.getElementById('invoiceTemplate').innerHTML;
+	              printWindow.document.write(`
+	                  <html><head><title>电子发票_${orderId}</title></head>
+	                  <body style="margin:0; background:#f0f0f0;">${invHtml}</body></html>
+	              `);
+	              printWindow.document.getElementById('invOrderNo').textContent = orderId;
+	              printWindow.document.getElementById('invDate').textContent = new Date().toLocaleDateString();
+	              printWindow.document.close();
+	              
+	              // 延迟一下，自动弹出浏览器的打印/另存为PDF
+	              setTimeout(() => { printWindow.print(); }, 500);
+	          } else {
+	              alert('操作失败：' + result.msg);
+	          }
+	      } catch (e) {
+	          alert('网络异常');
+	      }
+	  }
+	
+	  // 3. 补发花材 (生成新订单)
+	  async function resendOrder(orderId) {
+	      if (!confirm('确认要生成【补发单】吗？将自动进入待配花队列。')) return;
+	      try {
+	          const res = await fetch(`http://localhost:8080/api/orders/${orderId}/resend`, { method: 'POST' });
+	          const result = await res.json();
+	          if (result.code === 200) {
+	              alert('补发订单已生成！');
+	              fetchOrders(); 
+	              fetchStatistics();
+	          } else {
+	              alert('操作失败：' + result.msg);
+	          }
+	      } catch (e) {
+	          alert('网络异常');
+	      }
+	  }
+	  
+	    async function deleteOrder(orderId) {
+	        if (!confirm('确定要取消并删除该订单吗？此操作不可恢复。')) return;
+	        try {
+	            const res = await fetch(`http://localhost:8080/api/orders/${orderId}`, { method: 'DELETE' });
+	            const result = await res.json();
+	            if (result.code === 200) {
+	                alert('订单已取消/删除');
+	                fetchOrders();
+	                fetchStatistics();
+	            } else {
+	                alert('删除失败：' + result.msg);
+	            }
+	        } catch (e) {
+	            alert('网络异常');
+	        }
+	    }
+</script>
+<!-- 代客下单弹窗 -->
+<div id="orderModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="w-[500px] rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6 shadow-2xl">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-[15px] text-white">代客下单</h3>
+            <button class="text-white/40 hover:text-white transition" type="button" onclick="closeOrderModal()">
+                <iconify-icon class="text-[18px]" icon="solar:close-circle-linear"></iconify-icon>
+            </button>
+        </div>
+
+        <div class="space-y-4 text-[12px]">
+            <!-- 选择商品 -->
+            <div>
+                <label class="block text-white/50 mb-1.5">选择商品</label>
+                <select id="formGoods" class="w-full h-10 rounded-lg border border-white/10 bg-[#150c0e] px-3 text-white outline-none focus:border-[#c8102e]/50" onchange="updateFormAmount()">
+                    <option value="">加载商品中...</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-white/50 mb-1.5">收花人姓名</label>
+                    <input id="formName" type="text" placeholder="例：张三" class="w-full h-10 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-white outline-none focus:border-[#c8102e]/50"/>
+                </div>
+                <div>
+                    <label class="block text-white/50 mb-1.5">联系电话</label>
+                    <input id="formPhone" type="text" placeholder="例：13800000000" class="w-full h-10 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-white outline-none focus:border-[#c8102e]/50"/>
+                </div>
+            </div>
+            <div>
+                <label class="block text-white/50 mb-1.5">收货地址</label>
+                <input id="formAddress" type="text" placeholder="例：静安区南京西路 1266 号" class="w-full h-10 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-white outline-none focus:border-[#c8102e]/50"/>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-white/50 mb-1.5">实付金额（元）</label>
+                    <input id="formAmount" type="number" readonly placeholder="选择商品后自动带出" class="w-full h-10 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-white outline-none opacity-70"/>
+                </div>
+                <div>
+                    <label class="block text-white/50 mb-1.5">渠道</label>
+                    <select id="formChannel" class="w-full h-10 rounded-lg border border-white/10 bg-[#150c0e] px-3 text-white outline-none focus:border-[#c8102e]/50">
+                        <option value="微信小程序">微信小程序</option>
+                        <option value="APP">APP</option>
+                        <option value="门店">门店</option>
+                        <option value="H5">H5</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+            <button class="h-10 px-4 rounded-lg border border-white/12 text-[12px] text-white/60" type="button" onclick="closeOrderModal()">取消</button>
+            <button id="formSubmitBtn" class="h-10 px-5 rounded-lg bg-[#c8102e] text-[12px] text-white" type="button" onclick="submitOrder()">提交订单</button>
+        </div>
+    </div>
+</div>
+
+<!-- 隐藏的发票打印模板 -->
+<div id="invoiceTemplate" style="display: none;">
+    <div style="width: 800px; margin: 40px auto; padding: 40px; background: white; color: black; font-family: 'Microsoft YaHei', sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h1 style="text-align: center; border-bottom: 2px solid #c8102e; color: #c8102e; padding-bottom: 20px;">花加 FLOWERPLUS 电子发票</h1>
+        <div style="margin-top: 30px; font-size: 14px; line-height: 2.5;">
+            <p><strong>发票抬头：</strong> 个人</p>
+            <p><strong>订单号：</strong> <span id="invOrderNo"></span></p>
+            <p><strong>开票日期：</strong> <span id="invDate"></span></p>
+            <p><strong>开票项目：</strong> *鲜花*鲜花礼仪服务</p>
+            <p><strong>发票金额：</strong> ￥398.00</p>
+        </div>
+        <div style="margin-top: 60px; text-align: right; color: #666; border-top: 1px dashed #ccc; padding-top: 20px; font-size: 12px;">
+            国家税务总局电子发票系统 (模拟演示数据)
+        </div>
+    </div>
+</div>
+
+<!-- 隐藏的批量打印面单模板 -->
+<div id="printLabelsTemplate" style="display: none;">
+    <!-- 这里的内容会被 JS 动态填充 -->
+</div>
+</body>
+</html>

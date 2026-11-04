@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>个人中心 · 花加 FLOWERPLUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, serif; }
+        body { background-color: #faf9f6; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="w-full min-h-screen text-gray-800 antialiased">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="shop.html" class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white">
+                    <iconify-icon class="text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+                </span>
+                <span class="serif text-xl font-bold tracking-widest text-gray-900">FLOWERPLUS</span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                <a href="shop.html" class="hover:text-rose-500 transition">首页</a>
+                <a href="javascript:void(0)" onclick="goToMemberCenter()" class="hover:text-rose-500 transition">会员订阅</a>
+                <a href="gifts.html" class="hover:text-rose-500 transition">节日礼盒</a>
+                <a href="about.html" class="hover:text-rose-500 transition">关于我们</a>
+            </nav>
+
+            <div class="flex items-center gap-5">
+                <a href="shop.html" class="text-gray-600 hover:text-rose-500 transition relative">
+                    <iconify-icon class="text-[22px]" icon="solar:cart-large-2-linear"></iconify-icon>
+                </a>
+                
+                <div class="relative group py-4">
+                    <button id="userBtn" class="text-gray-600 hover:text-rose-500 transition flex items-center">
+                        <iconify-icon class="text-[22px]" icon="solar:user-circle-linear"></iconify-icon>
+                    </button>
+                    <!-- 下拉菜单 -->
+                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                        <div class="absolute -top-2 right-3 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+                        <div class="py-2 relative bg-white rounded-2xl">
+                            <a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 font-medium transition">
+                                <iconify-icon class="text-[18px]" icon="solar:user-id-linear"></iconify-icon> 个人中心
+                            </a>
+                            <a href="my-orders.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:bill-list-linear"></iconify-icon> 我的订单
+                            </a>
+                            <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:logout-3-linear"></iconify-icon> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="max-w-6xl mx-auto px-4 py-12">
+        <h1 class="serif text-3xl font-bold text-gray-900 mb-8">个人中心</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- 左侧：个人信息卡片 -->
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 flex flex-col items-center">
+                
+                <!-- 头像展示区：点击可更换 -->
+                <div class="relative group cursor-pointer mb-4" onclick="changeAvatar()">
+                    <!-- 注意：去掉了原本写死的背景色，全部由 JS 渲染控制 -->
+                    <div id="profileAvatar" class="w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold overflow-hidden border-4 border-white shadow-lg">
+                        花
+                    </div>
+                    <div class="absolute inset-0 bg-black/40 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <iconify-icon class="text-white text-xl" icon="solar:camera-add-linear"></iconify-icon>
+                        <span class="text-white text-xs mt-1">更换</span>
+                    </div>
+                </div>
+                
+                <h2 id="profileName" class="text-2xl font-bold text-gray-900 mb-1">未登录</h2>
+                <p id="profilePhone" class="text-sm text-gray-400 mb-6">--</p>
+
+                <div id="profileLevelBox" class="mb-8">
+                    <span class="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm font-bold shadow-sm">普通用户</span>
+                </div>
+
+                <div class="w-full grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <p class="text-xs text-gray-500 mb-1">累计消费</p>
+                        <p class="text-lg font-bold text-gray-900">￥<span id="profileConsume">0.00</span></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <p class="text-xs text-gray-500 mb-1">积分余额</p>
+                        <p class="text-lg font-bold text-rose-600"><span id="profilePoints">0</span> 分</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：最近订单与快捷入口 -->
+            <div class="md:col-span-2 space-y-6">
+                <div class="grid grid-cols-3 gap-4">
+                    <a href="my-orders.html" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition group">
+                        <iconify-icon class="text-[28px] text-gray-400 group-hover:text-rose-500 transition mb-2" icon="solar:bill-list-linear"></iconify-icon>
+                        <p class="text-sm font-medium text-gray-700 group-hover:text-rose-600">全部订单</p>
+                    </a>
+                    <div onclick="openCouponModal()" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition group cursor-pointer">
+                        <iconify-icon class="text-[28px] text-gray-400 group-hover:text-rose-500 transition mb-2" icon="solar:ticket-linear"></iconify-icon>
+                        <p class="text-sm font-medium text-gray-700 group-hover:text-rose-600">优惠券</p>
+                    </div>
+                    <a href="address.html" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition group">
+                        <iconify-icon class="text-[28px] text-gray-400 group-hover:text-rose-500 transition mb-2" icon="solar:map-point-linear"></iconify-icon>
+                        <p class="text-sm font-medium text-gray-700 group-hover:text-rose-600">收货地址</p>
+                    </a>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">最近订单</h3>
+                        <a href="my-orders.html" class="text-sm text-rose-500 hover:underline">查看全部</a>
+                    </div>
+                    <div id="recentOrders" class="space-y-4">
+                        <div class="text-center py-8 text-gray-400 text-sm">加载中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 优惠券弹窗 -->
+    <div id="couponModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-[480px] overflow-hidden p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-900">我的优惠券</h2>
+                <button onclick="closeCouponModal()" class="text-gray-400 hover:text-gray-800">
+                    <iconify-icon class="text-[24px]" icon="solar:close-circle-linear"></iconify-icon>
+                </button>
+            </div>
+            <div class="bg-rose-50 rounded-xl p-4 flex justify-between items-center mb-6">
+                <span class="text-sm text-gray-600">当前可用积分</span>
+                <span class="text-xl font-bold text-rose-600" id="modalPoints">0</span>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border border-gray-100 rounded-xl p-4 shadow-sm">
+                    <div>
+                        <p class="text-lg font-bold text-gray-900">满 100 减 10 元</p>
+                        <p class="text-xs text-gray-400 mt-1">消耗 100 积分兑换</p>
+                    </div>
+                    <button onclick="exchangeCoupon(100, 10)" class="px-4 py-2 bg-rose-500 text-white text-sm rounded-lg hover:bg-rose-600 transition">立即兑换</button>
+                </div>
+                <div class="flex items-center justify-between border border-gray-100 rounded-xl p-4 shadow-sm">
+                    <div>
+                        <p class="text-lg font-bold text-gray-900">满 200 减 30 元</p>
+                        <p class="text-xs text-gray-400 mt-1">消耗 250 积分兑换</p>
+                    </div>
+                    <button onclick="exchangeCoupon(250, 30)" class="px-4 py-2 bg-rose-500 text-white text-sm rounded-lg hover:bg-rose-600 transition">立即兑换</button>
+                </div>
+                <div class="flex items-center justify-between border border-gray-100 rounded-xl p-4 shadow-sm">
+                    <div>
+                        <p class="text-lg font-bold text-gray-900">满 500 减 80 元</p>
+                        <p class="text-xs text-gray-400 mt-1">消耗 600 积分兑换</p>
+                    </div>
+                    <button onclick="exchangeCoupon(600, 80)" class="px-4 py-2 bg-rose-500 text-white text-sm rounded-lg hover:bg-rose-600 transition">立即兑换</button>
+                </div>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 mt-6 mb-3">已兑换的券</h3>
+            <div id="myCouponsList" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
+        </div>
+    </div>
+
+    <input type="file" id="avatarInput" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
+
+            <script>
+                // 全局状态
+                let currentUser = null;
+        
+                document.addEventListener('DOMContentLoaded', () => {
+                    initProfile();
+                    fetchRecentOrders();
+                });
+        
+                function goToMemberCenter() {
+                    const userStr = localStorage.getItem('shopUser');
+                    if (!userStr) { window.location.href = 'subscribe.html'; return; }
+                    const user = JSON.parse(userStr);
+                    const level = user.memberLevel || '普通用户';
+                    if (level === '铂金会员') window.location.href = 'vip-platinum.html';
+                    else if (level === '金卡会员') window.location.href = 'vip-gold.html';
+                    else if (level === '普通会员') window.location.href = 'vip-normal.html';
+                    else window.location.href = 'subscribe.html';
+                }
+        
+                // ⭐ 头像渲染函数
+                function renderAvatar(element, user, sizeClass = "w-24 h-24 text-4xl", isLarge = false) {
+                    if (!element || !user) return;
+                    
+                    let baseClass = `${sizeClass} rounded-full flex items-center justify-center font-bold overflow-hidden ${isLarge ? 'shadow-rose-500/30 border-4 border-white shadow-lg' : ''}`;
+        
+                    // 只要字符长度大于 50 且包含 base64，就一定当图片渲染
+                    if (user.avatar && user.avatar.length > 50 && !user.avatar.includes('xxx')) {
+                        // 🚨 关键修复：防止因 JSON 序列化导致 Base64 中的 + 号被转义成空格
+                        const safeUrl = user.avatar.replace(/ /g, '+');
+                        element.className = baseClass + ' bg-white'; 
+                        element.innerHTML = `<img src="${safeUrl}" class="w-full h-full object-cover" alt="头像" onerror="this.style.display='none'; this.parentElement.textContent='图';" />`;
+                    } 
+                    else {
+                        const firstChar = user.memberName ? user.memberName.charAt(0).toUpperCase() : '花';
+                        let bgColor = 'bg-gray-400';
+                        if (user.memberLevel === '铂金会员') bgColor = 'bg-gray-900';
+                        else if (user.memberLevel === '金卡会员') bgColor = 'bg-amber-500';
+                        else if (user.memberLevel === '普通会员') bgColor = 'bg-amber-400';
+        
+                        element.className = baseClass + ` ${bgColor} text-white`;
+                        element.textContent = firstChar;
+                    }
+                }
+        
+                // 1. 初始化个人信息
+                async function initProfile() {
+                    const userStr = localStorage.getItem('shopUser');
+                    if (!userStr) {
+                        const userBtn = document.getElementById('userBtn');
+                        if(userBtn) userBtn.onclick = () => window.location.href = 'shop.html';
+                        return;
+                    }
+        
+                    // 第一步：绝对优先信任本地缓存的数据，马上渲染！
+                    currentUser = JSON.parse(userStr);
+                    renderProfileUI(currentUser);
+        
+                    // 第二步：去后端拉取最新数据（如果后端没图，坚决不能覆盖本地的图！）
+                    if (currentUser.id) {
+                        try {
+                            const res = await fetch(`http://localhost:8080/api/members/${currentUser.id}`);
+                            const result = await res.json();
+                            if (result.code === 200 && result.data) {
+                                const freshUser = result.data;
+                                
+                                // 🚨 终极兜底：如果后端返回的 avatar 是空的或者极短，就说明后端出问题了，我们保留本地的图！
+                                if (freshUser.avatar && freshUser.avatar.length > 50) {
+                                    currentUser.avatar = freshUser.avatar; // 只有在后端有正常图的情况下，才覆盖
+                                }
+                                
+                                // 更新本地缓存
+                                localStorage.setItem('shopUser', JSON.stringify(currentUser));
+                                // 再次渲染以确保信息完整
+                                renderProfileUI(currentUser);
+                            }
+                        } catch (e) {
+                            console.log('后端请求失败，保留本地缓存数据', e);
+                        }
+                    }
+                }
+        
+                // ⭐ 统一的 UI 渲染
+                function renderProfileUI(user) {
+                    const userBtn = document.getElementById('userBtn');
+                    const avatar = document.getElementById('profileAvatar');
+        
+                    document.getElementById('profileName').textContent = user.memberName || '花加用户';
+                    document.getElementById('profilePhone').textContent = user.phone || '未绑定手机';
+                    document.getElementById('profileConsume').textContent = (user.totalConsume || 0).toFixed(2);
+                    document.getElementById('profilePoints').textContent = user.points || 0;
+                    updateLevelBadge(user.memberLevel);
+        
+                    if (userBtn) {
+                        userBtn.innerHTML = `<div id="smallAvatarBox" class="w-8 h-8 rounded-full overflow-hidden"></div>`;
+                        renderAvatar(document.getElementById('smallAvatarBox'), user, "w-8 h-8 text-sm");
+                        userBtn.onclick = () => window.location.href = 'profile.html';
+                    }
+                    renderAvatar(avatar, user, "w-24 h-24 text-4xl", true);
+                }
+        
+                function updateLevelBadge(level) {
+                    const levelBox = document.getElementById('profileLevelBox');
+                    level = level || '普通用户';
+                    if (level === '铂金会员') levelBox.innerHTML = `<span class="px-4 py-1.5 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-full text-sm font-bold shadow-sm">⭐ 铂金会员</span>`;
+                    else if (level === '金卡会员') levelBox.innerHTML = `<span class="px-4 py-1.5 bg-gradient-to-r from-yellow-100 to-yellow-300 text-yellow-900 rounded-full text-sm font-bold shadow-sm">👑 金卡会员</span>`;
+                    else if (level === '普通会员') levelBox.innerHTML = `<span class="px-4 py-1.5 bg-amber-100 text-amber-900 rounded-full text-sm font-bold shadow-sm">普通会员</span>`;
+                    else levelBox.innerHTML = `<span class="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm font-bold shadow-sm">普通用户</span>`;
+                }
+        
+                function changeAvatar() {
+                    if (!currentUser || !currentUser.id) { alert('请先登录'); return; }
+                    document.getElementById('avatarInput').click();
+                }
+        
+                // ⭐ 处理本地图片上传
+                function handleAvatarChange(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+        
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('图片太大了，请选择 2MB 以内的图片');
+                        return;
+                    }
+        
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const base64Url = e.target.result;
+                        
+                        // 1. 先把大图换掉，给用户即时反馈
+                        const avatarEl = document.getElementById('profileAvatar');
+                        avatarEl.innerHTML = `<img src="${base64Url}" class="w-full h-full object-cover" />`;
+        
+                        // 2. 存入数据库
+                        fetch(`http://localhost:8080/api/members/${currentUser.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: currentUser.id, avatar: base64Url })
+                        })
+                        .then(res => res.json())
+                        .then(result => {
+                            if (result.code === 200 || result.code === 0) {
+                                // 3. 更新缓存，并重绘 UI（此时小头像也会刷新）
+                                currentUser.avatar = base64Url;
+                                localStorage.setItem('shopUser', JSON.stringify(currentUser));
+                                renderProfileUI(currentUser);
+                                alert('头像更换成功！');
+                            } else {
+                                alert('后端保存失败：' + (result.msg || '未知错误'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('上传头像失败:', error);
+                            alert('网络异常，头像保存失败');
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+        
+                // 其他订单查询等逻辑保持不变...
+                async function fetchRecentOrders() {
+                    const userStr = localStorage.getItem('shopUser');
+                    if (!userStr) {
+                        document.getElementById('recentOrders').innerHTML = `<div class="text-center py-8"><p class="text-gray-400 text-sm mb-2">您还未登录哦~</p><a href="shop.html" class="text-rose-500 text-sm hover:underline">去登录</a></div>`;
+                        return;
+                    }
+                    const user = JSON.parse(userStr);
+                    const memberId = user.id || 0;
+                    const phone = user.phone || '';
+                    try {
+                        const res = await fetch(`http://localhost:8080/api/orders/myList?memberId=${memberId}&phone=${phone}`);
+                        const result = await res.json();
+                        if (result.code === 200 && result.data) {
+                            renderRecentOrders(result.data.slice(0, 3));
+                        }
+                    } catch (e) { console.error('获取订单失败', e); }
+                }
+        
+                function renderRecentOrders(orders) {
+                    const container = document.getElementById('recentOrders');
+                    if (orders.length === 0) {
+                        container.innerHTML = `<div class="text-center py-8 text-gray-400 text-sm">暂无订单记录</div>`;
+                        return;
+                    }
+                    container.innerHTML = orders.map(o => `
+                        <div class="flex items-center justify-between border-b border-gray-50 pb-4 last:border-0 last:pb-0 cursor-pointer hover:bg-gray-50 p-2 rounded-xl transition" onclick="window.location.href='success.html?orderNo=${o.orderNo}'">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500">
+                                    <iconify-icon class="text-[20px]" icon="solar:box-minimalistic-linear"></iconify-icon>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">订单号：${o.orderNo}</p>
+                                    <p class="text-xs text-gray-400 mt-1">${o.createdAt ? o.createdAt.substring(0, 16) : ''}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-rose-600">￥${o.realPay}</p>
+                                <p class="text-xs text-gray-500 mt-1">${getStatusText(o.status)}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+        
+                function getStatusText(status) {
+                    const map = { 'pending': '待配花', 'paid': '已支付', 'finished': '已完成', 'aftersale': '售后中' };
+                    return map[status] || status;
+                }
+        
+                function logoutUser() {
+                    if (confirm('确定要退出登录吗？')) {
+                        localStorage.removeItem('shopUser');
+                        window.location.href = 'shop.html';
+                    }
+                }
+        
+                // ================= 优惠券逻辑 =================
+                function openCouponModal() {
+                    const user = JSON.parse(localStorage.getItem('shopUser') || '{}');
+                    document.getElementById('modalPoints').textContent = user.points || 0;
+                    renderMyCoupons();
+                    document.getElementById('couponModal').classList.remove('hidden');
+                    document.getElementById('couponModal').classList.add('flex');
+                }
+        
+                function closeCouponModal() {
+                    document.getElementById('couponModal').classList.add('hidden');
+                    document.getElementById('couponModal').classList.remove('flex');
+                }
+        
+                async function renderMyCoupons() {
+                    const user = JSON.parse(localStorage.getItem('shopUser') || '{}');
+                    const container = document.getElementById('myCouponsList');
+                    if (!user.id) return;
+        
+                    try {
+                        const res = await fetch(`http://localhost:8080/api/members/coupon/list?memberId=${user.id}`);
+                        const result = await res.json();
+                        const coupons = result.data || [];
+        
+                        if (coupons.length === 0) {
+                            container.innerHTML = '<p class="text-xs text-gray-400">暂无已兑换的券</p>';
+                            return;
+                        }
+                        container.innerHTML = coupons.map(c => `
+                            <div class="bg-gray-50 text-sm text-gray-600 rounded-lg p-2 flex justify-between mb-2">
+                                <span>满${c.threshold}减${c.discount}</span>
+                            </div>
+                        `).join('');
+                    } catch (e) {
+                        container.innerHTML = '<p class="text-xs text-red-400">加载失败</p>';
+                    }
+                }
+        
+                async function exchangeCoupon(needPoints, discountAmount) {
+                    let user = JSON.parse(localStorage.getItem('shopUser') || '{}');
+                    if (!user.id) { alert('请先登录'); return; }
+                    if ((user.points || 0) < needPoints) { alert('您的积分不足，无法兑换！'); return; }
+                    
+                    try {
+                        const res = await fetch(`http://localhost:8080/api/members/coupon/exchange?memberId=${user.id}&threshold=${needPoints}&discount=${discountAmount}`, { method: 'POST' });
+                        const result = await res.json();
+        
+                        if (result.code === 200) {
+                            alert('兑换成功！');
+                            const userRes = await fetch(`http://localhost:8080/api/members/${user.id}`);
+                            const userData = await userRes.json();
+                            localStorage.setItem('shopUser', JSON.stringify(userData.data));
+                            
+                            document.getElementById('modalPoints').textContent = userData.data.points;
+                            document.getElementById('profilePoints').textContent = userData.data.points;
+                            renderMyCoupons();
+                        } else {
+                            alert(result.msg || '兑换失败');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('网络异常，兑换失败');
+                    }
+                }
+            </script>
+</body>
+</html>

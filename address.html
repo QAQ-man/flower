@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>收货地址 · 花加 FLOWERPLUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, serif; }
+        body { background-color: #faf9f6; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="w-full min-h-screen text-gray-800 antialiased">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="shop.html" class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white">
+                    <iconify-icon class="text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+                </span>
+                <span class="serif text-xl font-bold tracking-widest text-gray-900">FLOWERPLUS</span>
+            </a>
+            <div class="flex items-center gap-5">
+                <a href="shop.html" class="text-gray-600 hover:text-rose-500 transition relative">
+                    <iconify-icon class="text-[22px]" icon="solar:cart-large-2-linear"></iconify-icon>
+                </a>
+                <a href="profile.html" class="text-sm font-medium text-rose-500 hover:underline">返回个人中心</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="serif text-3xl font-bold text-gray-900">收货地址</h1>
+            <button onclick="openAddModal()" class="px-5 py-2.5 bg-rose-500 text-white text-sm rounded-xl hover:bg-rose-600 transition shadow-lg shadow-rose-500/30 flex items-center gap-2">
+                <iconify-icon icon="solar:add-circle-linear"></iconify-icon> 新增地址
+            </button>
+        </div>
+
+        <div class="space-y-4" id="addressList">
+            <!-- 地址列表动态渲染 -->
+        </div>
+    </main>
+
+    <!-- 新增地址弹窗 -->
+    <div id="addModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl w-[450px] p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-900">新增收货地址</h2>
+                <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-800">
+                    <iconify-icon class="text-[24px]" icon="solar:close-circle-linear"></iconify-icon>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-500 mb-1.5">收件人姓名</label>
+                    <input id="addrName" type="text" placeholder="请输入姓名" class="w-full h-11 px-4 rounded-xl border border-gray-200 outline-none focus:border-rose-500 transition"/>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-500 mb-1.5">联系电话</label>
+                    <input id="addrPhone" type="text" placeholder="请输入手机号" class="w-full h-11 px-4 rounded-xl border border-gray-200 outline-none focus:border-rose-500 transition"/>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-500 mb-1.5">详细地址</label>
+                    <textarea id="addrDetail" placeholder="省 / 市 / 区 / 街道门牌号" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-rose-500 transition resize-none"></textarea>
+                </div>
+            </div>
+
+            <button onclick="saveAddress()" class="w-full mt-8 py-3 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition">
+                保存地址
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 1. 获取地址列表（从 LocalStorage 读取）
+        let addresses = JSON.parse(localStorage.getItem('shopAddresses') || '[]');
+
+        function renderAddresses() {
+            const container = document.getElementById('addressList');
+            if (addresses.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20 bg-white rounded-3xl border border-gray-100">
+                        <iconify-icon class="text-[40px] text-gray-300 mb-3" icon="solar:map-point-linear"></iconify-icon>
+                        <p class="text-gray-400">您还没有添加收货地址哦~</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = addresses.map((addr, index) => `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-between transition hover:shadow-md">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-lg font-bold text-gray-900">${addr.name}</span>
+                            <span class="text-sm text-gray-500">${addr.phone}</span>
+                            ${index === 0 ? `<span class="px-2 py-0.5 bg-rose-50 text-rose-500 text-[10px] font-bold rounded border border-rose-200">默认</span>` : ''}
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">${addr.detail}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        ${index !== 0 ? `
+                            <button onclick="setDefault(${index})" class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 transition">
+                                <iconify-icon class="text-[14px]" icon="solar:star-linear"></iconify-icon> 设为默认
+                            </button>
+                        ` : ''}
+                        <button onclick="deleteAddress(${index})" class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 hover:bg-red-50 transition">
+                            <iconify-icon class="text-[14px]" icon="solar:trash-bin-trash-linear"></iconify-icon> 删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+            document.getElementById('addModal').classList.add('flex');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('addModal').classList.remove('flex');
+            document.getElementById('addrName').value = '';
+            document.getElementById('addrPhone').value = '';
+            document.getElementById('addrDetail').value = '';
+        }
+
+        function saveAddress() {
+            const name = document.getElementById('addrName').value.trim();
+            const phone = document.getElementById('addrPhone').value.trim();
+            const detail = document.getElementById('addrDetail').value.trim();
+
+            if (!name || !phone || !detail) {
+                alert('请填写完整地址信息');
+                return;
+            }
+
+            addresses.push({ name, phone, detail });
+            localStorage.setItem('shopAddresses', JSON.stringify(addresses));
+            closeAddModal();
+            renderAddresses();
+        }
+
+        function deleteAddress(index) {
+            if (confirm('确定要删除该地址吗？')) {
+                addresses.splice(index, 1);
+                localStorage.setItem('shopAddresses', JSON.stringify(addresses));
+                renderAddresses();
+            }
+        }
+
+        // ⭐ 核心：设为默认逻辑，将其移动到数组第一位
+        function setDefault(index) {
+            if (index === 0) return;
+            const item = addresses.splice(index, 1)[0];
+            addresses.unshift(item);
+            localStorage.setItem('shopAddresses', JSON.stringify(addresses));
+            renderAddresses();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAddresses();
+        });
+		
+		        // ⭐ 设为默认地址逻辑
+		        function setDefault(index) {
+		            if (index === 0) return; // 已经是第一个了，不用换
+		            
+		            // 1. 从数组里把当前选中的这条数据拿出来
+		            const item = addresses.splice(index, 1)[0];
+		            
+		            // 2. 把它插到数组最前面（因为渲染时第一条就是默认）
+		            addresses.unshift(item);
+		            
+		            // 3. 保存到本地，并重新渲染页面
+		            localStorage.setItem('shopAddresses', JSON.stringify(addresses));
+		            renderAddresses();
+		        }
+    </script>
+</body>
+</html>

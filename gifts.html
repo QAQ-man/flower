@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>节日礼盒 · 花加 FLOWERPLUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, serif; }
+        body { background-color: #faf9f6; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="w-full min-h-screen text-gray-800 antialiased">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="shop.html" class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white">
+                    <iconify-icon class="text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+                </span>
+                <span class="serif text-xl font-bold tracking-widest text-gray-900">FLOWERPLUS</span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                <a href="shop.html" class="hover:text-rose-500 transition">首页</a>
+                <!-- ⭐ 修改：会员智能跳转 -->
+                <a href="javascript:void(0)" onclick="goToMemberCenter()" class="hover:text-rose-500 transition">会员订阅</a>
+                <a href="gifts.html" class="text-rose-500">节日礼盒</a>
+                <a href="about.html" class="hover:text-rose-500 transition">关于我们</a>
+            </nav>
+
+            <div class="flex items-center gap-5">
+                <a href="shop.html" class="text-gray-600 hover:text-rose-500 transition relative">
+                    <iconify-icon class="text-[22px]" icon="solar:cart-large-2-linear"></iconify-icon>
+                </a>
+
+                <div class="relative group py-4">
+                    <button id="userBtn" class="text-gray-600 hover:text-rose-500 transition flex items-center">
+                        <iconify-icon class="text-[22px]" icon="solar:user-circle-linear"></iconify-icon>
+                    </button>
+                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                        <div class="absolute -top-2 right-3 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+                        <div class="py-2 relative bg-white rounded-2xl">
+							<a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:user-id-linear"></iconify-icon> 个人中心
+                            </a>
+                            <a href="my-orders.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:bill-list-linear"></iconify-icon> 我的订单
+                            </a>
+                            <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:logout-3-linear"></iconify-icon> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 礼盒横幅 -->
+    <section class="bg-gradient-to-r from-red-900 to-gray-900 py-20">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h1 class="serif text-4xl font-bold text-white mb-4">尊享节日礼盒</h1>
+            <p class="text-gray-300">每一份礼盒，都承载着满满的心意与祝福。</p>
+        </div>
+    </section>
+
+    <!-- 礼盒列表 -->
+    <section class="max-w-6xl mx-auto px-4 py-16">
+            <!-- 👇 加上 id="giftGrid"，方便 JS 动态渲染 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="giftGrid">
+                <div class="col-span-3 text-center py-10 text-gray-400">正在加载精美礼盒...</div>
+            </div>
+        </section>
+
+        <script>
+            // 页面初始化
+            document.addEventListener('DOMContentLoaded', () => {
+                updateUserAvatar();
+                fetchRealGifts(); // ⭐ 新增：拉取真实礼盒数据
+            });
+    
+            // ⭐ 获取并渲染真实礼盒数据
+            async function fetchRealGifts() {
+                const grid = document.getElementById('giftGrid');
+                try {
+                    // 假设您的数据库中，礼盒的 category 字段叫 "节庆礼盒"（或者"节日礼盒"）
+                    // 如果没查出数据，请检查数据库里商品的 category 字段是否和这里一致
+                    const res = await fetch('http://localhost:8080/api/goods/list?page=1&pageSize=20&status=1&category=节庆礼盒');
+                    const result = await res.json();
+    
+                    if (result.code === 200 && result.data.records) {
+                        const gifts = result.data.records;
+    
+                        if (gifts.length === 0) {
+                            grid.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400">当前暂未上架节日礼盒</div>';
+                            return;
+                        }
+    
+                        // 渲染真实的卡片
+                        grid.innerHTML = gifts.map(gift => `
+                            <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group border border-gray-100">
+                                <!-- 点击图片跳转详情 -->
+                                <div class="h-64 overflow-hidden cursor-pointer" onclick="goToDetail(${gift.id})">
+                                    <img src="${gift.imageMain || 'https://images.unsplash.com/photo-1562690868-60bbe7293e94?w=800&q=80'}" 
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+                                </div>
+                                <div class="p-6">
+                                    <!-- 点击标题跳转详情 -->
+                                    <h3 class="serif text-xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-rose-500 transition" onclick="goToDetail(${gift.id})">
+                                        ${gift.goodsName}
+                                    </h3>
+                                    <p class="text-sm text-gray-500 mb-4 line-clamp-2 h-10">
+                                        ${gift.descShort || '精选优质花材，节日送礼首选。'}
+                                    </p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-2xl font-bold text-rose-600">
+                                            <span class="text-sm">￥</span>${gift.price}
+                                        </span>
+                                        <!-- 去购买按钮跳转详情 -->
+                                        <button onclick="goToDetail(${gift.id})" class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-rose-600 transition">
+                                            去购买
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        grid.innerHTML = '<div class="col-span-3 text-center py-10 text-red-400">数据获取失败，请检查接口</div>';
+                    }
+                } catch (e) {
+                    console.error('加载礼盒失败:', e);
+                    grid.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400">网络异常，未能加载礼盒</div>';
+                }
+            }
+    
+            // ⭐ 跳转详情页函数
+            function goToDetail(id) {
+                window.location.href = `product-detail.html?id=${id}`;
+            }
+    
+            // ⭐ 会员智能跳转
+            function goToMemberCenter() {
+                const userStr = localStorage.getItem('shopUser');
+                if (!userStr) {
+                    window.location.href = 'subscribe.html';
+                    return;
+                }
+                const user = JSON.parse(userStr);
+                const level = user.memberLevel || '普通用户';
+    
+                if (level === '铂金会员') window.location.href = 'vip-platinum.html';
+                else if (level === '金卡会员') window.location.href = 'vip-gold.html';
+                else if (level === '普通会员') window.location.href = 'vip-normal.html';
+                else window.location.href = 'subscribe.html';
+            }
+    
+                    function updateUserAvatar() {
+                        const userStr = localStorage.getItem('shopUser');
+                        const userBtn = document.getElementById('userBtn');
+                        
+                        if (userStr && userBtn) {
+                            const user = JSON.parse(userStr);
+                            // 👇 修改这里：如果有 avatar 字段则用图片，没有则用默认首字母
+                            if (user.avatar && user.avatar.trim() !== '') {
+                                userBtn.innerHTML = `
+                                    <img src="${user.avatar}" alt="头像" class="w-8 h-8 rounded-full object-cover border border-gray-200"/>
+                                `;
+                            } else {
+                                userBtn.innerHTML = `
+                                    <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                                        ${user.memberName ? user.memberName.charAt(0).toUpperCase() : '花'}
+                                    </div>
+                                `;
+                            }
+                            
+                            // 点击头像去个人中心
+                            userBtn.onclick = function() {
+                                window.location.href = 'profile.html';
+                            };
+                        } else if (userBtn) {
+                            // 如果没登录，点击头像去首页或弹出登录框
+                            userBtn.onclick = function() {
+                                window.location.href = 'shop.html';
+                            };
+                        }
+                    }
+    
+            function logoutUser() {
+                if (confirm('确定要退出登录吗？')) {
+                    localStorage.removeItem('shopUser');
+                    location.reload();
+                }
+            }
+        </script>
+    </body>
+    </html>
+</body>
+</html>

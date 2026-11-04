@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>花加 FLOWERPLUS · 遇见美好</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, serif; }
+        body { background-color: #faf9f6; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="w-full min-h-screen text-gray-800 antialiased overflow-x-hidden">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white">
+                    <iconify-icon class="text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+                </span>
+                <span class="serif text-xl font-bold tracking-widest text-gray-900">FLOWERPLUS</span>
+            </div>
+            
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600" id="topNav">
+                <a href="shop.html" class="text-rose-500">首页</a>
+                <!-- ⭐ 修改：会员智能跳转 -->
+                <a href="javascript:void(0)" onclick="goToMemberCenter()" class="hover:text-rose-500 transition">会员订阅</a>
+                <a href="gifts.html" class="hover:text-rose-500 transition">节日礼盒</a>
+                <a href="about.html" class="hover:text-rose-500 transition">关于我们</a>
+            </nav>
+
+            <div class="flex items-center gap-5">
+                <button onclick="toggleCart()" class="text-gray-600 hover:text-rose-500 transition relative">
+                    <iconify-icon class="text-[22px]" icon="solar:cart-large-2-linear"></iconify-icon>
+                    <span id="cartBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[10px] flex items-center justify-center rounded-full hidden">0</span>
+                </button>
+
+                <!-- 用户头像 & 下拉菜单 -->
+                <div class="relative group py-4">
+                    <button id="userBtn" class="text-gray-600 hover:text-rose-500 transition flex items-center">
+                        <iconify-icon class="text-[22px]" icon="solar:user-circle-linear"></iconify-icon>
+                    </button>
+                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                        <div class="absolute -top-2 right-3 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+                        <div class="py-2 relative bg-white rounded-2xl">
+                            <a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:user-id-linear"></iconify-icon> 个人中心
+                            </a>
+                            <a href="my-orders.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:bill-list-linear"></iconify-icon> 我的订单
+                            </a>
+                            <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:logout-3-linear"></iconify-icon> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主横幅 Banner -->
+    <section class="max-w-6xl mx-auto px-4 mt-6">
+        <div class="w-full h-[320px] rounded-3xl overflow-hidden relative bg-gradient-to-r from-rose-100 to-orange-50 flex items-center px-12">
+            <div class="z-10 md:w-1/2">
+                <p class="text-rose-500 font-medium tracking-widest text-sm mb-2">FRESH FLOWERS</p>
+                <h1 class="serif text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">让每一个平凡的日子<br/>都开出花来</h1>
+                <p class="text-gray-500 text-sm mb-8">产地直采 · 冷链直达 · 保证 7 天新鲜</p>
+                <button onclick="scrollToShop()" class="bg-gray-900 text-white px-8 py-3 rounded-full text-sm hover:bg-rose-600 transition shadow-lg shadow-gray-900/20">
+                    立即选购
+                </button>
+            </div>
+            <img src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=800&q=80" class="absolute right-0 top-0 w-1/2 h-full object-cover opacity-90 mask-image" style="mask-image: linear-gradient(to right, transparent, black 40%);" />
+        </div>
+    </section>
+
+        <!-- 商品列表区 -->
+        <section id="shopSection" class="max-w-6xl mx-auto px-4 py-12">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                
+                <!-- 左侧：标题 + 搜索框 -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
+                    <h2 class="serif text-2xl font-bold text-gray-900 shrink-0">今日推荐鲜花</h2>
+                    
+                    <!-- 👇 搜索框 -->
+                    <div class="relative flex items-center w-full max-w-[280px]">
+                        <iconify-icon class="absolute left-3 text-gray-400 text-[16px]" icon="solar:magnifer-linear"></iconify-icon>
+                        <input 
+                            type="text" 
+                            id="flowerSearchInput"
+                            placeholder="搜索鲜花品种..." 
+                            class="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200 bg-gray-50 text-[13px] text-gray-700 outline-none transition-all focus:border-rose-500 focus:bg-white"
+                            oninput="debouncedSearch(this.value)"
+                        />
+                    </div>
+                </div>
+        
+                <!-- 右侧：分类按钮 -->
+                <div class="flex gap-2 text-sm shrink-0 overflow-x-auto" id="categoryTabs">
+                    <button class="px-4 py-1.5 rounded-full bg-gray-900 text-white transition category-btn" data-id="" onclick="filterCategory(this, '')">全部</button>
+                </div>
+            </div>
+            
+            <!-- 商品展示网格 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="productGrid">
+                <div class="col-span-4 text-center py-10 text-gray-400">正在加载新鲜花材...</div>
+            </div>
+        </section>
+
+    <!-- 购物车浮动侧边栏 -->
+    <div id="cartDrawer" class="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">购物车</h3>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-800"><iconify-icon class="text-[24px]" icon="solar:close-circle-linear"></iconify-icon></button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-4" id="cartItems"></div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-500 text-sm">合计金额</span>
+                <span class="text-2xl font-bold text-rose-600">￥<span id="cartTotal">0.00</span></span>
+            </div>
+            
+            <div id="checkoutForm" class="hidden space-y-3 mb-4">
+                <!-- ⭐ 优惠券选择 -->
+                <select id="couponSelect" onchange="calculateTotal()" class="w-full h-10 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-rose-500 text-gray-600 mb-2">
+                    <option value="0" data-discount="0" data-id="">暂无可用优惠券</option>
+                </select>
+
+                <!-- 地址选择 -->
+                <select id="addressSelect" onchange="fillAddress()" class="w-full h-10 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-rose-500 text-gray-600 mb-2">
+                    <option value="">请选择收货地址</option>
+                </select>
+                
+                <input id="buyerName" type="text" placeholder="收花人姓名" class="w-full h-10 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-rose-500"/>
+                <input id="buyerPhone" type="text" placeholder="联系电话" class="w-full h-10 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-rose-500"/>
+                <input id="buyerAddress" type="text" placeholder="收货地址" class="w-full h-10 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-rose-500"/>
+            </div>
+            <button id="checkoutBtn" onclick="handleCheckout()" class="w-full bg-rose-500 text-white py-3 rounded-xl font-medium hover:bg-rose-600 transition shadow-lg shadow-rose-500/30">
+                去结算
+            </button>
+        </div>
+    </div>
+
+    <div id="cartOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-opacity" onclick="toggleCart()"></div>
+
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full text-sm shadow-2xl z-50 transform -translate-y-10 opacity-0 transition-all duration-300 pointer-events-none">
+        加入购物车成功
+    </div>
+
+    <!-- 登录/注册弹窗 -->
+    <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-[400px] overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="loginModalContent">
+            <div class="relative h-32 bg-gradient-to-r from-rose-400 to-rose-300 flex items-center justify-center">
+                <h2 class="serif text-2xl font-bold text-white tracking-widest">WELCOME BACK</h2>
+                <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-white/70 hover:text-white transition">
+                    <iconify-icon class="text-[24px]" icon="solar:close-circle-linear"></iconify-icon>
+                </button>
+            </div>
+            <div class="p-8">
+                <div class="flex justify-center gap-8 mb-8 border-b border-gray-100 pb-2">
+                    <button id="tabLogin" onclick="switchTab('login')" class="text-lg font-bold text-gray-900 border-b-2 border-rose-500 pb-2">登录</button>
+                    <button id="tabRegister" onclick="switchTab('register')" class="text-lg font-medium text-gray-400 pb-2 hover:text-gray-600 transition">注册</button>
+                </div>
+
+                <form id="formLogin" onsubmit="handleLogin(event)">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:user-linear"></iconify-icon>
+                            <input id="loginPhone" type="text" placeholder="请输入手机号" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:lock-password-linear"></iconify-icon>
+                            <input id="loginPassword" type="password" placeholder="请输入密码" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 mb-6">
+                        <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer">
+                            <input type="checkbox" class="accent-rose-500" checked> 记住我
+                        </label>
+                        <a href="#" class="text-sm text-rose-500 hover:underline">忘记密码？</a>
+                    </div>
+                    <button type="submit" class="w-full h-12 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition shadow-lg shadow-rose-500/30">
+                        立即登录
+                    </button>
+                </form>
+
+                <form id="formRegister" class="hidden" onsubmit="handleRegister(event)">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:user-linear"></iconify-icon>
+                            <input id="regName" type="text" placeholder="设置昵称" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:phone-linear"></iconify-icon>
+                            <input id="regPhone" type="text" placeholder="请输入手机号" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                        <div class="relative">
+                            <iconify-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" icon="solar:lock-password-linear"></iconify-icon>
+                            <input id="regPassword" type="password" placeholder="设置密码" class="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-rose-300 focus:bg-white transition" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full h-12 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition mt-6 shadow-lg shadow-gray-900/30">
+                        注册并登录
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 扫码支付弹窗 -->
+    <div id="payModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-[350px] overflow-hidden text-center p-6 relative">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                <span class="text-gray-900 font-bold text-lg">微信支付</span>
+                <button onclick="closePayModal()" class="text-gray-400 hover:text-gray-800">
+                    <iconify-icon class="text-[20px]" icon="solar:close-circle-linear"></iconify-icon>
+                </button>
+            </div>
+            
+            <p class="text-gray-500 text-sm">支付金额</p>
+            <p class="text-3xl font-bold text-gray-900 mb-6"><span class="text-lg">￥</span><span id="payAmount">0.00</span></p>
+            
+            <div class="w-48 h-48 mx-auto bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center relative overflow-hidden group">
+                <img id="payQrCode" src="" alt="二维码" class="w-40 h-40 object-contain" />
+                <div id="paySuccessMask" class="absolute inset-0 bg-white/90 backdrop-blur flex flex-col items-center justify-center hidden">
+                    <iconify-icon class="text-[50px] text-green-500 mb-2" icon="solar:check-circle-bold"></iconify-icon>
+                    <p class="text-green-600 font-bold">支付成功</p>
+                </div>
+            </div>
+            
+            <p class="mt-6 text-xs text-gray-400 flex items-center justify-center gap-1">
+                <iconify-icon icon="solar:smartphone-linear"></iconify-icon> 请使用微信扫一扫完成支付
+            </p>
+            
+            <button onclick="mockScanSuccess()" class="mt-6 w-full py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm border border-emerald-200 hover:bg-emerald-100 transition">
+                模拟手机扫码成功 (演示用)
+            </button>
+        </div>
+    </div>
+
+        <script>
+            // 全局变量
+            let cart = JSON.parse(localStorage.getItem('shopCart') || '[]');
+            let allProducts = [];
+            let isCheckoutMode = false;
+            let pendingOrderData = null; 
+            let pollingTimer = null; 
+            let currentCartTotal = 0; 
+            let searchTimer = null;
+    
+                    // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCategories();
+            fetchProducts();
+            updateUserAvatar();
+            
+            // ⭐ 检查是否是“立即购买”跳转过来的
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'checkout') {
+                const directBuyData = localStorage.getItem('directBuy');
+                if (directBuyData) {
+                    // 把详情页传来的商品直接塞进购物车
+                    cart = JSON.parse(directBuyData);
+                    localStorage.removeItem('directBuy'); // 清除暂存
+                    
+                    // 更新UI并自动打开购物车
+                    updateCartUI();
+                    setTimeout(() => {
+                        toggleCart();
+                        // 自动触发结算步骤1（展开地址表单）
+                        handleCheckout(); 
+                    }, 300);
+                }
+            } else {
+                // 正常进入页面，恢复本地购物车角标
+                updateCartUI(); 
+            }
+        });
+    
+            // ⭐ 会员智能跳转
+            function goToMemberCenter() {
+                const userStr = localStorage.getItem('shopUser');
+                if (!userStr) {
+                    window.location.href = 'subscribe.html';
+                    return;
+                }
+                const user = JSON.parse(userStr);
+                const level = user.memberLevel || '普通用户';
+    
+                if (level === '铂金会员') window.location.href = 'vip-platinum.html';
+                else if (level === '金卡会员') window.location.href = 'vip-gold.html';
+                else if (level === '普通会员') window.location.href = 'vip-normal.html';
+                else window.location.href = 'subscribe.html';
+            }
+    
+            // ================== 1. 商品数据加载与渲染 ==================
+            async function fetchCategories() {
+                try {
+                    const res = await fetch('http://localhost:8080/api/goods/categories');
+                    const result = await res.json();
+                    if (result.code === 200 && result.data) {
+                        const container = document.getElementById('categoryTabs');
+                        result.data.forEach(category => {
+                            const btn = document.createElement('button');
+                            btn.className = 'px-4 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition category-btn';
+                            btn.textContent = category;
+                            btn.setAttribute('data-id', category);
+                            btn.onclick = function() { filterCategory(this, category); };
+                            container.appendChild(btn);
+                        });
+                    }
+                } catch (e) { console.error('获取分类失败', e); }
+            }
+    
+            function filterCategory(btn, categoryName) {
+                document.querySelectorAll('.category-btn').forEach(b => {
+                    b.className = 'px-4 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition category-btn';
+                });
+                btn.className = 'px-4 py-1.5 rounded-full bg-gray-900 text-white transition category-btn';
+                renderProducts(!categoryName ? allProducts : allProducts.filter(p => p.category === categoryName));
+            }
+    
+            // 只保留这一份获取商品函数
+            async function fetchProducts() {
+                try {
+                    const res = await fetch('http://localhost:8080/api/goods/list?page=1&pageSize=20&status=1');
+                    const result = await res.json();
+                    if (result.code === 200 && result.data.records) {
+                        allProducts = result.data.records;
+                        renderProducts(allProducts);
+                    }
+                } catch (e) {
+                    document.getElementById('productGrid').innerHTML = '<div class="col-span-4 text-center py-10 text-red-400">网络异常，未能加载商品</div>';
+                }
+            }
+    
+            // 搜索防抖逻辑
+            function debouncedSearch(keyword) {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => {
+                    const kw = keyword.trim().toLowerCase();
+                    if (!kw) {
+                        renderProducts(allProducts);
+                        return;
+                    }
+                    const filtered = allProducts.filter(p => {
+                        const nameMatch = p.goodsName && p.goodsName.toLowerCase().includes(kw);
+                        const skuMatch = p.sku && p.sku.toLowerCase().includes(kw);
+                        const descMatch = p.descShort && p.descShort.toLowerCase().includes(kw);
+                        return nameMatch || skuMatch || descMatch;
+                    });
+                    renderProducts(filtered);
+                    if (filtered.length === 0) {
+                        document.getElementById('productGrid').innerHTML = `
+                            <div class="col-span-4 text-center py-16">
+                                <iconify-icon class="text-4xl text-gray-300 mb-3" icon="solar:magnifer-bug-linear"></iconify-icon>
+                                <p class="text-gray-400">没有找到与 "${keyword}" 相关的鲜花</p>
+                            </div>
+                        `;
+                    }
+                }, 300);
+            }
+    
+            // 渲染商品网格
+            function renderProducts(products) {
+                const grid = document.getElementById('productGrid');
+                if (products.length === 0) {
+                    grid.innerHTML = '<div class="col-span-4 text-center py-10 text-gray-400">店铺空空如也</div>';
+                    return;
+                }
+                grid.innerHTML = products.map(p => `
+                    <!-- 点击整个卡片跳转 -->
+                    <div onclick="goToDetail(${p.id})" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer border border-gray-100">
+                        <div class="w-full h-56 rounded-xl overflow-hidden relative mb-4">
+                            <img src="${p.imageMain || 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=500&q=80'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                        <h3 class="serif text-lg font-bold text-gray-900 mb-1 line-clamp-1">${p.goodsName}</h3>
+                        <p class="text-gray-400 text-xs mb-4 line-clamp-1">${p.descShort || '精选鲜花，新鲜直达'}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-rose-600 font-bold text-lg"><span class="text-sm">￥</span>${p.price}</span>
+                            <!-- 阻止冒泡：点击加号时不跳转详情 -->
+                            <button onclick="event.stopPropagation(); addToCart(${p.id})" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
+                                <iconify-icon icon="solar:cart-plus-linear"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+    
+            // ⭐ 跳转函数
+            function goToDetail(id) {
+                window.location.href = `product-detail.html?id=${id}`;
+            }
+    
+            function scrollToShop() {
+                document.getElementById('shopSection').scrollIntoView({ behavior: 'smooth' });
+            }
+    
+            // ================== 2. 购物车逻辑 ==================
+            function addToCart(id) {
+                const product = allProducts.find(p => p.id === id);
+                const existing = cart.find(item => item.id === id);
+                if (existing) { 
+                    existing.qty++; 
+                } else { 
+                    cart.push({ ...product, qty: 1 }); 
+                }
+                localStorage.setItem('shopCart', JSON.stringify(cart)); // 持久化
+                updateCartUI();
+                showToast('已加入购物车');
+            }
+    
+            function updateCartUI() {
+                const badge = document.getElementById('cartBadge');
+                const itemsDiv = document.getElementById('cartItems');
+                const totalEl = document.getElementById('cartTotal');
+                const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    
+                if (totalQty > 0) {
+                    badge.classList.remove('hidden');
+                    badge.textContent = totalQty;
+                } else {
+                    badge.classList.add('hidden');
+                }
+    
+                if (cart.length === 0) {
+                    itemsDiv.innerHTML = '<p class="text-center text-gray-400 text-sm mt-10">购物车还是空的哦~</p>';
+                    document.getElementById('checkoutForm').classList.add('hidden');
+                } else {
+                    itemsDiv.innerHTML = cart.map((item, index) => `
+                        <div class="flex items-center gap-3">
+                            <img src="${item.imageMain || 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=100&q=80'}" class="w-16 h-16 rounded-lg object-cover"/>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-gray-800 line-clamp-1">${item.goodsName}</h4>
+                                <p class="text-rose-500 font-bold text-sm mt-1">￥${item.price}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeQty(${index}, -1)" class="w-6 h-6 rounded-full bg-gray-100 text-gray-500">-</button>
+                                <span class="text-xs">${item.qty}</span>
+                                <button onclick="changeQty(${index}, 1)" class="w-6 h-6 rounded-full bg-gray-100 text-gray-500">+</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                totalEl.textContent = totalPrice.toFixed(2);
+                currentCartTotal = totalPrice;
+            }
+    
+            function changeQty(index, delta) {
+                cart[index].qty += delta;
+                if (cart[index].qty <= 0) cart.splice(index, 1);
+                localStorage.setItem('shopCart', JSON.stringify(cart));
+                updateCartUI();
+            }
+    
+            function toggleCart() {
+                const drawer = document.getElementById('cartDrawer');
+                const overlay = document.getElementById('cartOverlay');
+                if (drawer.classList.contains('translate-x-full')) {
+                    drawer.classList.remove('translate-x-full');
+                    overlay.classList.remove('hidden');
+                } else {
+                    drawer.classList.add('translate-x-full');
+                    overlay.classList.add('hidden');
+                }
+            }
+    
+            // ================== 3. 结算与支付逻辑 ==================
+            function calculateTotal() {
+                let originalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                const select = document.getElementById('couponSelect');
+                const discount = parseFloat(select.options[select.selectedIndex].getAttribute('data-discount') || '0');
+                let finalPrice = originalPrice - discount;
+                if (finalPrice < 0) finalPrice = 0;
+                document.getElementById('cartTotal').textContent = finalPrice.toFixed(2);
+                currentCartTotal = finalPrice;
+            }
+    
+            async function loadCoupons() {
+                const user = JSON.parse(localStorage.getItem('shopUser') || '{}');
+                const select = document.getElementById('couponSelect');
+                select.innerHTML = '<option value="0" data-discount="0">不使用优惠券</option>';
+                if (!user.id) return;
+                try {
+                    const res = await fetch(`http://localhost:8080/api/members/coupon/list?memberId=${user.id}`);
+                    const result = await res.json();
+                    const coupons = result.data || [];
+                    coupons.forEach((c, i) => {
+                        select.innerHTML += `<option value="${c.id}" data-discount="${c.discount}">满${c.threshold}减${c.discount}元</option>`;
+                    });
+                } catch (e) { console.error("加载优惠券失败", e); }
+                calculateTotal();
+            }
+    
+                    function handleCheckout() {
+                        // 如果是从详情页直接买，购物车里肯定有商品
+                        if (cart.length === 0) {
+                            showToast('请先选择商品');
+                            return;
+                        }
+                        
+                        const form = document.getElementById('checkoutForm');
+                        const btn = document.getElementById('checkoutBtn');
+                        
+                        // 第一步：展开地址表单
+                        if (!isCheckoutMode) {
+                            form.classList.remove('hidden');
+                            btn.textContent = '确认支付';
+                            isCheckoutMode = true;
+                            loadAddressOptions(); 
+                            loadCoupons();        
+                        } 
+                        // 第二步：点击确认支付
+                        else {
+                            // 检查是否登录（如果您希望必须登录才能买，放开下面几行注释）
+                            /*
+                            const userStr = localStorage.getItem('shopUser');
+                            if (!userStr) {
+                                showToast('请先登录再结算！');
+                                openLoginModal();
+                                return;
+                            }
+                            */
+            
+                            const name = document.getElementById('buyerName').value.trim();
+                            const phone = document.getElementById('buyerPhone').value.trim();
+                            const address = document.getElementById('buyerAddress').value.trim();
+                            
+                            if (!name || !phone || !address) {
+                                showToast('请填写完整收件信息');
+                                return;
+                            }
+                            
+                            // 组装订单数据
+                            pendingOrderData = {
+                                name: name,
+                                phone: phone,
+                                address: address,
+                                totalPrice: currentCartTotal,
+                                orderNo: 'FH' + Date.now()
+                            };
+            
+                            // 直接弹出支付二维码
+                            showPayModal(currentCartTotal);
+                        }
+                    }
+    
+            function showPayModal(amount) {
+                const modal = document.getElementById('payModal');
+                document.getElementById('payAmount').textContent = amount.toFixed(2);
+                const myLocalIP = "10.249.127.39"; 
+                const port = "8890"; 
+                const qrContent = `http://${myLocalIP}:${port}/flower/m_confirm.html?orderNo=${pendingOrderData.orderNo}&amount=${pendingOrderData.totalPrice}`;
+                document.getElementById('payQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrContent)}`;
+                document.getElementById('paySuccessMask').classList.add('hidden');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+    
+                clearInterval(pollingTimer);
+                pollingTimer = setInterval(async () => {
+                    try {
+                        const res = await fetch(`http://localhost:8080/api/orders/checkPay/${pendingOrderData.orderNo}`);
+                        const result = await res.json();
+                        if (result.code === 200 && result.data === true) {
+                            clearInterval(pollingTimer); 
+                            document.getElementById('paySuccessMask').classList.remove('hidden'); 
+                            setTimeout(() => {
+                                closePayModal();
+                                submitRealOrder(); 
+                            }, 1000);
+                        }
+                    } catch (e) { console.error("查询状态失败", e); }
+                }, 1500); 
+            }
+    
+            function closePayModal() {
+                const modal = document.getElementById('payModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                clearInterval(pollingTimer); 
+            }
+    
+            function mockScanSuccess() {
+                document.getElementById('paySuccessMask').classList.remove('hidden');
+                setTimeout(() => {
+                    closePayModal();
+                    submitRealOrder();
+                }, 1000);
+            }
+    
+            async function submitRealOrder() {
+                const { name, phone, address, totalPrice, orderNo } = pendingOrderData;
+                isCheckoutMode = false;
+                document.getElementById('checkoutBtn').textContent = '去结算';
+                document.getElementById('checkoutForm').classList.add('hidden');
+    
+                let realMemberId = 0;
+                let currentUser = null;
+                const userStr = localStorage.getItem('shopUser');
+                if (userStr) {
+                    currentUser = JSON.parse(userStr);
+                    realMemberId = currentUser.id;
+                }
+    
+                let usedCouponId = null;
+                const couponSelectEl = document.getElementById('couponSelect');
+                if (couponSelectEl && couponSelectEl.value !== '0' && couponSelectEl.value !== '') {
+                    usedCouponId = couponSelectEl.value;
+                }
+    
+                try {
+                    const res = await fetch('http://localhost:8080/api/orders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            shopId: 1, memberId: realMemberId, orderNo: orderNo,
+                            receiverName: name, receiverPhone: phone, receiverAddress: address,
+                            totalAmount: totalPrice, realPay: totalPrice, channel: '微信小程序', status: 'pending'
+                        })
+                    });
+                    const result = await res.json();
+    
+                    if (result.code === 200) {
+                        const newOrderId = result.data;
+                        for (let item of cart) {
+                            await fetch('http://localhost:8080/api/orderItem', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    orderId: newOrderId, goodsId: item.id,
+                                    sku: item.sku || 'SKU-'+item.id, goodsName: item.goodsName,
+                                    price: item.price, quantity: item.qty, subtotal: item.price * item.qty
+                                })
+                            });
+                        }
+    
+                        if (realMemberId > 0 && currentUser) {
+                            await fetch('http://localhost:8080/api/members/addConsume', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ memberId: realMemberId, amount: totalPrice })
+                            });
+                            currentUser.totalConsume = (currentUser.totalConsume || 0) + totalPrice;
+                            currentUser.points = (currentUser.points || 0) + totalPrice;
+                            currentUser.orderCount = (currentUser.orderCount || 0) + 1;
+                            localStorage.setItem('shopUser', JSON.stringify(currentUser));
+                        }
+    
+                        if (usedCouponId) {
+                            await fetch(`http://localhost:8080/api/members/coupon/use/${usedCouponId}`, { method: 'PUT' });
+                        }
+    
+                        showToast('支付成功！即将跳转...');
+                        setTimeout(() => {
+                            cart = [];
+                            localStorage.removeItem('shopCart');
+                            updateCartUI();
+                            toggleCart();
+                            const params = new URLSearchParams({
+                                orderNo: orderNo, amount: totalPrice.toFixed(2), name: name, address: address
+                            });
+                            window.location.href = `success.html?${params.toString()}`;
+                        }, 1500);
+                    } else {
+                        showToast('下单失败：' + result.msg);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast('网络异常，请重试');
+                }
+            }
+    
+            // ================== 4. 用户与登录逻辑 ==================
+            function openLoginModal() {
+                const modal = document.getElementById('loginModal');
+                const content = document.getElementById('loginModalContent');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+    
+            function closeLoginModal() {
+                const modal = document.getElementById('loginModal');
+                const content = document.getElementById('loginModalContent');
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+    
+            function switchTab(type) {
+                const tabLogin = document.getElementById('tabLogin');
+                const tabRegister = document.getElementById('tabRegister');
+                const formLogin = document.getElementById('formLogin');
+                const formRegister = document.getElementById('formRegister');
+    
+                if (type === 'login') {
+                    tabLogin.className = 'text-lg font-bold text-gray-900 border-b-2 border-rose-500 pb-2';
+                    tabRegister.className = 'text-lg font-medium text-gray-400 pb-2 hover:text-gray-600 transition';
+                    formLogin.classList.remove('hidden');
+                    formRegister.classList.add('hidden');
+                } else {
+                    tabRegister.className = 'text-lg font-bold text-gray-900 border-b-2 border-rose-500 pb-2';
+                    tabLogin.className = 'text-lg font-medium text-gray-400 pb-2 hover:text-gray-600 transition';
+                    formRegister.classList.remove('hidden');
+                    formLogin.classList.add('hidden');
+                }
+            }
+    
+            async function handleLogin(e) {
+                e.preventDefault();
+                const phone = document.getElementById('loginPhone').value.trim();
+                const password = document.getElementById('loginPassword').value.trim();
+                try {
+                    const res = await fetch('http://localhost:8080/api/members/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone: phone, password: password })
+                    });
+                    const result = await res.json();
+                    if (result.code === 200) {
+                        localStorage.setItem('shopUser', JSON.stringify(result.data));
+                        showToast('欢迎回来，' + result.data.memberName);
+                        closeLoginModal();
+                        updateUserAvatar();
+                    } else {
+                        showToast(result.msg || '登录失败');
+                    }
+                } catch (e) { showToast('网络异常，请稍后再试'); }
+            }
+    
+            async function handleRegister(e) {
+                e.preventDefault();
+                const name = document.getElementById('regName').value.trim();
+                const phone = document.getElementById('regPhone').value.trim();
+                const password = document.getElementById('regPassword').value.trim();
+                try {
+                    const res = await fetch('http://localhost:8080/api/members/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ memberName: name, phone: phone, password: password })
+                    });
+                    const result = await res.json();
+                    if (result.code === 200) {
+                        localStorage.setItem('shopUser', JSON.stringify(result.data));
+                        showToast('注册成功，已自动登录');
+                        closeLoginModal();
+                        updateUserAvatar();
+                    } else {
+                        showToast(result.msg || '注册失败');
+                    }
+                } catch (e) { showToast('网络异常，请稍后再试'); }
+            }
+    
+            function updateUserAvatar() {
+            const userStr = localStorage.getItem('shopUser');
+            const userBtn = document.getElementById('userBtn');
+            
+            if (userStr && userBtn) {
+                const user = JSON.parse(userStr);
+                // 👇 修改这里：如果有 avatar 字段则用图片，没有则用默认首字母
+                if (user.avatar && user.avatar.trim() !== '') {
+                    userBtn.innerHTML = `
+                        <img src="${user.avatar}" alt="头像" class="w-8 h-8 rounded-full object-cover border border-gray-200"/>
+                    `;
+                } else {
+                    userBtn.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                            ${user.memberName ? user.memberName.charAt(0).toUpperCase() : '花'}
+                        </div>
+                    `;
+                }
+                
+                // 点击头像去个人中心
+                userBtn.onclick = function() {
+                    window.location.href = 'profile.html';
+                };
+            } else if (userBtn) {
+                // 如果没登录，点击头像去首页或弹出登录框
+                userBtn.onclick = function() {
+                    window.location.href = 'shop.html';
+                };
+            }
+        }
+    
+            function logoutUser() {
+                if (confirm('确定要退出登录吗？')) {
+                    localStorage.removeItem('shopUser');
+                    location.reload();
+                }
+            }
+    
+            function showToast(msg) {
+                const toast = document.getElementById('toast');
+                toast.textContent = msg;
+                toast.classList.remove('-translate-y-10', 'opacity-0');
+                setTimeout(() => { toast.classList.add('-translate-y-10', 'opacity-0'); }, 2000);
+            }
+    
+            function loadAddressOptions() {
+                const select = document.getElementById('addressSelect');
+                const addresses = JSON.parse(localStorage.getItem('shopAddresses') || '[]');
+                if (addresses.length > 0) {
+                    select.innerHTML = '<option value="">请选择收货地址</option>' + 
+                        addresses.map((a, i) => `<option value="${i}">${a.name} - ${a.detail}</option>`).join('');
+                }
+            }
+    
+            function fillAddress() {
+                const index = document.getElementById('addressSelect').value;
+                if (index === '') return;
+                const addresses = JSON.parse(localStorage.getItem('shopAddresses') || '[]');
+                const addr = addresses[index];
+                if (addr) {
+                    document.getElementById('buyerName').value = addr.name;
+                    document.getElementById('buyerPhone').value = addr.phone;
+                    document.getElementById('buyerAddress').value = addr.detail;
+                }
+            }
+        </script>
+    </body>
+    </html>
+</body>
+</html>

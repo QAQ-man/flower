@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>花加 · 扫码确认</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style> body { background-color: #faf9f6; } </style>
+</head>
+<body class="flex items-center justify-center h-screen text-gray-800">
+
+    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center mx-4">
+        <div class="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <iconify-icon class="text-[32px] text-rose-500" icon="solar:smartphone-linear"></iconify-icon>
+        </div>
+        
+        <h1 class="text-xl font-bold text-gray-900 mb-2">扫码确认支付</h1>
+        <p class="text-sm text-gray-500 mb-8">请在手机上确认以下订单信息</p>
+
+        <div class="bg-gray-50 rounded-xl p-4 text-left text-sm mb-6 space-y-3">
+            <div class="flex justify-between">
+                <span class="text-gray-500">订单编号</span>
+                <span class="text-gray-900 font-mono font-medium" id="mobileOrderNo">--</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-500">支付金额</span>
+                <span class="text-rose-500 font-bold text-lg">￥<span id="mobileAmount">0.00</span></span>
+            </div>
+        </div>
+
+        <button id="confirmBtn" onclick="confirmPay()" class="w-full py-3 bg-[#07C160] text-white rounded-xl font-medium hover:bg-green-600 transition shadow-lg shadow-green-500/30">
+            确认支付
+        </button>
+    </div>
+
+    <script>
+        // 1. 解析 URL 里的参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNo = urlParams.get('orderNo');
+        const amount = urlParams.get('amount');
+
+        document.getElementById('mobileOrderNo').textContent = orderNo || '未知订单';
+        document.getElementById('mobileAmount').textContent = amount || '0.00';
+
+                // 2. 点击确认支付
+                async function confirmPay() {
+                    const btn = document.getElementById('confirmBtn');
+                    btn.innerHTML = '支付成功，请回到电脑端';
+                    btn.classList.replace('bg-[#07C160]', 'bg-gray-300');
+                    btn.disabled = true;
+        
+                    try {
+                        // ⭐ 发请求给后端，告诉它这个订单已经支付了
+                        await fetch(`http://10.249.127.39:8080/api/orders/mockPay/${orderNo}`, {
+                            method: 'POST'
+                        });
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+    </script>
+</body>
+</html>

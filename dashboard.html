@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<script>
+  // 拦截页面访问：如果当前用户没有 dashboard:view 权限，跳转到第一个可访问页面
+  (async function checkPagePermission() {
+    const roleId = localStorage.getItem('roleId');
+    if (!roleId) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:8080/api/sysRolePermission/permKeys/' + roleId);
+      const result = await res.json();
+      let permKeys = (result.code === 200 && result.data) ? result.data : [];
+
+      // 系统管理员兜底：全部权限
+      if (roleId === '1') {
+        permKeys = ['dashboard:view','order:view','goods:view','member:view',
+                    'settings:view','shop:view',
+                    'account:view','role:view','notify:view','log:view'];
+      }
+
+      if (!permKeys.includes('dashboard:view')) {
+        // 按优先级跳转到第一个有权限的页面
+        if (permKeys.includes('order:view')) {
+          window.location.href = 'orders.html';
+        } else if (permKeys.includes('goods:view')) {
+          window.location.href = 'products.html';
+        } else if (permKeys.includes('member:view')) {
+          window.location.href = 'members.html';
+        } else if (permKeys.includes('settings:view')) {
+          window.location.href = 'settings.html';
+        } else {
+          alert('您没有权限访问任何页面，请联系管理员');
+          localStorage.clear();
+          window.location.href = 'login.html';
+        }
+      }
+    } catch (e) {
+      console.error('权限校验失败:', e);
+    }
+  })();
+</script>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>数据看板 · 花加 FLOWERPLUS 运营中台</title>
+<script src="./js/user.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .fade-in { animation: fadeIn .4s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform:none; } }
+  .skeleton { background: linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.09) 37%, rgba(255,255,255,.04) 63%); background-size: 400% 100%; animation: sk 1.4s ease infinite; }
+  @keyframes sk { 0%{background-position:100% 50%} 100%{background-position:0 50%} }
+  #drawerMask { display:none; }
+  #drawerMask.show { display:block; }
+</style>
+</head>
+<body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
+
+<!-- ================= 请求封装 ================= -->
+<script>
+const API_BASE = 'http://localhost:8080'; // 
+
+async function request(url, method = 'GET', data = null, timeout = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      signal: controller.signal,
+      credentials: 'omit',
+    };
+    if (method !== 'GET' && data) opts.body = JSON.stringify(data);
+    const finalUrl = method === 'GET' && data
+      ? url + '?' + new URLSearchParams(data).toString()
+      : url;
+    const resp = await fetch(API_BASE + finalUrl, opts);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+    const json = await resp.json();
+    const OK_CODES = [0, 200];
+    if (json && typeof json.code !== 'undefined' && !OK_CODES.includes(json.code)) {
+      throw new Error(json.msg || '业务错误');
+    }
+    return json;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+</script>
+
+<div class="flex h-screen w-full relative">
+
+  <!-- ================= 侧边导航 ================= -->
+  <div id="drawerMask" class="fixed inset-0 bg-black/60 z-30 xl:hidden" onclick="closeDrawer()"></div>
+
+  <aside id="sidebar"
+    class="fixed xl:static inset-y-0 left-0 z-40 w-[236px] shrink-0 h-full
+           bg-[#140c0e] border-r border-white/[0.06] flex flex-col
+           -translate-x-full xl:translate-x-0 transition-transform duration-300">
+    <div class="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+      <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#e11d48] to-[#8b0f24] flex items-center justify-center">
+        <iconify-icon class="text-white text-[16px]" icon="solar:flower-2-bold"></iconify-icon>
+      </span>
+      <div class="leading-tight">
+        <p class="serif text-[15px] tracking-[0.18em] text-white">FLOWERPLUS</p>
+        <p class="text-[10px] tracking-[0.24em] text-white/40">运营中台</p>
+      </div>
+      <button class="ml-auto xl:hidden text-white/50 hover:text-white" onclick="closeDrawer()">
+        <iconify-icon icon="solar:close-circle-linear" class="text-[20px]"></iconify-icon>
+      </button>
+    </div>
+
+    <nav class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-3 py-4">
+      <p class="px-3 pb-2 text-[11px] tracking-[0.2em] text-white/30">概览</p>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+         href="dashboard.html" data-perm="dashboard:view">
+          <iconify-icon class="text-[17px]" icon="solar:widget-4-bold"></iconify-icon> 数据看板
+      </a>
+    
+      <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">经营管理</p>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+         href="orders.html" data-perm="order:view">
+        <iconify-icon class="text-[17px]" icon="solar:bag-check-bold"></iconify-icon> 订单管理
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+         href="products.html" data-perm="goods:view">
+        <iconify-icon class="text-[17px]" icon="solar:box-bold"></iconify-icon> 商品与花材
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+         href="members.html" data-perm="member:view">
+        <iconify-icon class="text-[17px]" icon="solar:users-group-rounded-bold"></iconify-icon> 会员管理
+      </a>
+    
+      <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">系统</p>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+         href="settings.html" data-perm="settings:view">
+        <iconify-icon class="text-[17px]" icon="solar:settings-bold"></iconify-icon> 系统设置
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+         href="register.html" data-perm="shop:view">
+        <iconify-icon class="text-[17px]" icon="solar:shop-bold"></iconify-icon> 门店入驻
+      </a>
+    
+      <!-- 下面的"花材预警"卡片保持不变 -->
+      <div class="mt-6 mx-1 rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#c8102e]/20 to-transparent p-4">
+        <p class="text-[12px] text-white flex items-center gap-1.5">
+          <iconify-icon class="text-[#e6a6b0]" icon="solar:bell-bing-bold"></iconify-icon> 花材预警
+        </p>
+        <p class="mt-2 text-[11px] leading-relaxed text-white/50" id="flowerWarnText">
+          加载中…
+        </p>
+        <a class="mt-3 inline-flex items-center gap-1 text-[11px] text-[#e6a6b0] hover:text-white transition" href="products.html?tab=stock">
+          立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+        </a>
+      </div>
+    </nav>
+
+    <div class="shrink-0 p-3 border-t border-white/[0.06]">
+      <div class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/[0.04] transition">
+          <span id="sideAvatar" class="w-9 h-9 rounded-full bg-[#c8102e]/25 border border-[#c8102e]/40 flex items-center justify-center text-[12px] text-[#f0c3ca]">?</span>
+          <div class="min-w-0 flex-1 leading-tight">
+              <p id="sideRealName" class="text-[12px] text-white truncate">加载中...</p>
+              <p id="sideRoleName" class="text-[10px] text-white/40 truncate">加载中...</p>
+          </div>
+          <a class="text-white/35 hover:text-[#e6a6b0] transition" href="javascript:void(0)" onclick="logout()" title="退出登录">
+              <iconify-icon class="text-[17px]" icon="solar:logout-3-linear"></iconify-icon>
+          </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= 主区域 ================= -->
+  <div class="flex-1 min-w-0 flex flex-col">
+    <header class="h-16 shrink-0 flex items-center gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 bg-[#0f080a]/80 backdrop-blur border-b border-white/[0.06]">
+      <button class="xl:hidden w-9 h-9 rounded-lg border border-white/10 bg-white/[0.03] flex items-center justify-center text-white/70"
+              onclick="openDrawer()" aria-label="打开菜单">
+        <iconify-icon icon="solar:hamburger-menu-linear" class="text-[18px]"></iconify-icon>
+      </button>
+
+      <div class="min-w-0">
+        <h1 class="text-[15px] text-white truncate">数据看板</h1>
+        <p class="text-[11px] text-white/40 truncate" id="shopTitle">加载中…</p>
+      </div>
+
+      <div class="ml-2 lg:ml-6 flex-1 max-w-[340px] hidden md:flex items-center gap-2 h-9 rounded-lg border border-white/10 bg-white/[0.03] px-3">
+        <iconify-icon class="text-white/35" icon="solar:magnifer-linear"></iconify-icon>
+        <input id="globalSearch" class="flex-1 bg-transparent outline-none text-[12px] text-white placeholder:text-white/25"
+               placeholder="搜索订单号 / 商品 / 会员手机号" type="text"/>
+      </div>
+
+      <div class="ml-auto flex items-center gap-2 sm:gap-3">
+        <span id="syncBadge" class="hidden 2xl:inline-flex items-center gap-1.5 px-3 h-8 rounded-lg border border-emerald-400/30 bg-emerald-400/10 text-[11px] text-emerald-300">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 实时数据同步中
+        </span>
+        <button class="relative w-9 h-9 rounded-lg border border-white/10 bg-white/[0.03] flex items-center justify-center text-white/60 hover:text-white transition" type="button" aria-label="通知">
+          <iconify-icon class="text-[17px]" icon="solar:bell-linear"></iconify-icon>
+          <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#c8102e]"></span>
+        </button>
+        <a class="h-9 px-3 sm:px-4 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white flex items-center gap-1.5 transition" href="orders.html">
+          <iconify-icon icon="solar:add-circle-linear"></iconify-icon>
+          <span class="hidden sm:inline">新建订单</span>
+        </a>
+      </div>
+    </header>
+
+    <div id="errorBar" class="hidden mx-4 sm:mx-6 lg:mx-8 mt-4 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-[12px] text-rose-200 flex items-center gap-2">
+      <iconify-icon icon="solar:danger-triangle-linear" class="text-[16px]"></iconify-icon>
+      <span id="errorMsg">数据加载失败</span>
+      <button class="ml-auto underline hover:text-white" onclick="loadDashboardData()">重试</button>
+    </div>
+
+    <main class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+
+      <!-- ============ KPI ============ -->
+      <section class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 fade-in">
+        <div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-[12px] text-white/45">今日成交额</p>
+              <p class="mt-2 serif text-[22px] sm:text-[26px] text-white leading-none">
+                ￥<span id="todaySale" class="skeleton inline-block w-16 h-6 align-middle rounded"></span>
+              </p>
+            </div>
+            <span class="w-9 h-9 shrink-0 rounded-lg bg-[#c8102e]/15 border border-[#c8102e]/30 flex items-center justify-center">
+              <iconify-icon class="text-[#e6a6b0]" icon="solar:wallet-money-bold"></iconify-icon>
+            </span>
+          </div>
+          <p class="mt-3 sm:mt-4 text-[11px] text-emerald-400 flex items-center gap-1">
+            <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon> 较昨日 <span id="saleRate">—</span>
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-[12px] text-white/45">待履约订单</p>
+              <p class="mt-2 serif text-[22px] sm:text-[26px] text-white leading-none">
+                <span id="pendingOrder" class="skeleton inline-block w-10 h-6 align-middle rounded"></span>
+                <span class="text-[13px] text-white/40 ml-1">单</span>
+              </p>
+            </div>
+            <span class="w-9 h-9 shrink-0 rounded-lg bg-amber-400/12 border border-amber-400/30 flex items-center justify-center">
+              <iconify-icon class="text-amber-300" icon="solar:delivery-bold"></iconify-icon>
+            </span>
+          </div>
+          <p class="mt-3 sm:mt-4 text-[11px] text-amber-300 flex items-center gap-1">
+            <iconify-icon icon="solar:danger-triangle-linear"></iconify-icon>
+            其中 <span id="warnOrderNum">0</span> 单临近超时
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-[12px] text-white/45">新增会员</p>
+              <p class="mt-2 serif text-[22px] sm:text-[26px] text-white leading-none">
+                <span id="newMembers" class="skeleton inline-block w-10 h-6 align-middle rounded"></span>
+                <span class="text-[13px] text-white/40 ml-1">人</span>
+              </p>
+            </div>
+            <span class="w-9 h-9 shrink-0 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center">
+              <iconify-icon class="text-white/70" icon="solar:user-plus-bold"></iconify-icon>
+            </span>
+          </div>
+          <p class="mt-3 sm:mt-4 text-[11px] text-white/40">付费会员占 <span id="subMemberRate">0</span>%</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-[12px] text-white/45">花材损耗率</p>
+              <p class="mt-2 serif text-[22px] sm:text-[26px] text-white leading-none">
+                <span id="lossRate" class="skeleton inline-block w-10 h-6 align-middle rounded"></span>
+                <span class="text-[13px] text-white/40 ml-1">%</span>
+              </p>
+            </div>
+            <span class="w-9 h-9 shrink-0 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center">
+              <iconify-icon class="text-white/70" icon="solar:leaf-bold"></iconify-icon>
+            </span>
+          </div>
+          <p class="mt-3 sm:mt-4 text-[11px] text-emerald-400 flex items-center gap-1">
+            <iconify-icon icon="solar:arrow-right-down-linear"></iconify-icon>
+            环比下降 <span id="lossRateDelta">0</span>pt
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ 图表 ============ -->
+      <section class="mt-4 sm:mt-5 grid grid-cols-1 2xl:grid-cols-3 gap-4">
+        <div class="2xl:col-span-2 rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <div class="flex items-start sm:items-center justify-between gap-3 flex-wrap">
+            <div>
+              <h2 class="text-[14px] text-white">成交趋势</h2>
+              <p class="mt-1 text-[11px] text-white/40">单位：元 · 近 14 天含订阅制与门店散单</p>
+            </div>
+          </div>
+          <div class="mt-4 w-full h-[220px] sm:h-[268px]" id="trendChart"></div>
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <h2 class="text-[14px] text-white">下单渠道占比</h2>
+          <p class="mt-1 text-[11px] text-white/40">单位：订单量</p>
+          <div class="mt-2 w-full h-[180px] sm:h-[196px]" id="channelChart"></div>
+          <div class="mt-1 space-y-2 text-[11px]" id="channelLegend"></div>
+        </div>
+      </section>
+
+      <!-- ============ 订单 + 热销 ============ -->
+      <section class="mt-4 sm:mt-5 grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="xl:col-span-2 rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <div class="flex items-center justify-between">
+            <h2 class="text-[14px] text-white">最新订单</h2>
+            <a class="text-[12px] text-[#e6a6b0] hover:text-white transition flex items-center gap-1" href="orders.html">
+              全部订单 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+            </a>
+          </div>
+
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-[12px] min-w-[560px]">
+              <thead>
+                <tr class="text-white/35 text-left">
+                  <th class="font-normal pb-3 pr-3">订单号</th>
+                  <th class="font-normal pb-3 pr-3 hidden sm:table-cell">会员 / 收花人</th>
+                  <th class="font-normal pb-3 pr-3 hidden md:table-cell">商品</th>
+                  <th class="font-normal pb-3 pr-3">金额</th>
+                  <th class="font-normal pb-3 pr-3">状态</th>
+                  <th class="font-normal pb-3 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="orderTbody" class="divide-y divide-white/[0.05]">
+                <!-- JS 动态渲染 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <h2 class="text-[14px] text-white">热销花材 TOP5</h2>
+          <p class="mt-1 text-[11px] text-white/40">按累计出货支数统计</p>
+          <ul id="flowerRankList" class="mt-4 space-y-3.5"><!-- JS 动态渲染 --></ul>
+          <a class="mt-5 flex items-center justify-center h-9 rounded-lg border border-white/10 text-[12px] text-white/60 hover:text-white hover:border-white/25 transition" href="products.html">查看商品库存</a>
+        </div>
+	  </section>
+      <!-- ============ 配送服务档位 + 待办 ============ -->
+      <section class="mt-4 sm:mt-5 grid grid-cols-1 xl:grid-cols-3 gap-4 pb-4">
+        <div class="xl:col-span-2 rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <h2 class="text-[14px] text-white">配送服务档位</h2>
+            <span class="text-[11px] text-white/40">当前门店可用配送方案</span>
+          </div>
+          <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="deliveryCards">
+            <!-- JS 动态渲染 -->
+          </div>
+        </div>
+      
+        <div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-4 sm:p-5">
+          <h2 class="text-[14px] text-white">我的待办</h2>
+          <ul id="todoList" class="mt-4 space-y-3 text-[12px]">
+            <!-- JS 动态渲染 -->
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+ *  1) 图表初始化
+ * =======================================================*/
+const axisColor = 'rgba(245,238,240,0.35)';
+const splitColor = 'rgba(255,255,255,0.05)';
+const palette = ['#e11d48', '#f59e0b', '#38bdf8', '#34d399', '#a78bfa'];
+
+const lineChart = echarts.init(document.getElementById('trendChart'));
+const pieChart  = echarts.init(document.getElementById('channelChart'));
+
+lineChart.setOption({
+  grid: { left: 8, right: 12, top: 16, bottom: 4, containLabel: true },
+  tooltip: {
+    trigger: 'axis',
+    backgroundColor: '#1b1012',
+    borderColor: 'rgba(255,255,255,0.1)',
+    textStyle: { color: '#f5eef0', fontSize: 11 },
+    valueFormatter: v => '￥' + Number(v).toLocaleString()
+  },
+  xAxis: {
+    type: 'category', boundaryGap: false, data: [],
+    axisLine: { lineStyle: { color: splitColor } },
+    axisTick: { show: false },
+    axisLabel: { color: axisColor, fontSize: 10 }
+  },
+  yAxis: {
+    type: 'value',
+    splitLine: { lineStyle: { color: splitColor } },
+    axisLabel: {
+      color: axisColor, fontSize: 10,
+      formatter: v => v >= 10000 ? (v / 10000) + 'w' : v
+    }
+  },
+  series: [{
+    name: '成交额',
+    type: 'line', smooth: true, symbol: 'circle', symbolSize: 6,
+    data: [],
+    lineStyle: { width: 2, color: '#e11d48' },
+    itemStyle: { color: '#e11d48' },
+    emphasis: { scale: 1.4 },
+    areaStyle: {
+      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        { offset: 0, color: 'rgba(225,29,72,0.35)' },
+        { offset: 1, color: 'rgba(225,29,72,0)' }
+      ])
+    }
+  }]
+});
+
+pieChart.setOption({
+  tooltip: {
+    trigger: 'item',
+    backgroundColor: '#1b1012',
+    borderColor: 'rgba(255,255,255,0.1)',
+    textStyle: { color: '#f5eef0', fontSize: 11 },
+    formatter: p => `${p.name}<br/>${p.value} 单 (${p.percent}%)`
+  },
+  series: [{
+    type: 'pie',
+    radius: ['58%', '82%'],
+    center: ['50%', '50%'],
+    avoidLabelOverlap: true,
+    label: { show: false },
+    labelLine: { show: false },
+    itemStyle: { borderColor: '#150c0e', borderWidth: 2 },
+    data: [],
+    color: palette
+  }]
+});
+
+let rzTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(rzTimer);
+  rzTimer = setTimeout(() => { lineChart.resize(); pieChart.resize(); }, 150);
+});
+
+/* =========================================================
+ *  2) 侧边抽屉
+ * =======================================================*/
+function openDrawer() {
+  document.getElementById('sidebar').classList.remove('-translate-x-full');
+  document.getElementById('drawerMask').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('sidebar').classList.add('-translate-x-full');
+  document.getElementById('drawerMask').classList.remove('show');
+}
+document.querySelectorAll('#sidebar nav a').forEach(a => a.addEventListener('click', closeDrawer));
+
+/* =========================================================
+ *  3) 工具函数
+ * =======================================================*/
+const $ = id => document.getElementById(id);
+const fmtMoney = n => Number(n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtInt = n => Number(n || 0).toLocaleString('zh-CN');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function setText(id, text) {
+  const el = $(id);
+  if (!el) return;
+  el.classList.remove('skeleton', 'inline-block', 'w-16', 'w-10', 'h-6', 'align-middle', 'rounded');
+  el.textContent = text;
+}
+
+/** ✅ 状态徽章：匹配你真实 status 值 pending / paid / finished / aftersale */
+const STATUS_TEXT = {
+  'pending':   '待付款',
+  'paid':      '待履约',
+  'finished':  '已完成',
+  'aftersale': '售后中'
+};
+const STATUS_STYLE = {
+  'pending':   'bg-white/10 border-white/20 text-white/70',
+  'paid':      'bg-amber-400/12 border-amber-400/30 text-amber-300',
+  'finished':  'bg-emerald-400/12 border-emerald-400/30 text-emerald-300',
+  'aftersale': 'bg-rose-400/12 border-rose-400/30 text-rose-300'
+};
+function statusBadge(status) {
+  const txt = STATUS_TEXT[status] || status || '—';
+  const cls = STATUS_STYLE[status] || 'bg-white/10 border-white/20 text-white/70';
+  return `<span class="px-2 py-0.5 rounded-md text-[11px] border ${cls} whitespace-nowrap">${esc(txt)}</span>`;
+}
+
+/* =========================================================
+ *  4) 渲染各区块
+ * =======================================================*/
+function renderKPI(d) {
+  setText('todaySale', fmtMoney(d.todaySale));
+  setText('saleRate', (d.saleRate >= 0 ? '+' : '') + d.saleRate + '%');
+  setText('pendingOrder', fmtInt(d.pendingOrder));
+  setText('warnOrderNum', fmtInt(d.warnOrderNum));
+  setText('lossRate', Number(d.lossRate || 0).toFixed(1));
+  setText('lossRateDelta', d.lossRateDelta ?? '0');
+  setText('flowerWarnCount', fmtInt(d.flowerWarnCount));
+  setText('newMembers', fmtInt(d.newMembers));
+  setText('subMemberRate', fmtInt(d.subMemberRate));
+  
+  // 🚨 已注释掉这段代码，防止由于侧边栏删除了 navOrderBadge 元素导致的报错
+  // if (d.navOrderBadge != null) $('navOrderBadge').textContent = d.navOrderBadge;
+  
+  if (d.shopName) $('shopTitle').textContent = d.shopName + ' · ' + new Date().toLocaleDateString('zh-CN');
+}
+
+function renderTrend(list) {
+  const x = [], y = [];
+  (list || []).forEach(it => { x.push(it.date); y.push(Number(it.sale)); });
+  lineChart.setOption({ xAxis: { data: x }, series: [{ data: y }] });
+}
+
+function renderChannel(list) {
+  const arr = (list || []).map(i => ({ name: i.channel || i.name, value: Number(i.value) }));
+  pieChart.setOption({ series: [{ data: arr }] });
+
+  // 渠道图例
+  const total = arr.reduce((s, i) => s + i.value, 0) || 1;
+  $('channelLegend').innerHTML = arr.map((i, idx) => {
+    const pct = ((i.value / total) * 100).toFixed(1);
+    const color = palette[idx % palette.length];
+    return `
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full" style="background:${color}"></span>
+        <span class="text-white/60 flex-1 truncate">${esc(i.name)}</span>
+        <span class="text-white/80">${i.value} 单</span>
+        <span class="text-white/35 w-10 text-right">${pct}%</span>
+      </div>`;
+  }).join('') || '<div class="text-white/30 text-center py-2">暂无数据</div>';
+}
+
+/** ✅ 最新订单表格 */
+function renderLatestOrders(list) {
+  const tbody = $('orderTbody');
+  if (!list || !list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-white/30">暂无订单</td></tr>`;
+    return;
+  }
+  
+  // 【修改这里】：将链接改成 ?no=${o.order_no}
+  tbody.innerHTML = list.map(o => `
+    <tr class="hover:bg-white/[0.03] transition">
+      <td class="py-3 pr-3">
+        <a class="text-white hover:text-[#e6a6b0] transition" href="order-detail.html?no=${esc(o.order_no)}">
+          ${esc(o.order_no)}
+        </a>
+      </td>
+      <td class="py-3 pr-3 text-white/60 hidden sm:table-cell">${esc(o.receiver_name || '—')} · ${esc(o.receiver_phone || '')}</td>
+      <td class="py-3 pr-3 text-white/60 hidden md:table-cell max-w-[240px] truncate">${esc(o.goods || '—')}</td>
+      <td class="py-3 pr-3 text-white">￥${fmtMoney(o.real_pay)}</td>
+      <td class="py-3 pr-3">${statusBadge(o.status)}</td>
+      <td class="py-3 text-right">
+        <a class="text-[#e6a6b0] hover:text-white transition" href="order-detail.html?no=${esc(o.order_no)}">
+          查看
+        </a>
+      </td>
+    </tr>
+  `).join('');
+}
+/** ✅ 热销商品 TOP5 */
+/** 热销花材 TOP5 */
+function renderHotFlowers(list) {
+  const ul = $('flowerRankList');
+  if (!list || !list.length) {
+    ul.innerHTML = `<li class="text-center text-white/30 py-6">暂无数据</li>`;
+    return;
+  }
+  ul.innerHTML = list.map((it, i) => {
+    const rankStyle = i === 0
+      ? 'bg-[#c8102e]/20 text-[#f0c3ca]'
+      : 'bg-white/[0.06] text-white/60';
+    const origin = it.origin ? it.origin.split(',')[0] : '';
+    return `
+      <li class="flex items-center gap-3">
+        <span class="w-7 h-7 rounded-lg ${rankStyle} flex items-center justify-center text-[11px]">${i + 1}</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-[12px] text-white truncate">${esc(it.name || '—')}</p>
+          <p class="text-[11px] text-white/35">${esc(origin)} · 出货 ${fmtInt(it.order_count)} 次</p>
+        </div>
+        <span class="text-[12px] text-white">${fmtInt(it.qty)} 支</span>
+      </li>`;
+  }).join('');
+}
+
+/** 配送服务档位（B 方案） */
+function renderDeliveryTemplates(list) {
+  const box = $('deliveryCards');
+  if (!box) return;
+  if (!list || !list.length) {
+    box.innerHTML = `<div class="col-span-3 text-center text-white/30 py-4">暂无配送服务</div>`;
+    return;
+  }
+  box.innerHTML = list.map(t => `
+    <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+      <p class="text-[11px] text-white/40">${esc(t.title)}</p>
+      <p class="mt-1.5 text-[14px] text-white">${esc(t.promise_desc || '—')}</p>
+      <p class="mt-1 text-[11px] text-emerald-400">
+        截单 ${esc(t.cutoff_time || '—')} · 运费 ￥${esc(t.delivery_fee ?? 0)}
+      </p>
+      <p class="mt-0.5 text-[11px] text-white/40">${esc(t.compensate_rule || '')}</p>
+    </div>
+  `).join('');
+}
+
+/** ✅ 待办列表 */
+function renderTodo(list) {
+  const ul = $('todoList');
+  
+  // 1. 过滤掉数量为 0 的待办项
+  const validList = (list || []).filter(it => Number(it.num) > 0);
+
+  // 2. 如果过滤后没有数据，显示“暂无待办”
+  if (!validList.length) {
+    ul.innerHTML = `<li class="text-center text-white/30 py-6 text-[12px]">暂无待办，去喝杯咖啡吧 ☕</li>`;
+    return;
+  }
+  
+  // 3. 渲染有数据的待办项
+  const dotColor = {
+    purchase: 'bg-[#c8102e]',
+    transfer: 'bg-amber-400'
+  };
+  
+  ul.innerHTML = validList.map(it => `
+    <li class="flex items-start gap-3">
+      <span class="mt-1 w-1.5 h-1.5 rounded-full ${dotColor[it.type] || 'bg-white/25'} shrink-0"></span>
+      <div class="flex-1">
+        <p class="text-white">${esc(it.title)} <span class="text-[#e6a6b0]">${it.num} 项</span></p>
+      </div>
+      <a class="text-[#e6a6b0] hover:text-white transition" href="${esc(it.link || 'products.html?tab=purchase')}">去处理</a>
+    </li>
+  `).join('');
+}
+
+/* =========================================================
+ *  5) 加载入口
+ * =======================================================*/
+async function loadDashboardData() {
+  try {
+    $('errorBar').classList.add('hidden');
+    const res = await request('/api/dashboard/getData', 'GET');
+    const d = (res && res.data) ? res.data : {};
+
+    console.log('[dashboard] 收到数据:', d);
+
+    renderKPI(d);
+    renderTrend(d.lineData || []);
+    renderChannel(d.channelList || []);
+    renderLatestOrders(d.latestOrders || []);
+    renderHotFlowers(d.hotFlowers || []);              
+    renderDeliveryTemplates(d.deliveryTemplates || []); 
+    renderWarnFlower(d.warnFlower);                     
+    renderTodo(d.todoList || []);
+
+    // 🚨 已注释掉这段代码，防止由于侧边栏删除了 navOrderBadge 元素导致的报错
+    // if (d.pendingOrder != null) $('navOrderBadge').textContent = d.pendingOrder;
+    
+  } catch (err) {
+    console.error('[dashboard] 加载失败:', err);
+    $('errorMsg').textContent = '数据加载失败：' + (err && err.message ? err.message : JSON.stringify(err));
+    $('errorBar').classList.remove('hidden');
+  }
+}
+
+function renderWarnFlower(wf) {
+  const el = $('flowerWarnText');
+  if (!el) return;
+  if (!wf || !wf.flower_name) {
+    el.textContent = '暂无库存预警';
+    return;
+  }
+  el.innerHTML = `<span class="text-white/80">${esc(wf.flower_name)}</span> 库存仅剩 
+    <span class="text-[#e6a6b0]">${wf.stock_num}</span> 支（安全水位 
+    <span class="text-white/60">${wf.safe_water}</span> 支）。`;
+}
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+</body>
+</html>

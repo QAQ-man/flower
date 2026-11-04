@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>关于我们 · 花加 FLOWERPLUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, serif; }
+        body { background-color: #faf9f6; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="w-full min-h-screen text-gray-800 antialiased">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="shop.html" class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white">
+                    <iconify-icon class="text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+                </span>
+                <span class="serif text-xl font-bold tracking-widest text-gray-900">FLOWERPLUS</span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                <a href="shop.html" class="hover:text-rose-500 transition">首页</a>
+                <!-- ⭐ 修改了这里，加入智能跳转 -->
+                <a href="javascript:void(0)" onclick="goToMemberCenter()" class="hover:text-rose-500 transition">会员订阅</a>
+                <a href="gifts.html" class="hover:text-rose-500 transition">节日礼盒</a>
+                <a href="about.html" class="text-rose-500">关于我们</a>
+            </nav>
+
+            <div class="flex items-center gap-5">
+                <a href="shop.html" class="text-gray-600 hover:text-rose-500 transition relative">
+                    <iconify-icon class="text-[22px]" icon="solar:cart-large-2-linear"></iconify-icon>
+                </a>
+
+                <div class="relative group py-4">
+                    <button id="userBtn" class="text-gray-600 hover:text-rose-500 transition flex items-center">
+                        <iconify-icon class="text-[22px]" icon="solar:user-circle-linear"></iconify-icon>
+                    </button>
+                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                        <div class="absolute -top-2 right-3 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+                        <div class="py-2 relative bg-white rounded-2xl">
+							<a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:user-id-linear"></iconify-icon> 个人中心
+                            </a>
+                            <a href="my-orders.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:bill-list-linear"></iconify-icon> 我的订单
+                            </a>
+                            <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:logout-3-linear"></iconify-icon> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 品牌故事 -->
+    <section class="max-w-4xl mx-auto px-4 py-20">
+        <h1 class="serif text-4xl font-bold text-gray-900 mb-8 text-center">关于花加</h1>
+        <img src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=1200&q=80" class="w-full h-80 object-cover rounded-3xl mb-12 shadow-lg"/>
+        
+        <div class="prose prose-lg text-gray-600 mx-auto text-center leading-relaxed">
+            <p class="mb-6">FLOWERPLUS 花加成立于 2015 年，是国内领先的订阅制鲜花品牌。我们致力于将云南乃至全球的优质鲜花，通过极速冷链直达您的家中。</p>
+            <p class="mb-6">“让每一个平凡的日子都开出花来” 是我们的品牌理念。我们相信，鲜花不仅仅是节日的礼物，更是日常生活中的一抹亮色。</p>
+            <div class="grid grid-cols-3 gap-4 mt-12 border-t border-gray-200 pt-12">
+                <div>
+                    <p class="text-3xl font-bold text-rose-500 mb-2">500万+</p>
+                    <p class="text-sm">累计用户</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-rose-500 mb-2">100+</p>
+                    <p class="text-sm">合作花田基地</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-rose-500 mb-2">300+</p>
+                    <p class="text-sm">全国线下门店</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="bg-gray-900 text-gray-400 py-12 text-center text-sm mt-12">
+        <p class="mb-2">© 2026 FLOWERPLUS. All Rights Reserved.</p>
+        <p>产地直采 · 冷链直达 · 保证新鲜</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUserAvatar();
+        });
+
+        // ⭐ 会员中心智能跳转
+        function goToMemberCenter() {
+            const userStr = localStorage.getItem('shopUser');
+            if (!userStr) {
+                window.location.href = 'subscribe.html';
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            const level = user.memberLevel || '普通用户';
+
+            if (level === '铂金会员') {
+                window.location.href = 'vip-platinum.html';
+            } else if (level === '金卡会员') {
+                window.location.href = 'vip-gold.html';
+            } else if (level === '普通会员') {
+                window.location.href = 'vip-normal.html';
+            } else {
+                window.location.href = 'subscribe.html';
+            }
+        }
+
+            function updateUserAvatar() {
+            const userStr = localStorage.getItem('shopUser');
+            const userBtn = document.getElementById('userBtn');
+            
+            if (userStr && userBtn) {
+                const user = JSON.parse(userStr);
+                // 👇 修改这里：如果有 avatar 字段则用图片，没有则用默认首字母
+                if (user.avatar && user.avatar.trim() !== '') {
+                    userBtn.innerHTML = `
+                        <img src="${user.avatar}" alt="头像" class="w-8 h-8 rounded-full object-cover border border-gray-200"/>
+                    `;
+                } else {
+                    userBtn.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                            ${user.memberName ? user.memberName.charAt(0).toUpperCase() : '花'}
+                        </div>
+                    `;
+                }
+                
+                // 点击头像去个人中心
+                userBtn.onclick = function() {
+                    window.location.href = 'profile.html';
+                };
+            } else if (userBtn) {
+                // 如果没登录，点击头像去首页或弹出登录框
+                userBtn.onclick = function() {
+                    window.location.href = 'shop.html';
+                };
+            }
+        }
+
+        function logoutUser() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('shopUser');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>会员订阅 · 花加 FLOWERPLUS</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, serif; }
+        body { background-color: #faf9f6; }
+    </style>
+</head>
+<body class="w-full min-h-screen text-gray-800 antialiased">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="shop.html" class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white">
+                    <iconify-icon class="text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+                </span>
+                <span class="serif text-xl font-bold tracking-widest text-gray-900">FLOWERPLUS</span>
+            </a>
+            
+            <!-- 中间导航 -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                <a href="shop.html" class="hover:text-rose-500 transition">首页</a>
+                <a href="subscribe.html" class="text-rose-500">会员订阅</a>
+                <a href="gifts.html" class="hover:text-rose-500 transition">节日礼盒</a>
+                <a href="about.html" class="hover:text-rose-500 transition">关于我们</a>
+            </nav>
+
+            <!-- 右侧操作区 -->
+            <div class="flex items-center gap-5">
+                
+                <!-- 购物车 -->
+                <a href="shop.html" class="text-gray-600 hover:text-rose-500 transition relative">
+                    <iconify-icon class="text-[22px]" icon="solar:cart-large-2-linear"></iconify-icon>
+                </a>
+
+                <!-- 用户头像 & 悬停下拉菜单 -->
+                <div class="relative group py-4">
+                    <!-- 头像/登录按钮 -->
+                    <button id="userBtn" onclick="goToShop()" class="text-gray-600 hover:text-rose-500 transition flex items-center">
+                        <iconify-icon class="text-[22px]" icon="solar:user-circle-linear"></iconify-icon>
+                    </button>
+
+                    <!-- 下拉面板 -->
+                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                        <!-- 小三角 -->
+                        <div class="absolute -top-2 right-3 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+                        
+                        <!-- 菜单内容 -->
+                        <div class="py-2 relative bg-white rounded-2xl">
+							<a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:user-id-linear"></iconify-icon> 个人中心
+                            </a>
+                            <a href="my-orders.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:bill-list-linear"></iconify-icon>
+                                我的订单
+                            </a>
+                            <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition">
+                                <iconify-icon class="text-[18px]" icon="solar:logout-3-linear"></iconify-icon>
+                                退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 订阅介绍 -->
+    <section class="max-w-6xl mx-auto px-4 py-16 text-center">
+        <h1 class="serif text-4xl font-bold text-gray-900 mb-4">升级会员，把春天带回家</h1>
+        <p class="text-gray-500">加入会员俱乐部，享受专属鲜花折扣与优先配送特权。</p>
+    </section>
+
+    <!-- 套餐列表 -->
+    <section class="max-w-6xl mx-auto px-4 pb-20">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="planContainer">
+            <!-- JS 渲染 -->
+        </div>
+    </section>
+
+    <!-- ⭐ 核心补全：扫码支付弹窗 -->
+    <div id="payModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-[350px] overflow-hidden text-center p-6 relative">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                <span class="text-gray-900 font-bold text-lg">微信支付</span>
+                <button onclick="closePayModal()" class="text-gray-400 hover:text-gray-800">
+                    <iconify-icon class="text-[20px]" icon="solar:close-circle-linear"></iconify-icon>
+                </button>
+            </div>
+            
+            <p class="text-gray-500 text-sm">支付金额</p>
+            <p class="text-3xl font-bold text-gray-900 mb-6"><span class="text-lg">￥</span><span id="payAmount">0.00</span></p>
+            
+            <div class="w-48 h-48 mx-auto bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center relative overflow-hidden group">
+                <img id="payQrCode" src="" alt="二维码" class="w-40 h-40 object-contain" />
+                <div id="paySuccessMask" class="absolute inset-0 bg-white/90 backdrop-blur flex flex-col items-center justify-center hidden">
+                    <iconify-icon class="text-[50px] text-green-500 mb-2" icon="solar:check-circle-bold"></iconify-icon>
+                    <p class="text-green-600 font-bold">支付成功</p>
+                </div>
+            </div>
+            
+            <p class="mt-6 text-xs text-gray-400 flex items-center justify-center gap-1">
+                <iconify-icon icon="solar:smartphone-linear"></iconify-icon> 请使用微信扫一扫完成支付
+            </p>
+            
+            <button onclick="mockScanSuccess()" class="mt-6 w-full py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm border border-emerald-200 hover:bg-emerald-100 transition">
+                模拟手机扫码成功 (演示用)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let pendingSubscribeLevel = null; // 暂存要升级的等级
+        let subscribeAmount = 0;          // 暂存要支付的金额
+        let subscribeOrderNo = '';        // 暂存生成的订单号
+        let pollingTimer = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlans();
+            updateUserAvatar(); 
+        });
+
+        function goToShop() {
+            window.location.href = 'shop.html';
+        }
+
+        // ⭐ 更新右上角头像
+        function updateUserAvatar() {
+            const userStr = localStorage.getItem('shopUser');
+            const userBtn = document.getElementById('userBtn');
+            
+            if (userStr && userBtn) {
+                const user = JSON.parse(userStr);
+                // 👇 修改这里：如果有 avatar 字段则用图片，没有则用默认首字母
+                if (user.avatar && user.avatar.trim() !== '') {
+                    userBtn.innerHTML = `
+                        <img src="${user.avatar}" alt="头像" class="w-8 h-8 rounded-full object-cover border border-gray-200"/>
+                    `;
+                } else {
+                    userBtn.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                            ${user.memberName ? user.memberName.charAt(0).toUpperCase() : '花'}
+                        </div>
+                    `;
+                }
+                
+                // 点击头像去个人中心
+                userBtn.onclick = function() {
+                    window.location.href = 'profile.html';
+                };
+            } else if (userBtn) {
+                // 如果没登录，点击头像去首页或弹出登录框
+                userBtn.onclick = function() {
+                    window.location.href = 'shop.html';
+                };
+            }
+        }
+
+        // ⭐ 渲染套餐
+        function renderPlans() {
+            const plans = [
+                {
+                    id: 1, name: '初见 · 普通会员', desc: '适合初次尝试的你', price: 99, unit: '/ 月',
+                    features: ['每月 1 束精选鲜花', '基础花材搭配', '顺丰冷链配送'], level: '普通会员', isHot: false
+                },
+                {
+                    id: 2, name: '繁花 · 金卡会员', desc: '每周一束，点亮生活', price: 299, unit: '/ 月',
+                    features: ['每月 4 束主题鲜花', '高阶进口花材混搭', '专属花艺师定制', '赠送精美花瓶'], level: '金卡会员', isHot: true
+                },
+                {
+                    id: 3, name: '包季 · 铂金会员', desc: '送礼自用皆宜', price: 799, unit: '/ 季',
+                    features: ['连续 3 个月配送', '每周 1 束精选鲜花', '节假日优先发货'], level: '铂金会员', isHot: false
+                }
+            ];
+
+            const container = document.getElementById('planContainer');
+            container.innerHTML = plans.map(p => {
+                const bgClass = p.isHot ? 'bg-gray-900 text-white' : 'bg-white text-gray-900 border border-gray-100';
+                const btnClass = p.isHot ? 'bg-rose-500 text-white hover:bg-rose-600 shadow-lg shadow-rose-500/30' : 'border border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white';
+                const descClass = p.isHot ? 'text-gray-400' : 'text-gray-400';
+                
+                return `
+                    <div class="${bgClass} rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
+                        ${p.isHot ? '<div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-bl-full -z-10"></div>' : ''}
+                        ${p.isHot ? '<div class="absolute top-4 right-4 bg-rose-500 text-white text-xs px-3 py-1 rounded-full">最受欢迎</div>' : ''}
+                        
+                        <h2 class="text-xl font-bold mb-2">${p.name}</h2>
+                        <p class="text-sm ${descClass} mb-6">${p.desc}</p>
+                        
+                        <div class="text-3xl font-bold ${p.isHot ? 'text-rose-400' : 'text-rose-500'} mb-6">
+                            <span class="text-lg">￥</span>${p.price} <span class="text-sm font-normal ${descClass}">${p.unit}</span>
+                        </div>
+                        
+                        <ul class="space-y-3 text-sm mb-8 ${p.isHot ? 'text-gray-300' : 'text-gray-600'}">
+                            ${p.features.map(f => `
+                                <li class="flex items-center gap-2">
+                                    <iconify-icon class="${p.isHot ? 'text-rose-400' : 'text-rose-500'}" icon="solar:check-circle-bold"></iconify-icon> 
+                                    ${f}
+                                </li>
+                            `).join('')}
+                        </ul>
+                        
+                        <button onclick="openSubscribePay('${p.level}', ${p.price})" class="w-full py-3 rounded-xl font-medium transition ${btnClass}">
+                            立即订阅
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ⭐ 第一步：点击立即订阅，弹出扫码支付
+        function openSubscribePay(level, price) {
+            const userStr = localStorage.getItem('shopUser');
+            if (!userStr) {
+                alert("请先在首页登录！");
+                window.location.href = 'shop.html';
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            pendingSubscribeLevel = level;
+            subscribeAmount = price;
+            subscribeOrderNo = 'VIP' + Date.now(); // 生成一个订阅单号
+
+            const modal = document.getElementById('payModal');
+            document.getElementById('payAmount').textContent = price.toFixed(2);
+            
+            // 你的局域网 IP 和前端端口（这里直接用商城的扫码确认页）
+            const myLocalIP = "10.249.127.39"; 
+            const port = "8890"; 
+            const qrContent = `http://${myLocalIP}:${port}/flower/m_confirm.html?orderNo=${subscribeOrderNo}&amount=${price}`;
+            
+            document.getElementById('payQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrContent)}`;
+            document.getElementById('paySuccessMask').classList.add('hidden');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // 开始轮询查询支付状态（复用后端的支付状态接口）
+            clearInterval(pollingTimer);
+            pollingTimer = setInterval(async () => {
+                try {
+                    const res = await fetch(`http://localhost:8080/api/orders/checkPay/${subscribeOrderNo}`);
+                    const result = await res.json();
+                    
+                    if (result.code === 200 && result.data === true) {
+                        clearInterval(pollingTimer); 
+                        document.getElementById('paySuccessMask').classList.remove('hidden'); 
+                        
+                        // 支付成功，延迟 1 秒后去执行真实升级逻辑
+                        setTimeout(() => {
+                            closePayModal();
+                            submitSubscribe(user.id, level);
+                        }, 1000);
+                    }
+                } catch (e) {
+                    console.error("查询状态失败", e);
+                }
+            }, 1500); 
+        }
+
+        // ⭐ 第二步：关闭弹窗
+        function closePayModal() {
+            const modal = document.getElementById('payModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            clearInterval(pollingTimer); 
+        }
+
+        // ⭐ 第三步：模拟扫码成功
+        function mockScanSuccess() {
+            document.getElementById('paySuccessMask').classList.remove('hidden');
+            setTimeout(() => {
+                closePayModal();
+                const user = JSON.parse(localStorage.getItem('shopUser'));
+                submitSubscribe(user.id, pendingSubscribeLevel);
+            }, 1000);
+        }
+
+        // ⭐ 第四步：真实升级会员逻辑
+        async function submitSubscribe(memberId, targetLevel) {
+            try {
+                const res = await fetch(`http://localhost:8080/api/members/upgrade`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ memberId: memberId, newLevel: targetLevel })
+                });
+                const result = await res.json();
+
+                                if (result.code === 200) {
+                    alert(`支付成功！恭喜您，已成功升级为【${targetLevel}】！`);
+                    
+                    // 更新本地的用户信息
+                    const user = JSON.parse(localStorage.getItem('shopUser'));
+                    user.memberLevel = targetLevel;
+                    localStorage.setItem('shopUser', JSON.stringify(user));
+                    
+                    // ⭐ 根据购买等级，智能跳转到对应的专属页面
+                    if (targetLevel === '普通会员') {
+                        window.location.href = 'vip-normal.html';
+                    } else if (targetLevel === '金卡会员') {
+                        window.location.href = 'vip-gold.html';
+                    } else if (targetLevel === '铂金会员') {
+                        window.location.href = 'vip-platinum.html';
+                    } else {
+                        window.location.href = 'shop.html'; // 兜底
+                    }
+                } else {
+                    alert('升级失败：' + result.msg);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("网络异常，请重试");
+            }
+        }
+    </script>
+</body>
+</html>

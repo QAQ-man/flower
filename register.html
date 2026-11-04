@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>企业入驻注册 · 花加 FLOWERPLUS 运营中台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+  aside nav a[data-perm] {
+      visibility: hidden;
+  }
+  aside nav a[data-perm].nav-ready {
+      visibility: visible;
+  }
+</style>
+</head>
+<body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- 左侧说明区 -->
+<aside class="relative hidden xl:flex w-[420px] shrink-0 flex-col justify-between overflow-hidden p-10 border-r border-white/[0.06]">
+<div class="absolute inset-0">
+<img alt="花艺工作台上整理好的花材与剪刀" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-09-23/a037f2c5c1e746d4a2369f415251348d.jpg"/>
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_40%_20%,rgba(200,16,46,0.5),rgba(9,4,5,0.95)_62%)]"></div>
+</div>
+<div class="relative flex items-center gap-3">
+<span class="w-9 h-9 rounded-full bg-[#c8102e] flex items-center justify-center">
+<iconify-icon class="text-white text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+</span>
+<div class="leading-tight">
+<p class="serif text-[17px] tracking-[0.2em] text-white">FLOWERPLUS</p>
+<p class="text-[10px] tracking-[0.36em] text-white/55">企业入驻</p>
+</div>
+</div>
+<div class="relative">
+<h1 class="serif text-[36px] leading-snug text-white">成为花加<br/>城市合伙人</h1>
+<p class="mt-4 text-[12px] leading-relaxed text-white/55">
+          入驻后可开通门店接单、花材调拨、会员运营与配送排班能力，总部供应链 12 小时直达。
+        </p>
+<ul class="mt-8 space-y-4 text-[12px] text-white/70">
+<li class="flex items-start gap-3">
+<iconify-icon class="text-[#e6a6b0] text-[16px] mt-0.5" icon="solar:check-circle-bold"></iconify-icon>
+<span>云南直采花材，损耗率低于 6%</span>
+</li>
+<li class="flex items-start gap-3">
+<iconify-icon class="text-[#e6a6b0] text-[16px] mt-0.5" icon="solar:check-circle-bold"></iconify-icon>
+<span>独立定价与营销工具，支持门店自营活动</span>
+</li>
+<li class="flex items-start gap-3">
+<iconify-icon class="text-[#e6a6b0] text-[16px] mt-0.5" icon="solar:check-circle-bold"></iconify-icon>
+<span>实时对账结算，T+1 到账</span>
+</li>
+</ul>
+</div>
+<p class="relative text-[11px] text-white/30">© 2013-2026 上海分尚网络科技有限公司 · 沪ICP备13016979号-1</p>
+</aside>
+<!-- 右侧注册流程 -->
+<main class="flex-1 min-w-0 flex flex-col overflow-hidden">
+<header class="h-16 shrink-0 flex items-center justify-between px-8 border-b border-white/[0.06]">
+<p class="text-[13px] text-white/50">已有企业账号？<a class="text-[#e6a6b0] hover:text-white transition" href="login.html">返回登录</a></p>
+<button class="flex items-center gap-2 text-[12px] text-white/45 hover:text-white transition" type="button">
+<iconify-icon class="text-[16px]" icon="solar:headphones-round-linear"></iconify-icon>
+          招商顾问 400-820-6510
+        </button>
+</header>
+<div class="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<div class="mx-auto max-w-[760px] px-8 py-10">
+<h2 class="serif text-[28px] text-white">企业入驻申请</h2>
+<p class="mt-2 text-[13px] text-white/45">填写门店与资质信息，招商团队将在 1 个工作日内完成审核</p>
+<!-- 步骤条 -->
+<div class="mt-8 flex items-center">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-full flex items-center justify-center text-[13px] bg-[#c8102e] text-white" id="dot1">1</span>
+<span class="text-[13px] text-white" id="label1">账号信息</span>
+</div>
+<span class="mx-4 h-px w-16 bg-white/15" id="line1"></span>
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-full flex items-center justify-center text-[13px] border border-white/15 text-white/45" id="dot2">2</span>
+<span class="text-[13px] text-white/45" id="label2">企业资质</span>
+</div>
+<span class="mx-4 h-px w-16 bg-white/15" id="line2"></span>
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-full flex items-center justify-center text-[13px] border border-white/15 text-white/45" id="dot3">3</span>
+<span class="text-[13px] text-white/45" id="label3">提交审核</span>
+</div>
+</div>
+<div class="mt-8 rounded-2xl border border-white/[0.08] bg-[#150c0e] p-8">
+<!-- 第一步 -->
+<section id="step1">
+<h3 class="text-[15px] text-white mb-6 flex items-center gap-2">
+<iconify-icon class="text-[#e6a6b0]" icon="solar:user-circle-linear"></iconify-icon> 门店主账号
+              </h3>
+<div class="grid grid-cols-2 gap-5">
+<div>
+<label class="block text-[12px] text-white/50 mb-2">负责人姓名</label>
+<input id="contactName" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="text" value="" placeholder="请输入负责人姓名"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">手机号</label>
+<input id="phone" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="tel" value="" placeholder="请输入手机号"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">登录密码</label>
+<input id="password" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="password" value="" placeholder="至少 6 位"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">确认密码</label>
+<input id="confirmPassword" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="password" value="" placeholder="再次输入密码"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">邮箱</label>
+<input id="email" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="email" value="" placeholder="请输入企业邮箱"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">合作类型</label>
+<select id="cooperationType" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] text-white outline-none focus:border-[#c8102e]/70 transition">
+<option class="bg-[#150c0e]" value="">请选择合作类型</option>
+<option class="bg-[#150c0e]" value="区域门店">区域门店（华东大区）</option>
+<option class="bg-[#150c0e]" value="企业团购服务商">企业团购服务商</option>
+<option class="bg-[#150c0e]" value="城市配送合作方">城市配送合作方</option>
+</select>
+</div>
+</div>
+<label class="mt-6 flex items-start gap-2 text-[12px] text-white/45 cursor-pointer">
+<input id="agreeTerms" class="mt-0.5 w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/>
+<span>我已阅读并同意《花加企业入驻协议》与《鲜花供应链服务条款》</span>
+</label>
+</section>
+<!-- 第二步 -->
+<section class="hidden" id="step2">
+<h3 class="text-[15px] text-white mb-6 flex items-center gap-2">
+<iconify-icon class="text-[#e6a6b0]" icon="solar:document-add-linear"></iconify-icon> 企业与门店资质
+              </h3>
+<div class="grid grid-cols-2 gap-5">
+<div class="col-span-2">
+<label class="block text-[12px] text-white/50 mb-2">企业名称</label>
+<input id="enterpriseName" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="text" value="" placeholder="请输入企业全称"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">统一社会信用代码</label>
+<input id="creditCode" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="text" value="" placeholder="18 位信用代码"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">门店营业面积（㎡）</label>
+<input id="area" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="number" value="" placeholder="例如：120"/>
+</div>
+<div class="col-span-2">
+<label class="block text-[12px] text-white/50 mb-2">门店经营地址</label>
+<input id="address" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" type="text" value="" placeholder="请输入详细地址"/>
+</div>
+</div>
+<p class="mt-6 text-[12px] text-white/50 mb-3">资质材料</p>
+<div class="grid grid-cols-3 gap-4">
+<div class="rounded-xl border border-dashed border-white/15 bg-white/[0.02] h-[112px] flex flex-col items-center justify-center gap-2 hover:border-[#c8102e]/60 transition cursor-pointer">
+<iconify-icon class="text-[20px] text-[#e6a6b0]" icon="solar:gallery-add-linear"></iconify-icon>
+<p class="text-[12px] text-white/60">营业执照</p>
+<p class="text-[11px] text-white/35">待上传（≤5MB）</p>
+</div>
+<div class="rounded-xl border border-dashed border-white/15 bg-white/[0.02] h-[112px] flex flex-col items-center justify-center gap-2 hover:border-[#c8102e]/60 transition cursor-pointer">
+<iconify-icon class="text-[20px] text-[#e6a6b0]" icon="solar:gallery-add-linear"></iconify-icon>
+<p class="text-[12px] text-white/60">门店门头照片</p>
+<p class="text-[11px] text-white/35">待上传（≤5MB）</p>
+</div>
+<div class="rounded-xl border border-dashed border-white/15 bg-white/[0.02] h-[112px] flex flex-col items-center justify-center gap-2 hover:border-[#c8102e]/60 transition cursor-pointer">
+<iconify-icon class="text-[20px] text-[#e6a6b0]" icon="solar:gallery-add-linear"></iconify-icon>
+<p class="text-[12px] text-white/60">食品经营许可证</p>
+<p class="text-[11px] text-white/35">待上传（可选）</p>
+</div>
+</div>
+<div class="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+<p class="text-[12px] text-white/50 mb-3">配送能力（可多选）</p>
+<div class="flex flex-wrap gap-2" id="deliveryTypes">
+<span class="px-3 py-1.5 rounded-full text-[12px] border border-white/12 text-white/50 cursor-pointer" data-value="同城3小时达">同城 3 小时达</span>
+<span class="px-3 py-1.5 rounded-full text-[12px] border border-white/12 text-white/50 cursor-pointer" data-value="次日达">次日达</span>
+<span class="px-3 py-1.5 rounded-full text-[12px] border border-white/12 text-white/50 cursor-pointer" data-value="冷链专送">冷链专送</span>
+<span class="px-3 py-1.5 rounded-full text-[12px] border border-white/12 text-white/50 cursor-pointer" data-value="门店自提">门店自提</span>
+<span class="px-3 py-1.5 rounded-full text-[12px] border border-white/12 text-white/50 cursor-pointer" data-value="企业月配">企业月配</span>
+</div>
+</div>
+</section>
+<!-- 第三步 -->
+<section class="hidden" id="step3">
+<div class="flex flex-col items-center text-center py-4">
+<span class="w-16 h-16 rounded-full bg-[#c8102e]/15 border border-[#c8102e]/40 flex items-center justify-center">
+<iconify-icon class="text-[28px] text-[#e6a6b0]" icon="solar:hourglass-line-linear"></iconify-icon>
+</span>
+<h3 class="serif text-[22px] text-white mt-5">资料已提交，等待审核</h3>
+<p class="mt-3 text-[13px] text-white/50 max-w-[420px] leading-relaxed">
+                  招商顾问将在 1 个工作日内完成资质核验，审核结果会同时发送至手机短信与企业邮箱，请留意查收。
+                </p>
+<div class="mt-7 w-full max-w-[460px] rounded-xl border border-white/[0.08] bg-white/[0.03] divide-y divide-white/[0.06] text-left">
+<div class="flex items-center justify-between px-5 py-3.5 text-[12px]">
+<span class="text-white/45">申请编号</span><span class="text-white" id="applyCode">-</span>
+</div>
+<div class="flex items-center justify-between px-5 py-3.5 text-[12px]">
+<span class="text-white/45">申请门店</span><span class="text-white" id="applyShopName">-</span>
+</div>
+<div class="flex items-center justify-between px-5 py-3.5 text-[12px]">
+<span class="text-white/45">提交时间</span><span class="text-white" id="applyTime">-</span>
+</div>
+<div class="flex items-center justify-between px-5 py-3.5 text-[12px]">
+<span class="text-white/45">当前状态</span>
+<span class="px-2 py-0.5 rounded-md text-[11px] bg-amber-400/15 text-amber-300 border border-amber-400/30">资质初审中</span>
+</div>
+</div>
+<p class="mt-5 text-[12px] text-white/35">演示流程：点击下方按钮可直接以演示门店身份进入运营中台。</p>
+</div>
+</section>
+<div class="mt-8 flex items-center justify-between border-t border-white/[0.06] pt-6">
+<button class="hidden h-11 px-6 rounded-lg border border-white/12 text-[13px] text-white/60 hover:text-white hover:border-white/30 transition" id="prevBtn" onclick="goStep(-1)" type="button">上一步</button>
+<span class="hidden xl:block"></span>
+<div class="flex items-center gap-3 ml-auto">
+<a class="h-11 px-5 flex items-center rounded-lg text-[13px] text-white/45 hover:text-white transition" href="login.html">取消</a>
+<button class="h-11 px-8 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-white text-[13px] tracking-[0.1em] transition" id="nextBtn" onclick="goStep(1)" type="button">下一步</button>
+<a class="hidden h-11 px-8 items-center rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-white text-[13px] tracking-[0.1em] transition" href="dashboard.html" id="doneBtn">进入运营中台</a>
+</div>
+</div>
+</div>
+<p class="mt-6 text-[11px] leading-relaxed text-white/25">
+            入驻即视为同意花加平台关于鲜花品质、配送时效与售后赔付的各项标准；门店信息将用于生成对账单与配送面单。
+          </p>
+</div>
+</div>
+</main>
+</div>
+<script>
+  var step = 1;
+
+  // 配送能力多选切换
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#deliveryTypes span').forEach(el => {
+      el.addEventListener('click', function() {
+        const isActive = this.classList.contains('bg-[#c8102e]/15');
+        if (isActive) {
+          this.classList.remove('border-[#c8102e]/50', 'bg-[#c8102e]/15', 'text-white');
+          this.classList.add('border-white/12', 'text-white/50');
+        } else {
+          this.classList.add('border-[#c8102e]/50', 'bg-[#c8102e]/15', 'text-white');
+          this.classList.remove('border-white/12', 'text-white/50');
+        }
+      });
+    });
+  });
+
+  function renderStep() {
+    for (var i = 1; i <= 3; i++) {
+      document.getElementById('step' + i).classList.toggle('hidden', i !== step);
+      var dot = document.getElementById('dot' + i);
+      var label = document.getElementById('label' + i);
+      if (i < step) {
+        dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-[13px] bg-[#c8102e]/25 text-[#e6a6b0]';
+        dot.innerHTML = '<iconify-icon icon="solar:check-read-linear"></iconify-icon>';
+        label.className = 'text-[13px] text-white/70';
+      } else if (i === step) {
+        dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-[13px] bg-[#c8102e] text-white';
+        dot.textContent = i;
+        label.className = 'text-[13px] text-white';
+      } else {
+        dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-[13px] border border-white/15 text-white/45';
+        dot.textContent = i;
+        label.className = 'text-[13px] text-white/45';
+      }
+    }
+    document.getElementById('prevBtn').classList.toggle('hidden', step === 1);
+    document.getElementById('nextBtn').classList.toggle('hidden', step === 3);
+    document.getElementById('doneBtn').classList.toggle('hidden', step !== 3);
+    document.getElementById('doneBtn').classList.toggle('flex', step === 3);
+    document.getElementById('nextBtn').textContent = step === 2 ? '提交审核' : '下一步';
+  }
+
+  function goStep(delta) {
+    var next = step + delta;
+    if (next < 1 || next > 3) return;
+
+    // 离开第 1 步前，暂存数据
+    if (step === 1 && delta === 1) {
+        const step1Data = {
+            contactName: document.getElementById('contactName').value.trim(),
+            phone: document.getElementById('phone').value.trim().replace(/\s/g, ''),
+            password: document.getElementById('password').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            cooperationType: document.getElementById('cooperationType').value,
+        };
+        if (!step1Data.contactName) { alert('请填写负责人姓名'); return; }
+        if (!step1Data.phone) { alert('请填写手机号'); return; }
+        if (!step1Data.password || step1Data.password.length < 6) { alert('密码不能少于 6 位'); return; }
+        const confirmPwd = document.getElementById('confirmPassword').value.trim();
+        if (step1Data.password !== confirmPwd) { alert('两次输入的密码不一致'); return; }
+        if (!step1Data.cooperationType) { alert('请选择合作类型'); return; }
+        if (!document.getElementById('agreeTerms').checked) { alert('请先阅读并同意入驻协议'); return; }
+        
+        sessionStorage.setItem('shopApplyStep1', JSON.stringify(step1Data));
+    }
+
+    // 在第 2 步点击“提交审核”时，提交全部数据
+    if (step === 2 && delta === 1) {
+        submitApply();
+        return;
+    }
+
+    step = next;
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 提交入驻申请
+  async function submitApply() {
+    const step1Data = JSON.parse(sessionStorage.getItem('shopApplyStep1') || '{}');
+    if (!step1Data.phone) {
+        alert('请先完成第 1 步');
+        return;
+    }
+
+    const enterpriseName = document.getElementById('enterpriseName').value.trim();
+    const creditCode = document.getElementById('creditCode').value.trim();
+    const area = document.getElementById('area').value;
+    const address = document.getElementById('address').value.trim();
+
+    if (!enterpriseName) { alert('请填写企业名称'); return; }
+    if (!address) { alert('请填写门店经营地址'); return; }
+
+    const deliveryType = [];
+    document.querySelectorAll('#deliveryTypes span.bg-\\[\\#c8102e\\]\\/15').forEach(el => {
+        deliveryType.push(el.dataset.value);
+    });
+
+    const payload = {
+        contactName: step1Data.contactName,
+        phone: step1Data.phone,
+        password: step1Data.password,
+        email: step1Data.email,
+        cooperationType: step1Data.cooperationType,
+        enterpriseName: enterpriseName,
+        creditCode: creditCode,
+        area: parseInt(area) || 0,
+        address: address,
+        region: '华东大区',
+        deliveryType: deliveryType.join(',') || '同城3小时达',
+    };
+
+    try {
+        const response = await fetch('http://localhost:8080/api/shop/apply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.code === 200) {
+            document.getElementById('applyShopName').textContent = enterpriseName;
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            document.getElementById('applyTime').textContent = 
+                `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            
+            step = 3;
+            renderStep();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            alert('提交失败：' + result.msg);
+        }
+    } catch (error) {
+        console.error('提交失败:', error);
+        alert('网络异常，请稍后重试');
+    }
+  }
+
+  renderStep();
+</script>
+</body>
+</html>

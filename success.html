@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>支付成功 · 花加 FLOWERPLUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, serif; }
+        body { background-color: #faf9f6; }
+    </style>
+</head>
+<body class="w-full min-h-screen text-gray-800 antialiased flex flex-col items-center justify-center p-4">
+
+    <!-- 成功卡片 -->
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-8 text-center relative overflow-hidden">
+        
+        <!-- 背景装饰 -->
+        <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-rose-50 to-white -z-10"></div>
+
+        <!-- 成功图标 -->
+        <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <iconify-icon class="text-[40px] text-emerald-500" icon="solar:check-circle-bold"></iconify-icon>
+        </div>
+
+        <h1 class="serif text-2xl font-bold text-gray-900 mb-2">支付成功</h1>
+        <p class="text-gray-500 text-sm mb-8">感谢您的购买，我们将尽快为您安排同城配送。</p>
+
+        <!-- 订单信息卡片 -->
+        <div class="bg-gray-50 rounded-2xl p-5 text-left text-sm mb-8 space-y-3 border border-gray-100">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-500">订单编号</span>
+                <span class="text-gray-900 font-mono font-medium" id="successOrderNo">--</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-500">支付金额</span>
+                <span class="text-rose-500 font-bold text-xl"><span class="text-sm">￥</span><span id="successAmount">0.00</span></span>
+            </div>
+            <div class="flex justify-between items-start">
+                <span class="text-gray-500 shrink-0">收货信息</span>
+                <span class="text-gray-900 text-right leading-relaxed max-w-[200px]" id="successInfo">--</span>
+            </div>
+        </div>
+
+        <!-- 按钮区 -->
+        <div class="space-y-3">
+            <a href="shop.html" class="block w-full py-3.5 bg-rose-500 text-white rounded-xl font-medium hover:bg-rose-600 transition shadow-lg shadow-rose-500/30">
+                继续逛逛
+            </a>
+            <a href="shop.html" class="block w-full py-3.5 bg-white border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition">
+                返回首页
+            </a>
+        </div>
+    </div>
+
+    <!-- 客服提示 -->
+    <p class="mt-8 text-xs text-gray-400 flex items-center gap-1">
+        <iconify-icon icon="solar:headphones-round-linear"></iconify-icon> 如有疑问请联系客服 400-888-8888
+    </p>
+
+    <script>
+        // 页面加载时，提取 URL 里的参数并显示
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            const orderNo = urlParams.get('orderNo') || '未知订单';
+            const amount = urlParams.get('amount') || '0.00';
+            const name = urlParams.get('name') || '';
+            const address = urlParams.get('address') || '';
+
+            document.getElementById('successOrderNo').textContent = orderNo;
+            document.getElementById('successAmount').textContent = Number(amount).toFixed(2);
+            
+            if(name && address) {
+                document.getElementById('successInfo').innerHTML = `${name} <br/> ${address}`;
+            } else {
+                document.getElementById('successInfo').textContent = '详情见订单记录';
+            }
+        });
+    </script>
+</body>
+</html>

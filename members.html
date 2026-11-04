@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>会员管理 · 花加 FLOWERPLUS 运营中台</title>
+<script src="./js/user.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+  aside nav a[data-perm] { visibility: hidden; }
+  aside nav a[data-perm].nav-ready { visibility: visible; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+  .member-table td { vertical-align: middle; }
+</style>
+</head>
+<body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- 侧边导航 -->
+<aside class="w-[236px] shrink-0 h-full bg-[#140c0e] border-r border-white/[0.06] flex flex-col">
+<div class="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+<span class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#e11d48] to-[#8b0f24] flex items-center justify-center">
+<iconify-icon class="text-white text-[16px]" icon="solar:flower-2-bold"></iconify-icon>
+</span>
+<div class="leading-tight">
+<p class="serif text-[15px] tracking-[0.18em] text-white">FLOWERPLUS</p>
+<p class="text-[10px] tracking-[0.24em] text-white/40">运营中台</p>
+</div>
+</div>
+<nav class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-3 py-4">
+  <p class="px-3 pb-2 text-[11px] tracking-[0.2em] text-white/30">概览</p>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" href="dashboard.html" data-perm="dashboard:view">
+    <iconify-icon class="text-[17px]" icon="solar:widget-4-bold"></iconify-icon> 数据看板
+</a>
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">经营管理</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" href="orders.html" data-perm="order:view">
+    <iconify-icon class="text-[17px]" icon="solar:bag-check-bold"></iconify-icon> 订单管理
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" href="products.html" data-perm="goods:view">
+    <iconify-icon class="text-[17px]" icon="solar:box-bold"></iconify-icon> 商品与花材
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" href="members.html" data-perm="member:view">
+    <iconify-icon class="text-[17px]" icon="solar:users-group-rounded-bold"></iconify-icon> 会员管理
+  </a>
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">系统</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" href="settings.html" data-perm="settings:view">
+    <iconify-icon class="text-[17px]" icon="solar:settings-bold"></iconify-icon> 系统设置
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition" href="register.html" data-perm="shop:view">
+    <iconify-icon class="text-[17px]" icon="solar:shop-bold"></iconify-icon> 门店入驻
+  </a>
+  <div class="mt-6 mx-1 rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#c8102e]/20 to-transparent p-4">
+    <p class="text-[12px] text-white flex items-center gap-1.5">
+      <iconify-icon class="text-[#e6a6b0]" icon="solar:bell-bing-bold"></iconify-icon> 花材预警
+    </p>
+    <p class="mt-2 text-[11px] leading-relaxed text-white/50" id="flowerWarnText">
+      加载中…
+    </p>
+    <a class="mt-3 inline-flex items-center gap-1 text-[11px] text-[#e6a6b0] hover:text-white transition" href="products.html">
+      立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+    </a>
+  </div>
+</nav>
+<div class="shrink-0 p-3 border-t border-white/[0.06]">
+<div class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/[0.04] transition">
+    <span id="sideAvatar" class="w-9 h-9 rounded-full bg-[#c8102e]/25 border border-[#c8102e]/40 flex items-center justify-center text-[12px] text-[#f0c3ca]">?</span>
+    <div class="min-w-0 flex-1 leading-tight">
+        <p id="sideRealName" class="text-[12px] text-white truncate">加载中...</p>
+        <p id="sideRoleName" class="text-[10px] text-white/40 truncate">加载中...</p>
+    </div>
+    <a class="text-white/35 hover:text-[#e6a6b0] transition" href="javascript:void(0)" onclick="logout()" title="退出登录">
+        <iconify-icon class="text-[17px]" icon="solar:logout-3-linear"></iconify-icon>
+    </a>
+</div>
+</div>
+</aside>
+
+<!-- 主区域 -->
+<div class="flex-1 min-w-0 flex flex-col">
+<header class="h-16 shrink-0 flex items-center gap-4 px-8 bg-[#0f080a]/80 backdrop-blur border-b border-white/[0.06]">
+<nav class="flex items-center gap-2 text-[12px]">
+<a class="text-white/40 hover:text-white transition" href="dashboard.html">数据看板</a>
+<iconify-icon class="text-white/25" icon="solar:alt-arrow-right-linear"></iconify-icon>
+<span class="text-white">会员管理</span>
+</nav>
+<div class="ml-6 flex-1 max-w-[320px] flex items-center gap-2 h-9 rounded-lg border border-white/10 bg-white/[0.03] px-3">
+<iconify-icon class="text-white/35" icon="solar:magnifer-linear"></iconify-icon>
+<input class="flex-1 bg-transparent outline-none text-[12px] text-white placeholder:text-white/25" id="kw" onkeydown="if(event.key==='Enter') onFilterClick()" placeholder="会员姓名 / 手机号 / 偏好花材" type="text"/>
+</div>
+<div class="ml-auto flex items-center gap-3">
+<button class="h-9 px-3.5 rounded-lg border border-white/10 text-[12px] text-white/60 hover:text-white hover:border-white/25 transition flex items-center gap-1.5" onclick="showToast('已生成会员唤醒名单')" type="button">
+<iconify-icon icon="solar:letter-unread-linear"></iconify-icon> 批量唤醒
+          </button>
+<button class="h-9 px-4 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white flex items-center gap-1.5 transition" onclick="showToast('会员标签体系已同步')" type="button">
+<iconify-icon icon="solar:tag-linear"></iconify-icon> 同步会员标签
+          </button>
+</div>
+</header>
+
+<main class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-8 py-6">
+<!-- 统计卡片 -->
+<section class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<div class="flex items-center justify-between">
+<p class="text-[11px] text-white/45">会员总数</p>
+<iconify-icon class="text-white/30" icon="solar:users-group-rounded-linear"></iconify-icon>
+</div>
+<p class="mt-1.5 serif text-[24px] text-white"><span id="statTotal">0</span> <span class="text-[12px] text-white/40">人</span></p>
+<p class="mt-1.5 text-[11px] text-emerald-400">本月新增 <span id="statNew">0</span> 人</p>
+</div>
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<div class="flex items-center justify-between">
+<p class="text-[11px] text-white/45">订阅制会员</p>
+<iconify-icon class="text-white/30" icon="solar:calendar-mark-linear"></iconify-icon>
+</div>
+<p class="mt-1.5 serif text-[24px] text-white"><span id="statSub">0</span> <span class="text-[12px] text-white/40">人</span></p>
+<p class="mt-1.5 text-[11px] text-white/40">占会员总数 <span id="statSubRate">0%</span></p>
+</div>
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<div class="flex items-center justify-between">
+<p class="text-[11px] text-white/45">90 天复购率</p>
+<iconify-icon class="text-white/30" icon="solar:repeat-linear"></iconify-icon>
+</div>
+<p class="mt-1.5 serif text-[24px] text-white"><span id="statRepurchase">0</span><span class="text-[12px] text-white/40">%</span></p>
+<p class="mt-1.5 text-[11px] text-emerald-400">环比 +3.4pt</p>
+</div>
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] px-5 py-4">
+<div class="flex items-center justify-between">
+<p class="text-[11px] text-white/45">客单价</p>
+<iconify-icon class="text-white/30" icon="solar:wallet-linear"></iconify-icon>
+</div>
+<p class="mt-1.5 serif text-[24px] text-white">￥<span id="statAvg">0</span></p>
+<p class="mt-1.5 text-[11px] text-white/40">铂金会员 ￥642</p>
+</div>
+</section>
+
+<!-- 图表与等级分布 -->
+<section class="mt-5 grid grid-cols-1 2xl:grid-cols-3 gap-4">
+<div class="2xl:col-span-2 rounded-2xl border border-white/[0.08] bg-[#150c0e] p-5">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-[14px] text-white">会员增长与复购</h2>
+<p class="mt-1 text-[11px] text-white/40">柱：新增会员（人）· 线：90 天复购率（%）</p>
+</div>
+<span class="px-3 h-7 rounded-lg text-[11px] bg-[#c8102e]/15 border border-[#c8102e]/30 text-[#e6a6b0] flex items-center">近 6 个月</span>
+</div>
+<div class="mt-4 w-full h-[276px]" id="memberChart"></div>
+</div>
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-5">
+<h2 class="text-[14px] text-white">会员等级分布</h2>
+<p class="mt-1 text-[11px] text-white/40">按累计消费自动升降级</p>
+<div class="mt-5 space-y-3.5" id="levelDistribution"></div>
+<div class="mt-6 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<p class="text-[12px] text-white/60">高价值人群</p>
+<p class="mt-2 text-[11px] leading-relaxed text-white/45">铂金会员人均年消费 ￥7,688，贡献了 38% 的营收，其中 72% 为订阅制周花客户。</p>
+</div>
+</div>
+</section>
+
+<!-- 会员表格区域 -->
+<section class="mt-5 rounded-2xl border border-white/[0.08] bg-[#150c0e] overflow-hidden">
+<!-- 筛选 Tab：将“沉睡会员”改为了“普通用户” -->
+<div class="flex items-center gap-1 px-5 pt-4 border-b border-white/[0.06] overflow-x-auto scrollbar-none">
+<button class="mtab shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-[#c8102e] text-white" data-tab="all" onclick="filterBy(this,'all')" type="button">全部会员</button>
+<button class="mtab shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="普通会员" onclick="filterBy(this,'普通会员')" type="button">普通会员</button>
+<button class="mtab shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="金卡会员" onclick="filterBy(this,'金卡会员')" type="button">金卡会员</button>
+<button class="mtab shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="铂金会员" onclick="filterBy(this,'铂金会员')" type="button">铂金会员</button>
+<button class="mtab shrink-0 px-4 py-2.5 text-[13px] border-b-2 border-transparent text-white/45 hover:text-white transition" data-tab="普通用户" onclick="filterBy(this,'普通用户')" type="button">普通用户</button>
+<span class="ml-auto text-[12px] text-white/35 pb-2 pt-3">共 <span class="text-white/70" id="memberCount">0</span> 位会员</span>
+</div>
+
+<div class="overflow-x-auto scrollbar-none">
+<table class="member-table w-full min-w-[1080px] text-[12px]">
+<thead>
+<tr class="text-white/35 text-left border-b border-white/[0.06] bg-white/[0.015]">
+<th class="font-normal px-6 py-3">会员</th>
+<th class="font-normal px-3 py-3">等级</th>
+<th class="font-normal px-3 py-3">手机号</th>
+<th class="font-normal px-3 py-3 text-right">累计消费</th>
+<th class="font-normal px-3 py-3 text-center">订单数</th>
+<th class="font-normal px-3 py-3">偏好花材</th>
+<th class="font-normal px-3 py-3">最近下单</th>
+<th class="font-normal px-6 py-3 text-right">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/[0.05]" id="memberBody"></tbody>
+</table>
+</div>
+<div class="hidden flex-col items-center justify-center py-14" id="memberEmpty">
+<span class="w-14 h-14 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
+<iconify-icon class="text-[24px] text-white/35" icon="solar:users-group-rounded-linear"></iconify-icon>
+</span>
+<p class="mt-4 text-[13px] text-white/60">没有匹配的会员</p>
+<p class="mt-1 text-[11px] text-white/30">尝试更换关键词或切换会员等级筛选</p>
+</div>
+<div class="flex items-center justify-between px-6 py-4 border-t border-white/[0.06]">
+<p class="text-[12px] text-white/35">数据来自小程序商城、门店 POS 与企业月结账户</p>
+<div class="flex items-center gap-1.5 text-[12px]" id="paginationContainer"></div>
+</div>
+</section>
+<div class="h-4"></div>
+</main>
+</div>
+</div>
+
+<!-- 会员档案抽屉 -->
+<div class="hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" id="drawerMask" onclick="closeDrawer()"></div>
+<aside class="hidden fixed right-0 top-0 z-50 h-full w-[420px] bg-[#150c0e] border-l border-white/[0.08] flex-col" id="drawer">
+<header class="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/[0.06]">
+<h2 class="text-[14px] text-white">会员档案</h2>
+<button class="text-white/40 hover:text-white transition" onclick="closeDrawer()" type="button">
+<iconify-icon class="text-[20px]" icon="solar:close-circle-linear"></iconify-icon>
+</button>
+</header>
+<div class="flex-1 min-h-0 overflow-y-auto scrollbar-none p-6">
+<div class="flex items-center gap-4">
+<span class="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-[#3a1219] to-[#7a1024] shrink-0">
+<img alt="会员档案头像" class="w-full h-full object-cover" id="dAvatar" src=""/>
+</span>
+<div>
+<p class="serif text-[20px] text-white" id="dName">--</p>
+<p class="mt-1 text-[12px] text-white/45"><span id="dLevel">--</span> · <span id="dPhone">--</span></p>
+</div>
+</div>
+<div class="mt-6 grid grid-cols-3 gap-3 text-center">
+<div class="rounded-xl border border-white/[0.06] bg-white/[0.02] py-3">
+<p class="serif text-[16px] text-white" id="dSpend">￥0.00</p>
+<p class="mt-1 text-[11px] text-white/40">累计消费</p>
+</div>
+<div class="rounded-xl border border-white/[0.06] bg-white/[0.02] py-3">
+<p class="serif text-[16px] text-white" id="dOrders">0</p>
+<p class="mt-1 text-[11px] text-white/40">订单数</p>
+</div>
+<div class="rounded-xl border border-white/[0.06] bg-white/[0.02] py-3">
+<p class="serif text-[16px] text-white" id="dRepurchase">0%</p>
+<p class="mt-1 text-[11px] text-white/40">复购率</p>
+</div>
+</div>
+<div class="mt-6 space-y-4 text-[12px]">
+<div class="flex justify-between gap-6"><span class="text-white/45 shrink-0">偏好花材</span><span class="text-white text-right" id="dPref">--</span></div>
+<div class="flex justify-between gap-6"><span class="text-white/45 shrink-0">最近下单</span><span class="text-white text-right leading-relaxed" id="dLast">--</span></div>
+<div class="flex justify-between"><span class="text-white/45">花香积分</span><span class="text-white" id="dPoints">0 分</span></div>
+</div>
+</div>
+<footer class="shrink-0 p-5 border-t border-white/[0.06] flex items-center gap-3">
+<a class="flex-1 h-10 rounded-lg border border-white/12 text-[12px] text-white/60 hover:text-white transition flex items-center justify-center" href="orders.html">查看全部订单</a>
+<button class="flex-1 h-10 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white transition" onclick="showToast('已发放专属券')" type="button">发放专属券</button>
+</footer>
+</aside>
+
+<script>
+  // ================== 全局状态 ==================
+  let currentLevel = 'all';
+  let currentPage = 1;
+  const pageSize = 20;
+  let totalPages = 1;
+  let memberChart = null;
+  let currentMembers = [];
+
+  // ================== 页面初始化 ==================
+  document.addEventListener('DOMContentLoaded', () => {
+    initChart();
+    fetchStatistics();
+    fetchTrend();
+    fetchMembers();
+    updateSidebarPerm();
+  });
+
+  function updateSidebarPerm() {
+    document.querySelectorAll('aside nav a[data-perm]').forEach(el => el.classList.add('nav-ready'));
+  }
+
+  // ================== 1. 初始化图表 ==================
+  function initChart() {
+    memberChart = echarts.init(document.getElementById('memberChart'));
+    memberChart.setOption({
+      tooltip: { trigger: 'axis', backgroundColor: '#1b1114', borderColor: 'rgba(255,255,255,0.12)', textStyle: { color: '#f5eef0', fontSize: 12 } },
+      legend: { right: 0, top: 0, icon: 'roundRect', itemWidth: 10, itemHeight: 10, textStyle: { color: '#a08b90', fontSize: 11 }, data: ['新增会员', '90 天复购率'] },
+      grid: { left: 8, right: 8, top: 42, bottom: 4, containLabel: true },
+      xAxis: { type: 'category', data: [], axisLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }, axisTick: { show: false }, axisLabel: { color: '#a08b90', fontSize: 11 } },
+      yAxis: [
+        { type: 'value', name: '新增会员（人）', nameTextStyle: { color: '#a08b90', fontSize: 11 }, axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }, axisLabel: { color: '#a08b90', fontSize: 11 } },
+        { type: 'value', name: '复购率（%）', nameTextStyle: { color: '#a08b90', fontSize: 11 }, min: 40, max: 70, axisLine: { show: false }, splitLine: { show: false }, axisLabel: { color: '#a08b90', fontSize: 11, formatter: '{value}%' } }
+      ],
+      series: [
+        { name: '新增会员', type: 'bar', barWidth: 24, data: [], itemStyle: { borderRadius: [6, 6, 0, 0], color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#e11d48' }, { offset: 1, color: 'rgba(139,15,36,0.35)' }]) } },
+        { name: '90 天复购率', type: 'line', yAxisIndex: 1, smooth: true, symbol: 'circle', symbolSize: 7, data: [], itemStyle: { color: '#d8b06a' }, lineStyle: { width: 2.5, color: '#d8b06a' } }
+      ]
+    });
+  }
+
+  // ================== 2. 会员统计接口 ==================
+  async function fetchStatistics() {
+    try {
+      const res = await fetch('http://localhost:8080/api/members/statistics').then(r => r.json());
+      if (res.code === 200) {
+        const d = res.data;
+        const setText = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val;
+        };
+        setText('statTotal', formatNumber(d.totalCount || 0));
+        setText('statNew', formatNumber(d.monthNewCount || 0));
+        setText('statSub', formatNumber(d.subCount || 0));
+        const subRate = d.totalCount > 0 ? Math.round((d.subCount || 0) / d.totalCount * 100) : 0;
+        setText('statSubRate', subRate + '%');
+        setText('statRepurchase', d.repurchaseRate || '61.8');
+        setText('statAvg', d.avgOrderAmount || '316');
+
+        // 等级分布
+        const levelContainer = document.getElementById('levelDistribution');
+        if (levelContainer) {
+          const levels = [
+            { name: '铂金会员', count: d.platinumCount || 0, color: '#d8b06a' },
+            { name: '金卡会员', count: d.goldCount || 0, color: '#c8102e' },
+            { name: '普通会员', count: d.normalCount || 0, color: '#3f2a2e' }
+          ];
+          const maxCount = Math.max(...levels.map(l => l.count), 1);
+          levelContainer.innerHTML = levels.map(l => {
+            const percent = Math.round(l.count / maxCount * 100);
+            return `
+              <div>
+                <div class="flex items-center justify-between text-[12px]">
+                  <span class="text-white/60 flex items-center gap-2"><span class="w-2 h-2 rounded-sm" style="background:${l.color}"></span>${l.name}</span>
+                  <span class="text-white">${formatNumber(l.count)} 人</span>
+                </div>
+                <div class="mt-2 h-1.5 rounded-full bg-white/[0.06] overflow-hidden"><div class="h-full rounded-full" style="width:${percent}%;background:${l.color}"></div></div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    } catch (e) {
+      console.error('统计接口失败:', e);
+    }
+  }
+
+  // ================== 3. 会员趋势接口 ==================
+  async function fetchTrend() {
+    try {
+      const res = await fetch('http://localhost:8080/api/members/trend').then(r => r.json());
+      if (res.code === 200) {
+        const d = res.data;
+        memberChart.setOption({
+          xAxis: { data: d.months || [] },
+          series: [
+            { data: (d.newMembers || []).map(x => x || 0) },
+            { data: (d.repurchaseRates || []).map(x => x || 0) }
+          ]
+        });
+      }
+    } catch (e) { console.error('趋势接口失败:', e); }
+  }
+
+  // ================== 4. 会员列表接口 ==================
+  async function fetchMembers() {
+    const keyword = document.getElementById('kw').value.trim();
+    const level = currentLevel === 'all' ? '' : currentLevel;
+
+    const params = new URLSearchParams({
+      page: currentPage,
+      pageSize: pageSize,
+      level: level,
+      keyword: keyword
+    });
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/members/list?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }).then(r => r.json());
+
+      if (res.code === 200) {
+        const { records, total, pages } = res.data;
+        totalPages = pages;
+        currentMembers = records;
+
+        renderTable(records);
+        renderPagination();
+        document.getElementById('memberCount').textContent = total;
+
+        const empty = document.getElementById('memberEmpty');
+        if (records.length === 0) {
+          empty.classList.remove('hidden');
+          empty.classList.add('flex');
+        } else {
+          empty.classList.add('hidden');
+          empty.classList.remove('flex');
+        }
+      }
+    } catch (e) {
+      console.error('会员列表接口失败:', e);
+    }
+  }
+
+  // ================== 5. 渲染表格 ==================
+  function renderTable(members) {
+    const tbody = document.getElementById('memberBody');
+    tbody.innerHTML = '';
+
+    const levelMap = {
+      '铂金会员': { text: '铂金', cls: 'bg-[#d8b06a]/15 border border-[#d8b06a]/35 text-[#e7c789]' },
+      '金卡会员': { text: '金卡', cls: 'bg-[#c8102e]/15 border border-[#c8102e]/35 text-[#f0c3ca]' },
+      '普通会员': { text: '普通', cls: 'bg-white/[0.06] border border-white/15 text-white/55' },
+      '普通用户': { text: '普通用户', cls: 'bg-white/[0.06] border border-white/15 text-white/55' }
+    };
+
+    members.forEach(m => {
+      const lv = levelMap[m.memberLevel] || { text: m.memberLevel || '未知', cls: 'bg-white/[0.06] border border-white/15 text-white/55' };
+      const defaultAvatar = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="%23333"/><circle cx="20" cy="15" r="7" fill="%23555"/><ellipse cx="20" cy="32" rx="12" ry="8" fill="%23555"/></svg>';
+      const avatarUrl = m.avatar && !m.avatar.includes('xxx') ? m.avatar : defaultAvatar;
+      const joinTimeStr = formatJoinTime(m.joinTime);
+      const lastOrderStr = formatLastOrder(m.lastOrderTime);
+      const phone = maskPhone(m.phone);
+      const longAgo = isLongAgo(m.lastOrderTime);
+
+      const trHtml = `
+        <tr class="mrow hover:bg-white/[0.03] transition" data-id="${m.id}" data-level="${m.memberLevel}">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-full overflow-hidden bg-white/5 shrink-0">
+                <img alt="会员${m.memberName || ''}的头像" class="w-full h-full object-cover" src="${avatarUrl}" onerror="this.src='${defaultAvatar}'"/>
+              </span>
+              <div>
+                <p class="text-white">${m.memberName || '未知'}</p>
+                <p class="text-[11px] text-white/35 mt-0.5">${joinTimeStr}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-3 py-4"><span class="px-2 py-0.5 rounded-md text-[11px] ${lv.cls}">${lv.text}</span></td>
+          <td class="px-3 py-4 text-white/60">${phone}</td>
+          <td class="px-3 py-4 text-right text-white">￥${formatMoney(m.totalConsume)}</td>
+          <td class="px-3 py-4 text-center text-white/70">${m.orderCount || 0}</td>
+          <td class="px-3 py-4 text-white/60">${m.preferFlower || '--'}</td>
+          <td class="px-3 py-4 ${longAgo ? 'text-amber-300' : 'text-white/60'}">${lastOrderStr}</td>
+          <td class="px-6 py-4 text-right whitespace-nowrap">
+            <button class="text-[#e6a6b0] hover:text-white transition" onclick="openDrawerById(${m.id})" type="button">查看档案</button>
+            <span class="text-white/15 mx-1.5">|</span>
+            <a class="text-white/45 hover:text-white transition" href="orders.html?memberId=${m.id}">订单</a>
+          </td>
+        </tr>
+      `;
+      tbody.insertAdjacentHTML('beforeend', trHtml);
+    });
+  }
+
+  // ================== 6. 渲染分页 ==================
+  function renderPagination() {
+    const container = document.getElementById('paginationContainer');
+    container.innerHTML = '';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'w-8 h-8 rounded-lg border border-white/10 text-white/40 hover:text-white transition flex items-center justify-center disabled:opacity-30';
+    prevBtn.innerHTML = '<iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>';
+    prevBtn.disabled = currentPage <= 1;
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; fetchMembers(); } };
+    container.appendChild(prevBtn);
+
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, startPage + 2);
+    if (endPage - startPage < 2) startPage = Math.max(1, endPage - 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.className = `w-8 h-8 rounded-lg flex items-center justify-center ${i === currentPage ? 'bg-[#c8102e] text-white' : 'border border-white/10 text-white/60 hover:text-white transition'}`;
+      pageBtn.textContent = i;
+      pageBtn.onclick = () => { currentPage = i; fetchMembers(); };
+      container.appendChild(pageBtn);
+    }
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'w-8 h-8 rounded-lg border border-white/10 text-white/40 hover:text-white transition flex items-center justify-center disabled:opacity-30';
+    nextBtn.innerHTML = '<iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon>';
+    nextBtn.disabled = currentPage >= totalPages;
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; fetchMembers(); } };
+    container.appendChild(nextBtn);
+  }
+
+  // ================== 7. Tab 切换 ==================
+  function filterBy(btn, level) {
+    currentLevel = level;
+    currentPage = 1;
+
+    const tabs = document.querySelectorAll('.mtab');
+    tabs.forEach(el => {
+      const isActive = el.dataset.tab === level;
+      el.className = 'mtab shrink-0 px-4 py-2.5 text-[13px] border-b-2 transition ' +
+        (isActive ? 'border-[#c8102e] text-white' : 'border-transparent text-white/45 hover:text-white');
+    });
+
+    fetchMembers();
+  }
+
+  // ================== 8. 筛选按钮 ==================
+  function onFilterClick() {
+    currentPage = 1;
+    fetchMembers();
+  }
+
+  // ================== 9. 会员档案抽屉 ==================
+  function openDrawerById(memberId) {
+    const m = currentMembers.find(x => x.id === memberId);
+    if (!m) return;
+
+    document.getElementById('dName').textContent = m.memberName || '--';
+    document.getElementById('dLevel').textContent = m.memberLevel || '--';
+    document.getElementById('dPhone').textContent = maskPhone(m.phone);
+    document.getElementById('dSpend').textContent = '￥' + formatMoney(m.totalConsume);
+    document.getElementById('dOrders').textContent = m.orderCount || 0;
+    document.getElementById('dPref').textContent = m.preferFlower || '--';
+    document.getElementById('dLast').textContent = m.lastOrderTime || '--';
+    document.getElementById('dPoints').textContent = (m.points || 0) + ' 分';
+    document.getElementById('dRepurchase').textContent = (m.repurchaseRate || 0) + '%';
+    
+    const defaultAvatar = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="%23333"/><circle cx="20" cy="15" r="7" fill="%23555"/><ellipse cx="20" cy="32" rx="12" ry="8" fill="%23555"/></svg>';
+    document.getElementById('dAvatar').src = (m.avatar && !m.avatar.includes('xxx')) ? m.avatar : defaultAvatar;
+
+    document.getElementById('drawerMask').classList.remove('hidden');
+    document.getElementById('drawer').classList.remove('hidden');
+    document.getElementById('drawer').classList.add('flex');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawerMask').classList.add('hidden');
+    document.getElementById('drawer').classList.add('hidden');
+    document.getElementById('drawer').classList.remove('flex');
+  }
+
+  // ================== 10. 工具函数 ==================
+  function formatMoney(val) {
+    if (!val) return '0.00';
+    return Number(val).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatNumber(val) {
+    return Number(val || 0).toLocaleString('zh-CN');
+  }
+
+  function maskPhone(phone) {
+    if (!phone) return '--';
+    if (phone.length === 11) return phone.substring(0, 3) + '****' + phone.substring(7);
+    return phone;
+  }
+
+  function formatJoinTime(joinTime) {
+    if (!joinTime) return '--';
+    const join = new Date(joinTime);
+    const now = new Date();
+    let years = now.getFullYear() - join.getFullYear();
+    let months = now.getMonth() - join.getMonth();
+    if (months < 0) { years--; months += 12; }
+    if (years > 0) return `加入 ${years} 年 ${months} 个月`;
+    return `加入 ${months} 个月`;
+  }
+
+  function formatLastOrder(lastOrderTime) {
+    if (!lastOrderTime) return '从未下单';
+    const last = new Date(lastOrderTime);
+    const now = new Date();
+    const daysDiff = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+    if (daysDiff === 0) {
+      const hh = String(last.getHours()).padStart(2, '0');
+      const mm = String(last.getMinutes()).padStart(2, '0');
+      return `今日 ${hh}:${mm}`;
+    } else if (daysDiff === 1) {
+      return '昨日';
+    } else {
+      return `${daysDiff} 天前`;
+    }
+  }
+
+  function isLongAgo(lastOrderTime) {
+    if (!lastOrderTime) return false;
+    const last = new Date(lastOrderTime);
+    const daysDiff = Math.floor((new Date() - last) / (1000 * 60 * 60 * 24));
+    return daysDiff > 60;
+  }
+
+  function showToast(message) {
+    var el = document.createElement('div');
+    el.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[60] rounded-xl border border-[#c8102e]/40 bg-[#1b0f12] px-4 py-3 text-[12px] text-white shadow-2xl shadow-black/50';
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 2600);
+  }
+
+  window.addEventListener('resize', function () { if (memberChart) memberChart.resize(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>订单详情 · 花加 FLOWERPLUS 运营中台</title>
+<script src="./js/user.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+  aside nav a[data-perm] { visibility: hidden; }
+  aside nav a[data-perm].nav-ready { visibility: visible; }
+  
+  /* ⭐ 打印面单专用样式 */
+  @media print {
+    body * { visibility: hidden; }
+    #printTemplate, #printTemplate * { visibility: visible; }
+    #printTemplate { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+    .no-print { display: none !important; }
+  }
+</style>
+</head>
+<body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- 侧边导航 -->
+<aside class="w-[236px] shrink-0 h-full bg-[#140c0e] border-r border-white/[0.06] flex flex-col">
+<div class="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+<span class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#e11d48] to-[#8b0f24] flex items-center justify-center">
+<iconify-icon class="text-white text-[16px]" icon="solar:flower-2-bold"></iconify-icon>
+</span>
+<div class="leading-tight">
+<p class="serif text-[15px] tracking-[0.18em] text-white">FLOWERPLUS</p>
+<p class="text-[10px] tracking-[0.24em] text-white/40">运营中台</p>
+</div>
+</div>
+<nav class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-3 py-4">
+  <p class="px-3 pb-2 text-[11px] tracking-[0.2em] text-white/30">概览</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="dashboard.html" data-perm="dashboard:view">
+    <iconify-icon class="text-[17px]" icon="solar:widget-4-bold"></iconify-icon> 数据看板
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">经营管理</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 bg-[#c8102e]/15 text-white ring-1 ring-inset ring-[#c8102e]/30" 
+     href="orders.html" data-perm="order:view">
+    <iconify-icon class="text-[17px] text-[#e6a6b0]" icon="solar:bag-check-bold"></iconify-icon> 订单管理
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="products.html" data-perm="goods:view">
+    <iconify-icon class="text-[17px]" icon="solar:box-bold"></iconify-icon> 商品与花材
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="members.html" data-perm="member:view">
+    <iconify-icon class="text-[17px]" icon="solar:users-group-rounded-bold"></iconify-icon> 会员管理
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">系统</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="settings.html" data-perm="settings:view">
+    <iconify-icon class="text-[17px]" icon="solar:settings-bold"></iconify-icon> 系统设置
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="register.html" data-perm="shop:view">
+    <iconify-icon class="text-[17px]" icon="solar:shop-bold"></iconify-icon> 门店入驻
+  </a>
+
+  <div class="mt-6 mx-1 rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#c8102e]/20 to-transparent p-4">
+    <p class="text-[12px] text-white flex items-center gap-1.5">
+      <iconify-icon class="text-[#e6a6b0]" icon="solar:bell-bing-bold"></iconify-icon> 花材预警
+    </p>
+    <p class="mt-2 text-[11px] leading-relaxed text-white/50" id="flowerWarnText">
+      加载中…
+    </p>
+    <a class="mt-3 inline-flex items-center gap-1 text-[11px] text-[#e6a6b0] hover:text-white transition" href="products.html">
+      立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+    </a>
+  </div>
+</nav>
+<div class="shrink-0 p-3 border-t border-white/[0.06]">
+<div class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/[0.04] transition">
+    <span id="sideAvatar" class="w-9 h-9 rounded-full bg-[#c8102e]/25 border border-[#c8102e]/40 flex items-center justify-center text-[12px] text-[#f0c3ca]">?</span>
+    <div class="min-w-0 flex-1 leading-tight">
+        <p id="sideRealName" class="text-[12px] text-white truncate">加载中...</p>
+        <p id="sideRoleName" class="text-[10px] text-white/40 truncate">加载中...</p>
+    </div>
+    <a class="text-white/35 hover:text-[#e6a6b0] transition" href="javascript:void(0)" onclick="logout()" title="退出登录">
+        <iconify-icon class="text-[17px]" icon="solar:logout-3-linear"></iconify-icon>
+    </a>
+</div>
+</div>
+</aside>
+<!-- 主区域 -->
+<div class="flex-1 min-w-0 flex flex-col">
+<header class="h-16 shrink-0 flex items-center gap-4 px-8 bg-[#0f080a]/80 backdrop-blur border-b border-white/[0.06]">
+<nav class="flex items-center gap-2 text-[12px]">
+<a class="text-white/40 hover:text-white transition" href="dashboard.html">数据看板</a>
+<iconify-icon class="text-white/25" icon="solar:alt-arrow-right-linear"></iconify-icon>
+<a class="text-white/40 hover:text-white transition" href="orders.html">订单管理</a>
+<iconify-icon class="text-white/25" icon="solar:alt-arrow-right-linear"></iconify-icon>
+<span class="text-white">订单详情</span>
+</nav>
+<div class="ml-auto flex items-center gap-3">
+<button onclick="handlePrint()" class="h-9 px-3.5 rounded-lg border border-white/10 text-[12px] text-white/60 hover:text-white hover:border-white/25 transition flex items-center gap-1.5" type="button">
+<iconify-icon icon="solar:printer-linear"></iconify-icon> 打印面单
+          </button>
+<button onclick="handleNotify(this)" class="h-9 px-3.5 rounded-lg border border-white/10 text-[12px] text-white/60 hover:text-white hover:border-white/25 transition flex items-center gap-1.5" type="button">
+<iconify-icon icon="solar:letter-linear"></iconify-icon> 通知收花人
+          </button>
+<button id="topDispatchBtn" class="h-9 px-4 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white flex items-center gap-1.5 transition hidden" type="button">
+<iconify-icon icon="solar:checklist-minimalistic-linear"></iconify-icon> 确认配花
+          </button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden px-8 py-6">
+<!-- 订单头 -->
+<section class="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#1b0f12] to-[#150c0e] p-6">
+<div class="flex flex-wrap items-start justify-between gap-4">
+<div>
+<div class="flex items-center gap-3">
+<h1 id="detailOrderNo" class="serif text-[22px] text-white">加载中...</h1>
+<span id="detailStatus" class="px-2.5 py-1 rounded-md text-[11px] bg-white/10 border border-white/20 text-white">加载中</span>
+<span class="px-2.5 py-1 rounded-md text-[11px] border border-white/12 text-white/55">同城 3 小时达</span>
+<span id="detailChannel" class="px-2.5 py-1 rounded-md text-[11px] border border-white/12 text-white/55">--</span>
+</div>
+<p id="detailCreateTime" class="mt-3 text-[12px] text-white/45">下单时间加载中...</p>
+<div class="mt-4 flex flex-wrap items-center gap-3">
+<span class="flex items-center gap-1.5 text-[12px] text-[#e6a6b0]" id="etaBadge">
+<iconify-icon icon="solar:alarm-linear"></iconify-icon> 承诺送达 <span id="detailPromiseTime">--</span>
+                </span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[11px] text-white/40">订单实付</p>
+<p id="detailRealPay" class="mt-1 serif text-[30px] text-white">￥0.00</p>
+<p class="mt-1 text-[11px] text-emerald-400" id="detailPayType">--</p>
+</div>
+</div>
+<!-- 状态时间线 (动态渲染) -->
+<div class="mt-8 flex items-start" id="timelineContainer">
+    <!-- 由 JS 动态生成 -->
+</div>
+</section>
+<div class="mt-5 grid grid-cols-1 2xl:grid-cols-3 gap-5">
+<div class="2xl:col-span-2 space-y-5">
+<!-- 商品明细 -->
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e]">
+<div class="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+<h2 class="text-[14px] text-white">花材与商品明细</h2>
+<span class="text-[11px] text-white/35">共 <span id="detailItemCount">0</span> 个商品 · 应付含配送费</span>
+</div>
+<table class="w-full text-[12px]">
+<thead>
+<tr class="text-white/35 text-left">
+<th class="font-normal px-6 py-3">商品</th>
+<th class="font-normal px-3 py-3">花材构成</th>
+<th class="font-normal px-3 py-3 text-right">单价</th>
+<th class="font-normal px-3 py-3 text-center">数量</th>
+<th class="font-normal px-6 py-3 text-right">小计</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/[0.05]" id="detailItemsBody">
+<!-- JS 动态渲染 -->
+</tbody>
+</table>
+<div class="px-6 py-5 border-t border-white/[0.06] grid grid-cols-1 xl:grid-cols-2 gap-6">
+<div class="space-y-2.5 text-[12px]">
+<div class="flex justify-between"><span class="text-white/45">商品金额</span><span class="text-white/80" id="detailTotalAmount">￥0.00</span></div>
+<div class="flex justify-between"><span class="text-white/45">优惠金额</span><span class="text-emerald-400" id="detailDiscount">-￥0.00</span></div>
+<div class="flex justify-between"><span class="text-white/45">同城配送费</span><span class="text-white/80" id="detailDeliveryFee">￥0.00</span></div>
+</div>
+<div class="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 flex flex-col justify-center">
+<div class="flex items-end justify-between">
+<span class="text-[12px] text-white/50">应收 / 实付金额</span>
+<span class="serif text-[26px] text-white" id="detailRealPay2">￥0.00</span>
+</div>
+<div class="mt-3 flex items-center gap-2 text-[11px] text-white/40">
+<iconify-icon class="text-[15px]" icon="solar:card-linear"></iconify-icon> <span id="detailPayType2">--</span>
+</div>
+<div class="mt-2 flex items-center gap-2 text-[11px] text-white/40">
+<iconify-icon class="text-[15px]" icon="solar:clock-circle-linear"></iconify-icon> 付款时间 <span id="detailPayTime2">--</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 配花与履约 -->
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<div class="flex items-center justify-between">
+<h2 class="text-[14px] text-white">配花单与履约</h2>
+<span class="text-[11px] text-white/35">配花员：静安门店操作台</span>
+</div>
+<div class="mt-5 grid grid-cols-1 xl:grid-cols-3 gap-4">
+<div class="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<p class="text-[11px] text-white/40">花材备货状态</p>
+<ul class="mt-3 space-y-2 text-[12px]">
+<li class="flex items-center gap-2 text-white/70"><iconify-icon class="text-emerald-400" icon="solar:check-circle-bold"></iconify-icon> 订单商品已确认</li>
+<li class="flex items-center gap-2 text-white/70"><iconify-icon class="text-emerald-400" icon="solar:check-circle-bold"></iconify-icon> 花材已配齐</li>
+</ul>
+</div>
+<div class="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<p class="text-[11px] text-white/40">配送信息</p>
+<p class="mt-3 text-[12px] text-white/70 leading-relaxed">骑手待指派 · 静安中转仓待出库<br/>预计同城配送</p>
+</div>
+<div class="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<p class="text-[11px] text-white/40">随单物料</p>
+<p class="mt-3 text-[12px] text-white/70 leading-relaxed">鲜花养护卡 1 张</p>
+</div>
+</div>
+</section>
+<!-- 售后记录 -->
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<div class="flex items-center justify-between">
+<h2 class="text-[14px] text-white">售后与备注</h2>
+</div>
+<div class="mt-5 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<div class="flex items-center gap-3">
+<span class="text-[12px] text-white">客户备注</span>
+</div>
+<p class="mt-2 text-[12px] text-white/55 leading-relaxed" id="detailCustomerNote">
+                  无
+                </p>
+</div>
+</section>
+</div>
+<!-- 右侧信息栏 -->
+<div class="space-y-5">
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white flex items-center gap-2">
+<iconify-icon class="text-[#e6a6b0]" icon="solar:map-point-linear"></iconify-icon> 收货信息
+              </h2>
+<div class="mt-4 space-y-3 text-[12px]">
+<div class="flex justify-between"><span class="text-white/45">收花人</span><span id="detailReceiverName" class="text-white">--</span></div>
+<div class="flex justify-between"><span class="text-white/45">联系电话</span><span id="detailReceiverPhone" class="text-white">--</span></div>
+<div class="flex justify-between gap-6"><span class="text-white/45 shrink-0">收货地址</span><span id="detailReceiverAddress" class="text-white text-right leading-relaxed">--</span></div>
+<div class="flex justify-between"><span class="text-white/45">贺卡留言</span><span id="detailCardMessage" class="text-white text-right">--</span></div>
+</div>
+<div class="mt-5 h-[132px] rounded-xl border border-white/[0.08] bg-[#0f080a] relative overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(200,16,46,0.14),transparent_70%)]"></div>
+<div class="relative flex flex-col items-center">
+<iconify-icon class="text-[26px] text-[#e6a6b0]" icon="solar:map-arrow-square-linear"></iconify-icon>
+<p class="mt-2 text-[11px] text-white/45">配送轨迹实时更新</p>
+</div>
+</div>
+</section>
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<div class="flex items-center justify-between">
+<h2 class="text-[14px] text-white">下单会员</h2>
+<a class="text-[11px] text-[#e6a6b0] hover:text-white transition" href="members.html">会员档案</a>
+</div>
+<div class="mt-4 flex items-center gap-3">
+<span class="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-[#3a1219] to-[#7a1024]">
+<img alt="头像" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-09-23/6dc834eca61d4180b791b20287602a1c.jpg"/>
+</span>
+<div>
+<p class="text-[13px] text-white" id="detailMemberName">--</p>
+<p class="text-[11px] text-white/40">普通会员</p>
+</div>
+<span class="ml-auto px-2.5 py-1 rounded-md text-[11px] bg-[#d8b06a]/15 border border-[#d8b06a]/35 text-[#e7c789]">VIP</span>
+</div>
+</section>
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white">操作日志</h2>
+<ul class="mt-4 space-y-4 text-[12px]">
+<li class="flex gap-3">
+<span class="mt-1 w-1.5 h-1.5 rounded-full bg-[#c8102e] shrink-0"></span>
+<div>
+<p class="text-white/80">订单进入配花队列</p>
+<p class="text-[11px] text-white/35 mt-0.5">系统 · 刚刚</p>
+</div>
+</li>
+</ul>
+</section>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between rounded-2xl border border-white/[0.08] bg-[#150c0e] px-6 py-4 mb-2">
+<a class="text-[12px] text-white/50 hover:text-white transition flex items-center gap-1.5" href="orders.html">
+<iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon> 返回订单列表
+          </a>
+<div class="flex items-center gap-3">
+<!-- ⭐ 这里绑定了真实的点击事件 -->
+<button class="h-10 px-4 rounded-lg border border-white/12 text-[12px] text-white/60 hover:text-white hover:border-white/30 transition" onclick="handleRefund()" type="button">发起退款</button>
+<button class="h-10 px-4 rounded-lg border border-white/12 text-[12px] text-white/60 hover:text-white hover:border-white/30 transition" onclick="handleResend()" type="button">补发花材</button>
+<button id="bottomDispatchBtn" class="h-10 px-6 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white transition" type="button">确认出库并派单</button>
+</div>
+</div>
+</main>
+</div>
+</div>
+<!-- 轻提示 -->
+<div class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50" id="toast">
+<div class="flex items-center gap-2 rounded-xl border border-[#c8102e]/40 bg-[#1b0f12] px-4 py-3 shadow-2xl shadow-black/50">
+<iconify-icon class="text-[#e6a6b0] text-[16px]" icon="solar:check-circle-bold"></iconify-icon>
+<span class="text-[12px] text-white" id="toastText"></span>
+</div>
+</div>
+
+<!-- 隐藏的面单打印模板 -->
+<div id="printTemplate" class="hidden text-black bg-white p-8" style="width: 800px; margin: 0 auto; font-family: sans-serif;">
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold border-b-2 border-black pb-2 inline-block">FLOWERPLUS 花加 · 鲜花配送面单</h1>
+    </div>
+    
+    <div class="text-sm space-y-2 mb-6">
+        <p><strong>订单号：</strong><span id="printOrderNo">--</span></p>
+        <p><strong>下单时间：</strong><span id="printCreateTime">--</span></p>
+        <p><strong>门店渠道：</strong>门店自营</p>
+    </div>
+
+    <div class="border-2 border-black p-4 mb-6 rounded">
+        <h2 class="font-bold text-lg mb-2 border-b border-gray-300 pb-1">收花人信息</h2>
+        <p class="text-base mb-1"><strong>姓 名：</strong><span id="printReceiverName" class="text-lg font-bold">--</span></p>
+        <p class="text-base mb-1"><strong>电 话：</strong><span id="printReceiverPhone" class="text-lg font-bold">--</span></p>
+        <p class="text-base"><strong>地 址：</strong><span id="printReceiverAddress">--</span></p>
+    </div>
+
+    <table class="w-full border-collapse border border-black text-sm mb-6">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border border-black p-2 text-left">商品名称</th>
+                <th class="border border-black p-2 text-center">数量</th>
+                <th class="border border-black p-2 text-right">单价</th>
+            </tr>
+        </thead>
+        <tbody id="printItemsBody">
+            <!-- 动态渲染 -->
+        </tbody>
+    </table>
+
+    <div class="flex justify-between items-end mt-10">
+        <div class="text-sm">
+            <p><strong>客户留言：</strong><span id="printCustomerNote">无</span></p>
+            <p><strong>贺卡留言：</strong><span id="printCardMessage">无</span></p>
+        </div>
+        <div class="text-center">
+            <p class="mb-6">配花员签字</p>
+            <p>_____________</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    var toastTimer = null;
+    function toast(message) {
+      var box = document.getElementById('toast');
+      document.getElementById('toastText').textContent = message;
+      box.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { box.classList.add('hidden'); }, 2600);
+    }
+  
+    var currentOrderId = null;
+  
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentOrderId = urlParams.get('id') || urlParams.get('no');
+        
+        if (currentOrderId) {
+            loadOrderDetail(currentOrderId);
+        } else {
+            alert('缺少订单ID，请返回列表重新进入');
+        }
+    });
+  
+    async function loadOrderDetail(id) {
+        try {
+            const res = await fetch(`http://localhost:8080/api/orders/${id}`);
+            const result = await res.json();
+            
+            console.log("最新返回：", result);
+  
+            if (result.code === 200 && result.data && result.data.order) {
+                renderPage(result.data.order, result.data.items || []);
+            } else {
+                alert("找不到该订单数据");
+            }
+        } catch (e) {
+            console.error('加载失败', e);
+            alert("网络请求失败：" + e.message);
+        }
+    }
+  
+    function renderPage(order, items) {
+        // 1. 基础信息
+        document.getElementById('detailOrderNo').textContent = order.orderNo || '--';
+        document.getElementById('detailChannel').textContent = order.channel || '未知渠道';
+        
+        const timeStr = order.createdAt ? order.createdAt.replace('T', ' ').substring(0, 16) : '--';
+        document.getElementById('detailCreateTime').textContent = `下单时间 ${timeStr} · 门店自营`;
+        
+        let promiseStr = '尽快送达';
+        if (order.status === 'finished') {
+            promiseStr = '已送达';
+        } else if (order.promiseDeliveryTime && order.createdAt) {
+            const pTime = new Date(order.promiseDeliveryTime).getTime();
+            const cTime = new Date(order.createdAt).getTime();
+            if (pTime > cTime) {
+                promiseStr = order.promiseDeliveryTime.replace('T', ' ').substring(0, 16);
+            }
+        } else if (order.promiseDeliveryTime) {
+            promiseStr = order.promiseDeliveryTime.replace('T', ' ').substring(0, 16);
+        }
+        document.getElementById('detailPromiseTime').textContent = promiseStr;
+  
+        // 金额
+        document.getElementById('detailRealPay').textContent = '￥' + (order.realPay || 0).toFixed(2);
+        document.getElementById('detailRealPay2').textContent = '￥' + (order.realPay || 0).toFixed(2);
+        document.getElementById('detailTotalAmount').textContent = '￥' + (order.totalAmount || 0).toFixed(2);
+        document.getElementById('detailDiscount').textContent = '-￥' + (order.discountAmount || 0).toFixed(2);
+        document.getElementById('detailDeliveryFee').textContent = '￥' + (order.deliveryFee || 0).toFixed(2);
+  
+        // 支付信息
+        const payTypeText = order.payType === 'wx' ? '微信支付' : (order.payType === 'ali' ? '支付宝' : order.payType || '未知');
+        document.getElementById('detailPayType').textContent = `已支付 · ${payTypeText}`;
+        document.getElementById('detailPayType2').textContent = payTypeText;
+        document.getElementById('detailPayTime2').textContent = order.payTime ? order.payTime.replace('T', ' ').substring(0, 19) : '--';
+  
+        // 2. 状态映射
+        const statusMap = {
+            'pending': { text: '待配花', cls: 'bg-amber-400/12 text-amber-300 border-amber-400/30' },
+            'paid': { text: '已支付', cls: 'bg-sky-400/12 text-sky-300 border-sky-400/30' },
+            'finished': { text: '已完成', cls: 'bg-emerald-400/12 text-emerald-300 border-emerald-400/30' },
+            'aftersale': { text: '售后处理', cls: 'bg-rose-400/12 text-rose-300 border-rose-400/30' }
+        };
+        const st = statusMap[order.status] || { text: '未知', cls: 'bg-white/10 text-white' };
+        const statusEl = document.getElementById('detailStatus');
+        statusEl.className = `px-2.5 py-1 rounded-md text-[11px] border ${st.cls}`;
+        statusEl.textContent = st.text;
+  
+        // 3. 收货信息
+        document.getElementById('detailReceiverName').textContent = order.receiverName || '--';
+        document.getElementById('detailMemberName').textContent = order.receiverName || '--';
+        document.getElementById('detailReceiverPhone').textContent = order.receiverPhone || '--';
+        document.getElementById('detailReceiverAddress').textContent = order.receiverAddress || '--';
+        document.getElementById('detailCardMessage').textContent = order.cardMessage || '无';
+        document.getElementById('detailCustomerNote').textContent = order.customerNote || '无';
+  
+        // 4. 商品明细
+        const tbody = document.getElementById('detailItemsBody');
+        document.getElementById('detailItemCount').textContent = items.length;
+        
+        if (items.length > 0) {
+            tbody.innerHTML = items.map(item => {
+                let imgUrl = item.imageMain || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+';
+                
+                const priceVal = Number(item.price || 0);
+                const qtyVal = Number(item.quantity || 1);
+                const subtotalVal = item.subtotal != null ? Number(item.subtotal) : (priceVal * qtyVal);
+                const skuStr = item.sku || '--';
+    
+                return `
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <span class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 shrink-0">
+                                    <img class="w-full h-full object-cover" src="${imgUrl}" alt="${item.goodsName}" />
+                                </span>
+                                <div>
+                                    <p class="text-white">${item.goodsName || '未知商品'}</p>
+                                    <p class="text-[11px] text-white/35 mt-0.5">SKU：${skuStr}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-4 text-white/55">请参照配花单</td>
+                        <td class="px-3 py-4 text-right text-white/70">￥${priceVal.toFixed(2)}</td>
+                        <td class="px-3 py-4 text-center text-white/70">${qtyVal}</td>
+                        <td class="px-6 py-4 text-right text-white">￥${subtotalVal.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-white/30">暂无商品明细</td></tr>';
+        }
+  
+        // ================== 动态渲染时间线 ==================
+        const timelineContainer = document.getElementById('timelineContainer');
+        if (timelineContainer) {
+            const steps = [
+                { label: '提交订单', time: order.createdAt ? order.createdAt.substring(11, 16) : '--:--' },
+                { label: '支付成功', time: order.payTime ? order.payTime.substring(11, 16) : '--:--' },
+                { label: '花材配齐中', time: '进行中' },
+                { label: '骑手配送', time: '--:--' },
+                { label: '送达完成', time: '--:--' }
+            ];
+  
+            let currentStep = 0;
+            if (order.status === 'paid') currentStep = 1;
+            if (order.status === 'pending') currentStep = 2;
+            if (order.status === 'finished') currentStep = 4;
+            if (order.status === 'aftersale') currentStep = 4;
+  
+            let timelineHtml = '';
+            steps.forEach((step, index) => {
+                const isActive = index <= currentStep;
+                const isLast = index === steps.length - 1;
+                
+                const circleClass = isActive 
+                    ? 'w-8 h-8 rounded-full bg-[#c8102e] flex items-center justify-center' 
+                    : 'w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/35';
+                const iconColor = isActive ? 'text-white' : 'text-white/35';
+                let iconName = 'solar:check-read-linear';
+                if (index === 2) iconName = 'solar:flower-2-linear';
+                if (index === 3) iconName = 'solar:scooter-linear';
+                if (index === 4) iconName = 'solar:home-smile-linear';
+                
+                const lineClass = isLast ? '' : `mt-4 h-px flex-1 ${index < currentStep ? 'bg-[#c8102e]/50' : 'bg-white/12'}`;
+  
+                timelineHtml += `
+                    <div class="flex-1 flex flex-col items-center text-center">
+                        <span class="${circleClass}">
+                            <iconify-icon class="${iconColor} text-[15px]" icon="${iconName}"></iconify-icon>
+                        </span>
+                        <p class="mt-2 text-[12px] ${isActive ? 'text-white' : 'text-white/45'}">${step.label}</p>
+                        <p class="text-[11px] ${isActive ? 'text-[#e6a6b0]' : 'text-white/25'}">${step.time}</p>
+                    </div>
+                `;
+                if (!isLast) timelineHtml += `<span class="${lineClass}"></span>`;
+            });
+            timelineContainer.innerHTML = timelineHtml;
+        }
+  
+        // 5. 按钮控制
+        const topBtn = document.getElementById('topDispatchBtn');
+        const bottomBtn = document.getElementById('bottomDispatchBtn');
+        
+        if (order.status === 'finished' || order.status === 'aftersale') {
+            if(topBtn) topBtn.style.display = 'none';
+            if(bottomBtn) bottomBtn.style.display = 'none';
+        } else {
+            if(topBtn) {
+                topBtn.style.display = 'flex';
+                topBtn.onclick = function() { if(confirm('确认花材已配齐并出库？')) submitDispatch(order.id || order.orderNo); };
+            }
+            if(bottomBtn) {
+                bottomBtn.style.display = 'block';
+                bottomBtn.onclick = function() { if(confirm('确认花材已配齐并出库？')) submitDispatch(order.id || order.orderNo); };
+            }
+        }
+
+        // ⭐ 同步数据到打印模板
+        document.getElementById('printOrderNo').textContent = order.orderNo || '--';
+        document.getElementById('printCreateTime').textContent = order.createdAt ? order.createdAt.replace('T', ' ').substring(0, 16) : '--';
+        document.getElementById('printReceiverName').textContent = order.receiverName || '--';
+        document.getElementById('printReceiverPhone').textContent = order.receiverPhone || '--';
+        document.getElementById('printReceiverAddress').textContent = order.receiverAddress || '--';
+        document.getElementById('printCardMessage').textContent = order.cardMessage || '无';
+        document.getElementById('printCustomerNote').textContent = order.customerNote || '无';
+
+        const printBody = document.getElementById('printItemsBody');
+        if (items.length > 0) {
+            printBody.innerHTML = items.map(item => `
+                <tr>
+                    <td class="border border-black p-2">${item.goodsName || '未知商品'}</td>
+                    <td class="border border-black p-2 text-center">${item.quantity}</td>
+                    <td class="border border-black p-2 text-right">￥${Number(item.price).toFixed(2)}</td>
+                </tr>
+            `).join('');
+        } else {
+            printBody.innerHTML = '<tr><td colspan="3" class="border border-black p-2 text-center">无商品明细</td></tr>';
+        }
+    }
+  
+    async function submitDispatch(id) {
+        try {
+            const res = await fetch(`http://localhost:8080/api/orders/${id}/dispatch`, { method: 'PUT' });
+            const result = await res.json();
+            if (result.code === 200) {
+                toast('出库成功，状态已更新！');
+                setTimeout(() => { loadOrderDetail(id); }, 800);
+            } else {
+                alert('操作失败：' + result.msg);
+            }
+        } catch(e) {
+            console.error(e);
+            alert('网络异常');
+        }
+    }
+
+    // ⭐ 打印面单功能
+    function handlePrint() {
+        const printTemplate = document.getElementById('printTemplate');
+        printTemplate.classList.remove('hidden');
+        window.print();
+        setTimeout(() => {
+            printTemplate.classList.add('hidden');
+        }, 1000);
+    }
+
+    // ⭐ 通知收花人（模拟发送短信）
+    async function handleNotify(btn) {
+        const phone = document.getElementById('detailReceiverPhone').textContent;
+        if (!phone || phone === '--') {
+            alert('缺少收花人电话，无法发送通知！');
+            return;
+        }
+
+        if (!confirm(`确定要向收花人 [ ${phone} ] 发送配送通知短信吗？`)) {
+            return;
+        }
+
+        const originalHtml = btn.innerHTML;
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = `<iconify-icon class="animate-spin" icon="solar:refresh-linear"></iconify-icon> 发送中...`;
+            await new Promise(resolve => setTimeout(resolve, 800));
+            toast(`📱 配送短信已成功发送至 ${phone}`);
+        } catch (e) {
+            toast('发送失败，请稍后再试');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+
+    // ================== ⭐ 售后业务逻辑 ==================
+    
+    // 1. 发起退款
+    async function handleRefund() {
+        if (!confirm('确定要发起退款吗？退款后订单将进入售后处理状态。')) return;
+        
+        try {
+            const res = await fetch(`http://localhost:8080/api/orders/${currentOrderId}/refund`, {
+                method: 'PUT'
+            });
+            const result = await res.json();
+            
+            if (result.code === 200 || result.code === 0) {
+                toast('退款申请已提交，财务将在 1 个工作日内审核');
+                setTimeout(() => { loadOrderDetail(currentOrderId); }, 1000); // 刷新页面数据
+            } else {
+                alert('操作失败：' + result.msg);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('网络异常');
+        }
+    }
+
+    // 2. 补发花材
+    async function handleResend() {
+        if (!confirm('确定要生成补发订单吗？将复制当前商品生成一条新的待配花订单。')) return;
+        
+        try {
+            const res = await fetch(`http://localhost:8080/api/orders/${currentOrderId}/resend`, {
+                method: 'POST'
+            });
+            const result = await res.json();
+            
+            if (result.code === 200 || result.code === 0) {
+                toast('补发订单已生成，将并入明日配送批次');
+                // 这里可以选择跳转到新生成的订单，或者留在当前页面
+            } else {
+                alert('操作失败：' + result.msg);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('网络异常');
+        }
+    }
+</script>
+</body>
+</html>

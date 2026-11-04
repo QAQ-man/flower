@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>商品编辑/上架 · 花加 FLOWERPLUS 运营中台</title>
+<script src="./js/user.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+  aside nav a[data-perm] { visibility: hidden; }
+  aside nav a[data-perm].nav-ready { visibility: visible; }
+</style>
+</head>
+<body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- 侧边导航 -->
+<aside class="w-[236px] shrink-0 h-full bg-[#140c0e] border-r border-white/[0.06] flex flex-col">
+<div class="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+<span class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#e11d48] to-[#8b0f24] flex items-center justify-center">
+<iconify-icon class="text-white text-[16px]" icon="solar:flower-2-bold"></iconify-icon>
+</span>
+<div class="leading-tight">
+<p class="serif text-[15px] tracking-[0.18em] text-white">FLOWERPLUS</p>
+<p class="text-[10px] tracking-[0.24em] text-white/40">运营中台</p>
+</div>
+</div>
+<nav class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-3 py-4">
+  <p class="px-3 pb-2 text-[11px] tracking-[0.2em] text-white/30">概览</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 bg-[#c8102e]/15 text-white ring-1 ring-inset ring-[#c8102e]/30" 
+     href="dashboard.html" data-perm="dashboard:view">
+    <iconify-icon class="text-[17px] text-[#e6a6b0]" icon="solar:widget-4-bold"></iconify-icon> 数据看板
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">经营管理</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="orders.html" data-perm="order:view">
+    <iconify-icon class="text-[17px]" icon="solar:bag-check-bold"></iconify-icon> 订单管理
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="products.html" data-perm="goods:view">
+    <iconify-icon class="text-[17px]" icon="solar:box-bold"></iconify-icon> 商品与花材
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="members.html" data-perm="member:view">
+    <iconify-icon class="text-[17px]" icon="solar:users-group-rounded-bold"></iconify-icon> 会员管理
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">系统</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="settings.html" data-perm="settings:view">
+    <iconify-icon class="text-[17px]" icon="solar:settings-bold"></iconify-icon> 系统设置
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="register.html" data-perm="shop:view">
+    <iconify-icon class="text-[17px]" icon="solar:shop-bold"></iconify-icon> 门店入驻
+  </a>
+
+  <div class="mt-6 mx-1 rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#c8102e]/20 to-transparent p-4">
+    <p class="text-[12px] text-white flex items-center gap-1.5">
+      <iconify-icon class="text-[#e6a6b0]" icon="solar:bell-bing-bold"></iconify-icon> 花材预警
+    </p>
+    <p class="mt-2 text-[11px] leading-relaxed text-white/50" id="flowerWarnText">
+      加载中…
+    </p>
+    <a class="mt-3 inline-flex items-center gap-1 text-[11px] text-[#e6a6b0] hover:text-white transition" href="products.html">
+      立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+    </a>
+  </div>
+</nav>
+<div class="shrink-0 p-3 border-t border-white/[0.06]">
+<div class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/[0.04] transition">
+    <span id="sideAvatar" class="w-9 h-9 rounded-full bg-[#c8102e]/25 border border-[#c8102e]/40 flex items-center justify-center text-[12px] text-[#f0c3ca]">?</span>
+    <div class="min-w-0 flex-1 leading-tight">
+        <p id="sideRealName" class="text-[12px] text-white truncate">加载中...</p>
+        <p id="sideRoleName" class="text-[10px] text-white/40 truncate">加载中...</p>
+    </div>
+    <a class="text-white/35 hover:text-[#e6a6b0] transition" href="javascript:void(0)" onclick="logout()" title="退出登录">
+        <iconify-icon class="text-[17px]" icon="solar:logout-3-linear"></iconify-icon>
+    </a>
+</div>
+</div>
+</aside>
+<!-- 主区域 -->
+<div class="flex-1 min-w-0 flex flex-col">
+<header class="h-16 shrink-0 flex items-center gap-4 px-8 bg-[#0f080a]/80 backdrop-blur border-b border-white/[0.06]">
+<nav class="flex items-center gap-2 text-[12px]">
+<a class="text-white/40 hover:text-white transition" href="dashboard.html">数据看板</a>
+<iconify-icon class="text-white/25" icon="solar:alt-arrow-right-linear"></iconify-icon>
+<a class="text-white/40 hover:text-white transition" href="products.html">商品与花材</a>
+<iconify-icon class="text-white/25" icon="solar:alt-arrow-right-linear"></iconify-icon>
+<span class="text-white" id="pageBreadcrumbTitle">上架新商品</span>
+</nav>
+<div class="ml-auto flex items-center gap-3">
+<a class="h-9 px-3.5 rounded-lg border border-white/10 text-[12px] text-white/60 hover:text-white hover:border-white/25 transition flex items-center gap-1.5" href="products.html">
+<iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon> 返回列表
+          </a>
+<button class="h-9 px-3.5 rounded-lg border border-white/10 text-[12px] text-white/60 hover:text-white hover:border-white/25 transition" onclick="toast('已保存至草稿，可稍后继续编辑')" type="button">保存草稿</button>
+<button id="submitBtn" class="h-9 px-4 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white flex items-center gap-1.5 transition" onclick="publish()" type="button">
+<iconify-icon icon="solar:rocket-2-linear"></iconify-icon> 立即上架
+          </button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden px-8 py-6">
+<div class="grid grid-cols-1 2xl:grid-cols-3 gap-5">
+<!-- 表单主体 -->
+<div class="2xl:col-span-2 space-y-5">
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white flex items-center gap-2">
+<iconify-icon class="text-[#e6a6b0]" icon="solar:ticket-sale-linear"></iconify-icon> 基础信息
+              </h2>
+<div class="mt-5 grid grid-cols-2 gap-5">
+<div class="col-span-2">
+<label class="block text-[12px] text-white/50 mb-2">商品名称</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="goodsName" oninput="syncPreview()" type="text" value=""/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">商品 SKU</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="pSku" type="text" value=""/>
+<p id="pSkuError" class="mt-1 text-[11px] text-red-400 hidden">请填写商品 SKU</p>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">商品品类</label>
+<select id="pCategory" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] text-white outline-none focus:border-[#c8102e]/70 transition">
+<option class="bg-[#150c0e]" value="">请选择品类</option>
+<option class="bg-[#150c0e]">节庆礼盒</option>
+<option class="bg-[#150c0e]">红玫瑰系列</option>
+<option class="bg-[#150c0e]">订阅制周花</option>
+<option class="bg-[#150c0e]">日常花束</option>
+<option class="bg-[#150c0e]">企业团购</option>
+</select>
+</div>
+<div class="col-span-2">
+<label class="block text-[12px] text-white/50 mb-2">卖点简介（展示于商城列表与分享卡片）</label>
+<textarea id="pDescShort" class="w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-[13px] outline-none focus:border-[#c8102e]/70 transition resize-none" rows="2"></textarea>
+</div>
+</div>
+</section>
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<div class="flex items-center justify-between">
+<h2 class="text-[14px] text-white flex items-center gap-2">
+<iconify-icon class="text-[#e6a6b0]" icon="solar:flower-2-linear"></iconify-icon> 花材构成
+                </h2>
+<button class="text-[12px] text-[#e6a6b0] hover:text-white transition flex items-center gap-1" onclick="addFlowerRow()" type="button">
+<iconify-icon icon="solar:add-circle-linear"></iconify-icon> 添加花材
+                </button>
+</div>
+<div class="mt-5 space-y-3" id="flowerRows">
+<!-- 动态渲染 -->
+</div>
+<p class="mt-4 text-[11px] text-white/30">花材构成会同步到配花单，花艺师按此清单备货与核销。</p>
+</section>
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white flex items-center gap-2">
+<iconify-icon class="text-[#e6a6b0]" icon="solar:tag-price-linear"></iconify-icon> 规格与定价
+              </h2>
+<div class="mt-5 grid grid-cols-2 xl:grid-cols-4 gap-5">
+<div>
+<label class="block text-[12px] text-white/50 mb-2">售价（元）</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="goodsPrice" oninput="syncPreview()" type="number" value="0"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">划线价（元）</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="pMarketPrice" type="number" value="0"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">可售库存（盒）</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="pStock" type="number" value="0"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">限购（每会员）</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="pLimitPerMember" type="number" value="0"/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">保鲜期</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="pShelfLife" type="text" value=""/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">包装规格</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="pPackageSpec" type="text" value=""/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">配送方式</label>
+<select id="pDeliveryType" class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] text-white outline-none">
+<option class="bg-[#150c0e]">同城 3 小时达</option>
+<option class="bg-[#150c0e]">次日达</option>
+<option class="bg-[#150c0e]">门店自提</option>
+</select>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">上架时间</label>
+<input class="w-full h-11 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 transition" id="pPublishTime" type="text" placeholder="如：2026-09-25 10:00" value=""/>
+</div>
+</div>
+<div class="mt-6 grid grid-cols-1 xl:grid-cols-2 gap-5">
+<div class="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<p class="text-[12px] text-white/60 mb-3">上架渠道</p>
+<div class="grid grid-cols-2 gap-2 text-[12px]">
+<label class="flex items-center gap-2 text-white/70 cursor-pointer"><input checked="" class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 小程序商城</label>
+<label class="flex items-center gap-2 text-white/70 cursor-pointer"><input checked="" class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 门店 POS 收银</label>
+<label class="flex items-center gap-2 text-white/70 cursor-pointer"><input checked="" class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 企业团购报价</label>
+<label class="flex items-center gap-2 text-white/45 cursor-pointer"><input class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 第三方外卖平台</label>
+</div>
+</div>
+<div class="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<p class="text-[12px] text-white/60 mb-3">营销权益</p>
+<div class="grid grid-cols-2 gap-2 text-[12px]">
+<label class="flex items-center gap-2 text-white/70 cursor-pointer"><input checked="" class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 可用中秋满减券</label>
+<label class="flex items-center gap-2 text-white/70 cursor-pointer"><input checked="" class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 花香积分抵扣</label>
+<label class="flex items-center gap-2 text-white/70 cursor-pointer"><input checked="" class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 铂金会员额外折扣</label>
+<label class="flex items-center gap-2 text-white/45 cursor-pointer"><input class="w-3.5 h-3.5 accent-[#c8102e]" type="checkbox"/> 参与拼团</label>
+</div>
+</div>
+</div>
+</section>
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white flex items-center gap-2">
+<iconify-icon class="text-[#e6a6b0]" icon="solar:gallery-wide-linear"></iconify-icon> 商品图片
+              </h2>
+<p class="mt-1 text-[11px] text-white/35">建议 1:1 主图 3 张，第二张起为场景图；单张不超过 5MB。</p>
+<div class="mt-5 grid grid-cols-4 gap-4" id="imageListContainer">
+    <label class="aspect-square rounded-xl border border-dashed border-white/15 bg-white/[0.02] flex flex-col items-center justify-center gap-2 hover:border-[#c8102e]/60 cursor-pointer transition">
+        <input type="file" id="imageUploadInput" accept="image/*" class="hidden" multiple onchange="handleImageUpload(event)">
+        <iconify-icon class="text-[22px] text-[#e6a6b0]" icon="solar:camera-add-linear"></iconify-icon>
+        <span class="text-[11px] text-white/45">上传图片</span>
+    </label>
+</div>
+</section>
+</div>
+<!-- 右侧预览 -->
+<div class="space-y-5">
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white">商城卡片预览</h2>
+<p class="mt-1 text-[11px] text-white/35">实时同步商品名称与售价</p>
+<div class="mt-5 w-[220px] mx-auto rounded-2xl overflow-hidden border border-white/10 bg-[#100a0b]">
+<div class="aspect-square bg-white/[0.02] flex items-center justify-center relative">
+<img id="previewImage" alt="暂无图片" class="w-full h-full object-cover hidden" src="" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"/>
+<div id="previewEmptyTip" class="absolute inset-0 flex flex-col items-center justify-center text-white/20">
+    <iconify-icon icon="solar:gallery-linear" class="text-[32px] mb-2"></iconify-icon>
+    <span class="text-[11px]">暂无商品主图</span>
+</div>
+</div>
+<div class="p-3.5">
+<p class="text-[12px] text-white leading-snug" id="previewName">未命名商品</p>
+<p class="mt-2 flex items-end gap-2">
+<span class="serif text-[18px] text-[#f0c3ca]" id="previewPrice">￥0</span>
+<span class="text-[11px] text-white/30 line-through" id="previewMarketPrice">￥0</span>
+</p>
+<p class="mt-2 text-[11px] text-white/35">月销 0 · 库存 <span id="previewStock">0</span></p>
+</div>
+</div>
+<div class="mt-5 space-y-2.5 text-[12px]">
+<div class="flex justify-between">
+    <span class="text-white/45">预计毛利</span>
+    <span class="text-emerald-400" id="costProfit">￥0.00（0.0%）</span>
+</div>
+<div class="flex justify-between">
+    <span class="text-white/45">花材成本</span>
+    <span class="text-white/80" id="costFlower">￥0.00</span>
+</div>
+<div class="flex justify-between">
+    <span class="text-white/45">包装与人工</span>
+    <span class="text-white/80" id="costPackaging">￥88.00</span>
+</div>
+</div>
+</section>
+<section class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white">发布检查</h2>
+<ul class="mt-4 space-y-3 text-[12px]">
+<li class="flex items-center gap-2 text-white/70" id="checkBasic">
+<iconify-icon class="text-emerald-400" icon="solar:check-circle-bold"></iconify-icon>
+<span>商品名称与 SKU 已填写</span>
+</li>
+<li class="flex items-center gap-2 text-white/70" id="checkFlower">
+<iconify-icon class="text-emerald-400" icon="solar:check-circle-bold"></iconify-icon>
+<span>花材构成已关联配花清单</span>
+</li>
+<li class="flex items-center gap-2 text-white/70" id="checkPrice">
+<iconify-icon class="text-emerald-400" icon="solar:check-circle-bold"></iconify-icon>
+<span>售价高于最低毛利红线</span>
+</li>
+<li class="flex items-center gap-2 text-amber-300" id="checkStock">
+<iconify-icon icon="solar:info-circle-linear"></iconify-icon>
+<span>库存 0 盒低于节庆推荐备货 500 盒</span>
+</li>
+<li class="flex items-center gap-2 text-white/70" id="checkChannel">
+<iconify-icon class="text-emerald-400" icon="solar:check-circle-bold"></iconify-icon>
+<span>已选择 3 个上架渠道</span>
+</li>
+</ul>
+<button id="bottomSubmitBtn" class="mt-5 w-full h-11 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[13px] text-white transition" onclick="publish()" type="button">确认上架</button>
+<a class="mt-3 w-full h-11 rounded-lg border border-white/12 text-[13px] text-white/60 hover:text-white transition flex items-center justify-center" href="products.html">放弃并返回列表</a>
+</section>
+</div>
+</div>
+<div class="h-4"></div>
+</main>
+</div>
+</div>
+<!-- 发布成功弹层 -->
+<div class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm items-center justify-center" id="publishModal">
+<div class="w-[420px] rounded-2xl border border-white/[0.1] bg-[#150c0e] p-7 text-center">
+<span class="w-14 h-14 rounded-full bg-[#c8102e]/15 border border-[#c8102e]/40 inline-flex items-center justify-center">
+<iconify-icon class="text-[24px] text-[#e6a6b0]" icon="solar:rocket-2-bold"></iconify-icon>
+</span>
+<h3 class="serif text-[20px] text-white mt-4" id="modalTitle">商品已提交上架</h3>
+<p class="mt-3 text-[12px] leading-relaxed text-white/50" id="publishModalText">
+        操作成功。
+      </p>
+<div class="mt-6 flex items-center justify-center gap-3">
+<button class="h-10 px-5 rounded-lg border border-white/12 text-[12px] text-white/60 hover:text-white transition" onclick="closePublish()" type="button">继续编辑</button>
+<a class="h-10 px-6 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white flex items-center transition" href="products.html">返回商品列表</a>
+</div>
+</div>
+</div>
+<script>
+	// ================== 全局状态 ==================
+	let currentGoodsId = null; 
+	var flowerPriceMap = {};           
+	var PACKAGING_COST = 88.00;        
+	
+	function getQueryParam(name) {
+	    const urlParams = new URLSearchParams(window.location.search);
+	    return urlParams.get(name);
+	}
+
+	document.addEventListener('DOMContentLoaded', async function () {
+	    currentGoodsId = getQueryParam('id');
+	    
+	    if (currentGoodsId) {
+	        document.title = '编辑商品 · 花加 FLOWERPLUS 运营中台';
+	        document.getElementById('pageBreadcrumbTitle').textContent = '编辑商品';
+	        document.getElementById('submitBtn').innerHTML = '<iconify-icon icon="solar:diskette-linear"></iconify-icon> 保存修改';
+	        document.getElementById('bottomSubmitBtn').textContent = '确认保存修改';
+	        document.getElementById('modalTitle').textContent = '商品修改成功';
+	        
+	        await loadGoodsDetail(currentGoodsId);
+	    } else {
+	        addFlowerRow();
+	    }
+	    
+	    await loadFlowerPrices();   
+	    updatePublishChecks();
+	    recalcCost();
+	
+	    document.addEventListener('input', function (e) {
+	        if (e.target.matches('input, select, textarea')) {
+	            updatePublishChecks();
+	            recalcCost();  
+	        }
+	    });
+	    document.addEventListener('change', function (e) {
+	        if (e.target.matches('input, select, textarea')) {
+	            updatePublishChecks();
+	            recalcCost();
+	        }
+	    });
+	});
+
+    // ⭐ 新增：统一花材名称匹配逻辑 ⭐
+    function getStandardFlowerName(name) {
+        if (!name) return '';
+        var trimName = name.trim();
+        // 1. 如果名字本身就精确存在，直接返回
+        if (flowerPriceMap[trimName] !== undefined) return trimName;
+        // 2. 如果找不到，尝试从单价表里找包含该名字的项（例如用 "向日葵" 匹配 "向日葵 - 小号"）
+        for (var key in flowerPriceMap) {
+            if (key.includes(trimName)) {
+                return key; // 找到即返回标准的带规格的名字
+            }
+        }
+        // 3. 如果实在找不到，原样返回
+        return trimName;
+    }
+
+    async function loadGoodsDetail(id) {
+        try {
+            var res = await fetch('http://localhost:8080/api/goods/' + id);
+            var result = await res.json();
+            
+            if (result.code === 200 && result.data) {
+                var data = result.data;
+                
+                // 1. 基础信息回显
+                document.getElementById('goodsName').value = data.goodsName || '';
+                document.getElementById('pSku').value = data.sku || '';
+                document.getElementById('pCategory').value = data.category || '';
+                document.getElementById('pDescShort').value = data.descShort || '';
+                
+                // ⭐⭐⭐ 处理图片回显 ⭐⭐⭐
+                const imageContainer = document.getElementById('imageListContainer');
+                if (imageContainer) {
+                    imageContainer.querySelectorAll('.img-item').forEach(el => el.remove());
+                    
+                    if (data.imageMain) {
+                        addImageToPreviewList(data.imageMain);
+                    } else if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+                        data.images.forEach(url => addImageToPreviewList(url));
+                    } else {
+                        syncPreviewImage(''); 
+                    }
+                }
+                
+                // 2. 价格与规格回显
+                document.getElementById('goodsPrice').value = data.price || 0;
+                document.getElementById('pMarketPrice').value = data.marketPrice || 0;
+                document.getElementById('pStock').value = data.stock || 0;
+                document.getElementById('pLimitPerMember').value = data.limitPerMember || 0;
+                document.getElementById('pShelfLife').value = data.shelfLife || '';
+                document.getElementById('pPackageSpec').value = data.packageSpec || '';
+                document.getElementById('pPublishTime').value = data.publishTime ? data.publishTime.replace('T', ' ').substring(0,16) : '';
+                
+                // 3. 花材列表回显
+                var flowerRows = document.getElementById('flowerRows');
+                flowerRows.innerHTML = ''; 
+                if (data.flowers && data.flowers.length > 0) {
+                    data.flowers.forEach(function(f) {
+                        var row = document.createElement('div');
+                        row.className = 'flower-row grid grid-cols-12 gap-3 items-center';
+                        
+                        // ⭐ 修改：回显时，用标准函数清洗一下名字
+                        var rawName = f.flowerName || f.name || '';
+                        var fName = getStandardFlowerName(rawName);
+
+                        row.innerHTML =
+                          '<input type="text" value="' + fName + '" class="flower-name col-span-4 h-10 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] outline-none focus:border-[#c8102e]/70 transition">' +
+                          '<input type="text" value="' + (f.origin || '') + '" class="flower-origin col-span-3 h-10 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] outline-none focus:border-[#c8102e]/70 transition">' +
+                          '<input type="text" value="' + (f.amount || '') + '" class="flower-amount col-span-3 h-10 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] outline-none focus:border-[#c8102e]/70 transition">' +
+                          '<button type="button" onclick="removeFlowerRow(this)" class="col-span-2 h-10 rounded-lg border border-white/10 text-[12px] text-white/45 hover:text-white transition">移除</button>';
+                        flowerRows.appendChild(row);
+                    });
+                } else {
+                    addFlowerRow(); 
+                }
+                
+                syncPreview();
+            } else {
+                toast('获取商品详情失败');
+            }
+        } catch (e) {
+            console.error('获取详情异常:', e);
+            toast('网络异常，无法加载商品信息');
+        }
+    }
+	
+	async function loadFlowerPrices() {
+	    try {
+	        var res = await fetch('http://localhost:8080/api/flowerStock/priceMap');
+	        var result = await res.json();
+	        if (result.code === 200 && result.data) {
+	            flowerPriceMap = result.data;
+	            recalcCost();   
+	        }
+	    } catch (e) {
+	        console.error('加载花材单价失败:', e);
+	    }
+	}
+	
+	function recalcCost() {
+	    var flowerCost = 0;
+	    var missingFlowers = [];   
+	
+	    document.querySelectorAll('#flowerRows .flower-row').forEach(function (row) {
+	        var nameEl = row.querySelector('.flower-name');
+	        var amountEl = row.querySelector('.flower-amount');
+	        if (!nameEl || !amountEl) return;
+	        var name = nameEl.value.trim();
+	        var amountRaw = amountEl.value.trim();
+	        if (!name) return;
+	        var amount = parseFloat(amountRaw.replace(/[^\d.]/g, '')) || 0;
+	        if (amount <= 0) return;
+	        var unitPrice = flowerPriceMap[name];
+			
+			// ⭐⭐⭐ 在这里加一行打印 ⭐⭐⭐
+			console.log("正在找花材:", name, "查到的单价:", unitPrice, "完整单价表:", flowerPriceMap);
+
+	        if (unitPrice == null || unitPrice <= 0) {
+	            missingFlowers.push(name);
+	            return;
+	        }
+	        flowerCost += amount * unitPrice;
+	    });
+	
+	    var price = parseFloat(document.getElementById('goodsPrice').value || '0');
+	    var totalCost = flowerCost + PACKAGING_COST;
+	    var profit = price - totalCost;
+	    var profitRate = price > 0 ? (profit / price * 100) : 0;
+	
+	    var flowerEl = document.getElementById('costFlower');
+	    var profitEl = document.getElementById('costProfit');
+	    var packEl = document.getElementById('costPackaging');
+	
+	    if (flowerEl) flowerEl.textContent = '￥' + flowerCost.toFixed(2);
+	    if (packEl) packEl.textContent = '￥' + PACKAGING_COST.toFixed(2);
+	    if (profitEl) {
+	        profitEl.textContent = '￥' + profit.toFixed(2) + '（' + profitRate.toFixed(1) + '%）';
+	        if (profit < 0) profitEl.className = 'text-red-400';
+	        else if (profitRate < 20) profitEl.className = 'text-amber-300';
+	        else profitEl.className = 'text-emerald-400';
+	    }
+	    updatePublishChecks();
+	}
+	
+	function getCurrentProfit() {
+	    var price = parseFloat(document.getElementById('goodsPrice').value || '0');
+	    var flowerCost = 0;
+	    document.querySelectorAll('#flowerRows .flower-row').forEach(function (row) {
+	        var nameEl = row.querySelector('.flower-name');
+	        var amountEl = row.querySelector('.flower-amount');
+	        if (!nameEl || !amountEl) return;
+	        var name = nameEl.value.trim();
+	        var amount = parseFloat((amountEl.value || '').replace(/[^\d.]/g, '')) || 0;
+	        if (!name || amount <= 0) return;
+	        var unitPrice = flowerPriceMap[name];
+	        if (unitPrice == null || unitPrice <= 0) return;
+	        flowerCost += amount * unitPrice;
+	    });
+	    return price - (flowerCost + PACKAGING_COST);
+	}
+
+  function syncPreview() {
+    var name = document.getElementById('goodsName').value.trim() || '未命名商品';
+    var price = document.getElementById('goodsPrice').value || '0';
+    var marketPrice = document.getElementById('pMarketPrice').value || '0';
+    var stock = document.getElementById('pStock').value || '0';
+    
+    document.getElementById('previewName').textContent = name;
+    document.getElementById('previewPrice').textContent = '￥' + price;
+    document.getElementById('previewMarketPrice').textContent = '￥' + marketPrice;
+    document.getElementById('previewStock').textContent = stock;
+    updatePublishChecks();   
+  }
+
+  function addFlowerRow() {
+    var wrap = document.getElementById('flowerRows');
+    var row = document.createElement('div');
+    row.className = 'flower-row grid grid-cols-12 gap-3 items-center';
+    row.innerHTML =
+      '<input type="text" placeholder="花材名称" class="flower-name col-span-4 h-10 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] outline-none focus:border-[#c8102e]/70 transition">' +
+      '<input type="text" placeholder="产地 / 等级" class="flower-origin col-span-3 h-10 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] outline-none focus:border-[#c8102e]/70 transition">' +
+      '<input type="text" placeholder="用量" class="flower-amount col-span-3 h-10 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] outline-none focus:border-[#c8102e]/70 transition">' +
+      '<button type="button" onclick="removeFlowerRow(this)" class="col-span-2 h-10 rounded-lg border border-white/10 text-[12px] text-white/45 hover:text-white transition">移除</button>';
+    wrap.appendChild(row);
+    updatePublishChecks();
+	recalcCost();
+  }
+
+  function removeFlowerRow(btn) {
+    var row = btn.parentElement;
+    var wrap = document.getElementById('flowerRows');
+    if (wrap.children.length <= 1) {
+      toast('至少保留一种花材构成');
+      return;
+    }
+    wrap.removeChild(row);
+    updatePublishChecks();
+	recalcCost();
+  }
+
+  function updatePublishChecks() {
+    var goodsName = document.getElementById('goodsName').value.trim();
+    var sku = document.getElementById('pSku').value.trim();
+    setCheck('checkBasic', goodsName && sku, '商品名称与 SKU 已填写');
+
+    var skuEl = document.getElementById('pSku');
+    var skuErr = document.getElementById('pSkuError');
+    if (skuEl) {
+      if (!sku) { skuEl.classList.add('border-red-500'); skuEl.classList.remove('border-white/10'); } 
+      else { skuEl.classList.remove('border-red-500'); skuEl.classList.add('border-white/10'); }
+    }
+    if (skuErr) {
+      if (!sku) skuErr.classList.remove('hidden');
+      else skuErr.classList.add('hidden');
+    }
+
+    var hasFlower = false;
+    document.querySelectorAll('#flowerRows .flower-row').forEach(function(row) {
+      var n = row.querySelector('.flower-name');
+      if (n && n.value.trim()) hasFlower = true;
+    });
+    setCheck('checkFlower', hasFlower, '花材构成已关联配花清单');
+
+    var price = parseFloat(document.getElementById('goodsPrice').value || '0');
+    var profit = getCurrentProfit();
+    if (!price || price <= 0) setCheck('checkPrice', false, '请填写售价');
+    else if (profit < 0) setCheck('checkPrice', false, '亏本！毛利 ￥' + profit.toFixed(2));
+    else if (profit < 100) setCheck('checkPrice', false, '毛利过低 ￥' + profit.toFixed(2));
+    else setCheck('checkPrice', true, '毛利充足 ￥' + profit.toFixed(2));
+
+    var stock = parseInt(document.getElementById('pStock').value || '0');
+    var stockEl = document.getElementById('checkStock');
+    if (stockEl) {
+      var icon = stockEl.querySelector('iconify-icon');
+      var span = stockEl.querySelector('span');
+      if (stock >= 500) {
+        stockEl.className = 'flex items-center gap-2 text-white/70';
+        icon.setAttribute('icon', 'solar:check-circle-bold');
+        icon.className = 'text-emerald-400';
+        span.textContent = '库存充足（' + stock + ' 盒 ≥ 500 盒）';
+      } else {
+        stockEl.className = 'flex items-center gap-2 text-amber-300';
+        icon.setAttribute('icon', 'solar:info-circle-linear');
+        icon.className = '';
+        span.textContent = '库存 ' + stock + ' 盒低于节庆推荐备货 500 盒';
+      }
+    }
+
+    var channelBoxes = document.querySelectorAll('section input[type="checkbox"]');
+    var actualChannels = 0;
+    for (var i = 0; i < 4 && i < channelBoxes.length; i++) {
+      if (channelBoxes[i].checked) actualChannels++;
+    }
+    setCheck('checkChannel', actualChannels > 0, '已选择 ' + actualChannels + ' 个上架渠道');
+  }
+
+  function setCheck(id, pass, label) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var icon = el.querySelector('iconify-icon');
+    var span = el.querySelector('span');
+    if (!icon || !span) return;
+
+    if (pass) {
+      el.className = 'flex items-center gap-2 text-white/70';
+      icon.setAttribute('icon', 'solar:check-circle-bold');
+      icon.className = 'text-emerald-400';
+    } else {
+      el.className = 'flex items-center gap-2 text-red-400';
+      icon.setAttribute('icon', 'solar:close-circle-bold');
+      icon.className = 'text-red-400';
+    }
+    if (label) span.textContent = label;
+  }
+
+    async function publish() {
+    var goodsName = document.getElementById('goodsName').value.trim();
+    var sku = document.getElementById('pSku').value.trim();
+    var category = document.getElementById('pCategory').value;
+    var descShort = document.getElementById('pDescShort').value.trim();
+    // 防错处理：如果为空或者 NaN，默认给 0
+    var price = parseFloat(document.getElementById('goodsPrice').value) || 0;
+    var marketPrice = parseFloat(document.getElementById('pMarketPrice').value) || 0;
+    var stock = parseInt(document.getElementById('pStock').value) || 0;
+    var limitPerMember = parseInt(document.getElementById('pLimitPerMember').value) || 0;
+    
+    var shelfLife = document.getElementById('pShelfLife').value.trim();
+    var packageSpec = document.getElementById('pPackageSpec').value.trim();
+    var publishTimeRaw = document.getElementById('pPublishTime').value.trim();
+
+    if (!goodsName) { toast('请填写商品名称'); return; }
+    if (!sku) { toast('请填写商品 SKU'); return; }
+    if (!category) { toast('请选择商品品类'); return; }
+    if (price <= 0) { toast('请填写正确的售价'); return; }
+    if (stock < 0) { toast('请填写正确的库存'); return; }
+
+    var flowers = [];
+    document.querySelectorAll('#flowerRows .flower-row').forEach(function (row) {
+      var nameEl = row.querySelector('.flower-name');
+      var originEl = row.querySelector('.flower-origin');
+      var amountEl = row.querySelector('.flower-amount');
+      if (!nameEl) return;
+      
+      // ⭐ 修改：提交前，强行修正为标准名字
+      var finalName = getStandardFlowerName(nameEl.value.trim());
+      if (nameEl.value.trim() !== finalName) {
+          nameEl.value = finalName; // 更新输入框视觉
+      }
+
+      var origin = originEl ? originEl.value.trim() : '';
+      var amount = amountEl ? amountEl.value.trim() : '';
+      if (finalName) flowers.push({ flowerName: finalName, origin: origin, amount: amount });
+    });
+
+    // 🔥 强制整理时间格式，防止后端解析报错
+    var publishTime = null;
+    if (publishTimeRaw) {
+      // 把输入里可能带的 T 替换成空格，并截取到分钟
+      var normalizedTime = publishTimeRaw.replace('T', ' ').substring(0, 16);
+      // 补全秒数，确保是 "yyyy-MM-dd HH:mm:ss" 格式
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(normalizedTime)) {
+          publishTime = normalizedTime + ':00';
+      } else {
+          publishTime = normalizedTime;
+      }
+    }
+    
+    var payload = {
+        shopId: 1, sku: sku, goodsName: goodsName, category: category,
+        price: price, marketPrice: marketPrice, stock: stock,
+        limitPerMember: limitPerMember, shelfLife: shelfLife,
+        packageSpec: packageSpec, publishTime: publishTime,
+        status: 1, descShort: descShort, flowers: flowers
+    };
+
+    // 路径拼接
+    var url = currentGoodsId ? ('/api/goods/' + currentGoodsId) : '/api/goods/create'; 
+    var method = currentGoodsId ? 'PUT' : 'POST';
+    if (currentGoodsId) payload.id = currentGoodsId;
+
+    try {
+      var res = await fetch('http://localhost:8080' + url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var result = await res.json();
+      
+      if (result.code === 200) {
+        var modalText = document.getElementById('publishModalText');
+        if (modalText) {
+            if(currentGoodsId) modalText.textContent = '「' + goodsName + '」信息已更新成功。';
+            else modalText.textContent = '「' + goodsName + '」' + (publishTime ? '将于 ' + publishTime.substring(0, 16) + ' 开售，' : '') + '配花单已下发至门店花艺台。';
+        }
+        var modal = document.getElementById('publishModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      } else {
+        toast((currentGoodsId ? '更新失败：' : '上架失败：') + (result.msg || '未知错误'));
+      }
+    } catch (e) {
+      console.error('提交失败:', e);
+      toast('网络异常：' + e.message);
+    }
+  }
+
+  function closePublish() {
+    var modal = document.getElementById('publishModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  function toast(message) {
+    var el = document.createElement('div');
+    el.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[60] rounded-xl border border-[#c8102e]/40 bg-[#1b0f12] px-4 py-3 text-[12px] text-white shadow-2xl shadow-black/50';
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 2400);
+  }
+  
+  // ================== 图片上传与预览联动 ==================
+  function handleImageUpload(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      Array.from(files).forEach(file => {
+          if (file.size > 5 * 1024 * 1024) { toast('单张图片不能超过 5MB'); return; }
+          const reader = new FileReader();
+          reader.onload = function(e) { addImageToPreviewList(e.target.result); };
+          reader.readAsDataURL(file);
+      });
+      event.target.value = '';
+  }
+
+  function addImageToPreviewList(url) {
+      const container = document.getElementById('imageListContainer');
+      const uploadBtn = container.querySelector('label'); 
+      const currentImagesCount = container.querySelectorAll('.img-item').length;
+
+      const div = document.createElement('div');
+      div.className = 'img-item aspect-square rounded-xl overflow-hidden border border-white/10 bg-black/40 relative group';
+      
+      let tagHtml = currentImagesCount === 0 ? '<span class="absolute left-2 top-2 px-2 py-0.5 rounded-md text-[10px] bg-[#c8102e] text-white z-10">主图</span>' : '';
+      let deleteBtnHtml = `
+          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-20">
+              <button type="button" onclick="removeImage(this)" class="w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-600 text-white flex items-center justify-center">
+                  <iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon>
+              </button>
+          </div>
+      `;
+
+      div.innerHTML = `${tagHtml}<img src="${url}" class="w-full h-full object-cover">${deleteBtnHtml}`;
+      uploadBtn.insertAdjacentElement('afterend', div);
+
+      if (currentImagesCount === 0) syncPreviewImage(url);
+  }
+
+  // 同步右侧预览图（包含 UI 提示的切换）
+  function syncPreviewImage(url) {
+      const previewImg = document.getElementById('previewImage');
+      const emptyTip = document.getElementById('previewEmptyTip');
+      
+      if (previewImg && emptyTip) {
+          if (url) {
+              previewImg.src = url;
+              previewImg.classList.remove('hidden');
+              emptyTip.classList.add('hidden');
+          } else {
+              previewImg.src = '';
+              previewImg.classList.add('hidden');
+              emptyTip.classList.remove('hidden');
+          }
+      }
+  }
+
+  function removeImage(btn) {
+      const imgItem = btn.closest('.img-item');
+      const container = document.getElementById('imageListContainer');
+      const isFirst = imgItem.previousElementSibling && imgItem.previousElementSibling.tagName === 'LABEL';
+      imgItem.remove();
+
+      const remainingImages = container.querySelectorAll('.img-item');
+      if (isFirst && remainingImages.length > 0) {
+          const newFirstItem = remainingImages[0];
+          if (!newFirstItem.querySelector('span')) {
+              const tag = document.createElement('span');
+              tag.className = 'absolute left-2 top-2 px-2 py-0.5 rounded-md text-[10px] bg-[#c8102e] text-white z-10';
+              tag.textContent = '主图';
+              newFirstItem.prepend(tag);
+          }
+          syncPreviewImage(newFirstItem.querySelector('img').src);
+      } else if (remainingImages.length === 0) {
+          // 修改处：如果图片全删了，直接清空，显示“暂无主图”，不再加载默认的兔子图
+          syncPreviewImage(''); 
+      }
+  }
+</script>
+</body>
+</html>

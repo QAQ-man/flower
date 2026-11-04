@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>系统设置 · 花加 FLOWERPLUS 运营中台</title>
+<script src="./js/user.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+
+  /* 一级菜单默认隐藏，等 JS 判断完权限再显示 */
+  aside nav a[data-perm] {
+      visibility: hidden;
+  }
+  aside nav a[data-perm].nav-ready {
+      visibility: visible;
+  }
+</style>
+</head>
+<body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- 侧边导航 -->
+<aside class="w-[236px] shrink-0 h-full bg-[#140c0e] border-r border-white/[0.06] flex flex-col">
+<div class="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+<span class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#e11d48] to-[#8b0f24] flex items-center justify-center">
+<iconify-icon class="text-white text-[16px]" icon="solar:flower-2-bold"></iconify-icon>
+</span>
+<div class="leading-tight">
+<p class="serif text-[15px] tracking-[0.18em] text-white">FLOWERPLUS</p>
+<p class="text-[10px] tracking-[0.24em] text-white/40">运营中台</p>
+</div>
+</div>
+<nav class="flex-1 min-h-0 overflow-y-auto scrollbar-none px-3 py-4">
+  <p class="px-3 pb-2 text-[11px] tracking-[0.2em] text-white/30">概览</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="dashboard.html" data-perm="dashboard:view">
+    <iconify-icon class="text-[17px]" icon="solar:widget-4-bold"></iconify-icon> 数据看板
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">经营管理</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="orders.html" data-perm="order:view">
+    <iconify-icon class="text-[17px]" icon="solar:bag-check-bold"></iconify-icon> 订单管理
+
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="products.html" data-perm="goods:view">
+    <iconify-icon class="text-[17px]" icon="solar:box-bold"></iconify-icon> 商品与花材
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="members.html" data-perm="member:view">
+    <iconify-icon class="text-[17px]" icon="solar:users-group-rounded-bold"></iconify-icon> 会员管理
+  </a>
+
+  <p class="px-3 pt-5 pb-2 text-[11px] tracking-[0.2em] text-white/30">系统</p>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] mb-1 text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="settings.html" data-perm="settings:view">
+    <iconify-icon class="text-[17px]" icon="solar:settings-bold"></iconify-icon> 系统设置
+  </a>
+  <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition" 
+     href="register.html" data-perm="shop:view">
+    <iconify-icon class="text-[17px]" icon="solar:shop-bold"></iconify-icon> 门店入驻
+  </a>
+
+  <div class="mt-6 mx-1 rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#c8102e]/20 to-transparent p-4">
+    <p class="text-[12px] text-white flex items-center gap-1.5">
+      <iconify-icon class="text-[#e6a6b0]" icon="solar:bell-bing-bold"></iconify-icon> 花材预警
+    </p>
+    <p class="mt-2 text-[11px] leading-relaxed text-white/50" id="flowerWarnText">
+      加载中…
+    </p>
+    <a class="mt-3 inline-flex items-center gap-1 text-[11px] text-[#e6a6b0] hover:text-white transition" href="products.html">
+      立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+    </a>
+  </div>
+</nav>
+<div class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/[0.04] transition">
+    <span id="sideAvatar" class="w-9 h-9 rounded-full bg-[#c8102e]/25 border border-[#c8102e]/40 flex items-center justify-center text-[12px] text-[#f0c3ca]">?</span>
+    <div class="min-w-0 flex-1 leading-tight">
+        <p id="sideRealName" class="text-[12px] text-white truncate">加载中...</p>
+        <p id="sideRoleName" class="text-[10px] text-white/40 truncate">加载中...</p>
+    </div>
+    <a class="text-white/35 hover:text-[#e6a6b0] transition" href="javascript:void(0)" onclick="logout()" title="退出登录">
+        <iconify-icon class="text-[17px]" icon="solar:logout-3-linear"></iconify-icon>
+    </a>
+</div>
+</aside>
+<!-- 主区域 -->
+<div class="flex-1 min-w-0 flex flex-col">
+<header class="h-16 shrink-0 flex items-center gap-4 px-8 bg-[#0f080a]/80 backdrop-blur border-b border-white/[0.06]">
+<nav class="flex items-center gap-2 text-[12px]">
+<a class="text-white/40 hover:text-white transition" href="dashboard.html">数据看板</a>
+<iconify-icon class="text-white/25" icon="solar:alt-arrow-right-linear"></iconify-icon>
+<span class="text-white">系统设置</span>
+</nav>
+<div class="ml-auto flex items-center gap-3">
+<span class="hidden 2xl:flex items-center gap-1.5 text-[11px] text-white/35">
+<iconify-icon class="text-[15px]" icon="solar:shield-check-linear"></iconify-icon> 上次安全登录 2026-09-22 09:14 · 上海
+          </span>
+<button class="h-9 px-4 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white flex items-center gap-1.5 transition" onclick="saveCurrentSettings()" type="button">
+<iconify-icon icon="solar:diskette-linear"></iconify-icon> 保存设置
+          </button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden px-8 py-6">
+<div class="grid grid-cols-1 2xl:grid-cols-4 gap-5">
+<!-- 设置导航 -->
+<aside class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-3 h-fit">
+<nav class="space-y-1">
+<button class="stab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] bg-[#c8102e]/15 text-white ring-1 ring-inset ring-[#c8102e]/30 text-left" data-pane="account" onclick="switchPane('account')" type="button">
+<iconify-icon class="text-[17px]" icon="solar:user-id-linear"></iconify-icon> 账号与安全
+              </button>
+<button class="stab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition text-left" data-pane="role" onclick="switchPane('role')" type="button">
+<iconify-icon class="text-[17px]" icon="solar:users-group-two-rounded-linear"></iconify-icon> 角色与权限
+              </button>
+<button class="stab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition text-left" data-pane="notify" onclick="switchPane('notify')" type="button">
+<iconify-icon class="text-[17px]" icon="solar:bell-linear"></iconify-icon> 通知设置
+              </button>
+<button class="stab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-white/55 hover:text-white hover:bg-white/[0.05] transition text-left" data-pane="log" onclick="switchPane('log')" type="button">
+<iconify-icon class="text-[17px]" icon="solar:clipboard-list-linear"></iconify-icon> 操作日志
+              </button>
+</nav>
+<div class="mt-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+<p class="text-[12px] text-white/60">门店信息</p>
+<p class="mt-2 text-[11px] leading-relaxed text-white/45">上海静安花艺门店<br/>门店编号 SD-0216 · 华东大区</p>
+<a class="mt-3 inline-flex items-center gap-1 text-[11px] text-[#e6a6b0] hover:text-white transition" href="register.html">
+                变更资质信息 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+</a>
+</div>
+</aside>
+<!-- 设置内容 -->
+<div class="2xl:col-span-3 space-y-5">
+<!-- 账号与安全 -->
+<section id="paneAccount">
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white">账号资料</h2>
+<div class="mt-5 flex items-center gap-5">
+<span class="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-[#3a1219] to-[#7a1024]">
+<img alt="运营负责人沈亦真的头像" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-09-23/ef2bafd40a204a62a53948ec71845c36.jpg"/>
+</span>
+<div class="flex-1 grid grid-cols-2 gap-5">
+<div>
+<label class="block text-[12px] text-white/50 mb-2">姓名</label>
+<input id="userRealName" class="w-full h-11 rounded-lg border border-white/15 bg-white/[0.06] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 focus:bg-white/[0.1] transition text-white" type="text" value=""/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">岗位 / 角色</label>
+<input id="userRoleName" class="w-full h-11 rounded-lg border border-white/15 bg-white/[0.06] px-4 text-[13px] outline-none transition text-white/50 cursor-not-allowed" type="text" value="" disabled/>
+</div>
+</div>
+</div>
+<div class="mt-5 grid grid-cols-2 gap-5">
+<div>
+<label class="block text-[12px] text-white/50 mb-2">手机号</label>
+<input id="userPhone" class="w-full h-11 rounded-lg border border-white/15 bg-white/[0.06] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 focus:bg-white/[0.1] transition text-white" type="text" value=""/>
+</div>
+<div>
+<label class="block text-[12px] text-white/50 mb-2">企业邮箱</label>
+<input id="userEmail" class="w-full h-11 rounded-lg border border-white/15 bg-white/[0.06] px-4 text-[13px] outline-none focus:border-[#c8102e]/70 focus:bg-white/[0.1] transition text-white" type="email" value=""/>
+</div>
+</div>
+</div>
+<div class="mt-5 rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white">安全设置</h2>
+<div class="mt-5 divide-y divide-white/[0.06]">
+<div class="flex items-center justify-between py-4">
+<div>
+<p class="text-[13px] text-white">登录密码</p>
+<p class="mt-1 text-[11px] text-white/40">上次修改 2026-08-02 · 建议每 90 天更新一次</p>
+</div>
+<button class="h-9 px-4 rounded-lg border border-white/12 text-[12px] text-white/60 hover:text-white transition" onclick="changePassword()" type="button">修改密码</button>
+</div>
+<div class="flex items-center justify-between py-4">
+<div>
+<p class="text-[13px] text-white">短信二次验证</p>
+<p class="mt-1 text-[11px] text-white/40">涉及退款、调拨等敏感操作时需短信验证</p>
+</div>
+<label class="flex items-center gap-2 cursor-pointer">
+<input id="userMfaSms" class="w-4 h-4 accent-[#c8102e]" type="checkbox"/>
+<span class="text-[12px] text-white/60">已开启</span>
+</label>
+</div>
+<div class="flex items-center justify-between py-4">
+<div>
+<p class="text-[13px] text-white">登录设备管理</p>
+<p class="mt-1 text-[11px] text-white/40">当前 2 台设备在线：MacBook Pro（上海）、iPad（门店收银台）</p>
+</div>
+<button class="h-9 px-4 rounded-lg border border-white/12 text-[12px] text-white/60 hover:text-white transition" onclick="removeDevices()" type="button">移除其他设备</button>
+</div>
+</div>
+</div>
+</section>
+<!-- 角色与权限 -->
+<section class="hidden" id="paneRole">
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-[14px] text-white">角色权限矩阵</h2>
+<p class="mt-1 text-[11px] text-white/40">勾选即生效，保存后对应用户下次登录同步</p>
+</div>
+<button class="h-9 px-4 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white transition" onclick="saveRoleMatrix()" type="button">保存权限</button>
+</div>
+<div class="mt-5 overflow-x-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<table class="w-full min-w-[720px] text-[12px]">
+<thead>
+<tr class="text-white/35 text-left border-b border-white/[0.06]">
+<th class="font-normal py-3 pr-4">功能模块</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/[0.05]">
+</tbody>
+</table>
+</div>
+</div>
+<div class="mt-5 rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<div class="flex items-center justify-between">
+<h2 class="text-[14px] text-white">成员账号</h2>
+</div>
+<ul class="mt-4 divide-y divide-white/[0.06]">
+</ul>
+</div>
+</section>
+<!-- 通知设置 -->
+<section class="hidden" id="paneNotify">
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] p-6">
+<h2 class="text-[14px] text-white">消息通知</h2>
+<p class="mt-1 text-[11px] text-white/40">选择需要即时提醒的业务事件与接收方式</p>
+<div class="mt-5 divide-y divide-white/[0.06]" id="notifyListContainer">
+    <div class="py-4 text-center text-white/40 text-[12px]">加载中...</div>
+</div>
+</div>
+</section>
+
+<!-- 操作日志 -->
+<section class="hidden" id="paneLog">
+<div class="rounded-2xl border border-white/[0.08] bg-[#150c0e] overflow-hidden">
+<div class="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
+<h2 class="text-[14px] text-white">操作日志</h2>
+<span class="text-[11px] text-white/35">保留最近 90 天记录</span>
+</div>
+<table class="w-full text-[12px]">
+<thead>
+<tr class="text-white/35 text-left bg-white/[0.015]">
+<th class="font-normal px-6 py-3">时间</th>
+<th class="font-normal px-3 py-3">操作人</th>
+<th class="font-normal px-3 py-3">操作内容</th>
+<th class="font-normal px-3 py-3">关联对象</th>
+<th class="font-normal px-6 py-3">IP / 设备</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/[0.05]" id="logTableBody">
+<tr class="hover:bg-white/[0.03] transition">
+<td class="px-6 py-4 text-white/55">加载中...</td>
+<td class="px-3 py-4 text-white"></td>
+<td class="px-3 py-4 text-white/70"></td>
+<td class="px-3 py-4 text-white/55"></td>
+<td class="px-6 py-4 text-white/55"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<div class="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-[#150c0e] px-6 py-4">
+<a class="text-[12px] text-white/50 hover:text-[#e6a6b0] transition flex items-center gap-1.5" href="javascript:void(0)" onclick="logout()">
+<iconify-icon icon="solar:logout-3-linear"></iconify-icon> 退出当前账号
+              </a>
+<div class="flex items-center gap-3">
+<button class="h-10 px-4 rounded-lg border border-white/12 text-[12px] text-white/60 hover:text-white transition" type="button">恢复默认</button>
+<button class="h-10 px-6 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-[12px] text-white transition" onclick="saveCurrentSettings()" type="button">保存设置</button>
+</div>
+</div>
+<div class="h-2"></div>
+</div>
+</div>
+</main>
+</div>
+</div>
+<script>
+    // ==========================================
+    // 全局变量
+    // ==========================================
+    let notifySettingsCache = [];
+    let roleCache = [];
+
+    function showToast(message, type = 'success') {
+      var el = document.createElement('div');
+      const borderColor = type === 'success' ? 'border-[#c8102e]/40' : 'border-red-500/40';
+      const bgColor = type === 'success' ? 'bg-[#1b0f12]' : 'bg-red-900/90';
+      el.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[60] rounded-xl border ${borderColor} ${bgColor} px-4 py-3 text-[12px] text-white shadow-2xl shadow-black/50 transition-opacity duration-300`;
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(function () { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 2600);
+    }
+
+    // ==========================================
+    // 1. 账号与安全
+    // ==========================================
+    async function loadUserProfile() {
+        try {
+            const roleRes = await fetch('http://localhost:8080/api/sysRole');
+            const roleResult = await roleRes.json();
+            if (roleResult.code === 200) roleCache = roleResult.data;
+
+            const response = await fetch(`http://localhost:8080/api/sysUser/${CURRENT_USER_ID}`);
+            const text = await response.text();
+            if (!text) return;
+            const result = JSON.parse(text);
+            if (result.code === 200 && result.data) {
+                const user = result.data;
+                document.getElementById('userRealName').value = user.realName || '';
+                document.getElementById('userPhone').value = user.phone || '';
+                document.getElementById('userEmail').value = user.email || '';
+                document.getElementById('userMfaSms').checked = (user.mfaSms === 1);
+                const role = roleCache.find(r => r.id === user.roleId);
+                document.getElementById('userRoleName').value = role ? role.roleName : '未知角色';
+            }
+        } catch (error) { console.error('加载用户资料失败:', error); }
+    }
+
+    async function saveUserProfile() {
+        const payload = {
+            id: CURRENT_USER_ID,
+            realName: document.getElementById('userRealName').value,
+            phone: document.getElementById('userPhone').value,
+            email: document.getElementById('userEmail').value,
+            mfaSms: document.getElementById('userMfaSms').checked ? 1 : 0
+        };
+        try {
+            const response = await fetch('http://localhost:8080/api/sysUser', {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (result.code === 200) showToast('账号资料已保存');
+            else showToast(result.msg || '保存失败', 'error');
+        } catch (error) { showToast('网络异常，保存失败', 'error'); }
+    }
+
+    function removeDevices() {
+        if (confirm('确定要移除除当前设备外的所有登录设备吗？\n移除后其他设备将需要重新登录。')) {
+            fetch('http://localhost:8080/api/sysUser/' + CURRENT_USER_ID + '/removeDevices', { method: 'PUT' })
+            .then(res => res.json())
+            .then(result => {
+                if (result.code === 200) showToast('已移除其他设备，仅保留当前登录');
+                else showToast(result.msg || '移除失败', 'error');
+            })
+            .catch(err => { console.error('移除设备失败:', err); showToast('网络异常，移除失败', 'error'); });
+        }
+    }
+
+    async function changePassword() {
+        const newPassword = prompt('请输入新的登录密码（不少于6位）：');
+        if (!newPassword) return;
+        if (newPassword.length < 6) { showToast('密码长度不能少于6位', 'error'); return; }
+        try {
+            const response = await fetch('http://localhost:8080/api/sysUser/updatePassword', {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: CURRENT_USER_ID, newPassword: newPassword })
+            });
+            const result = await response.json();
+            if (result.code === 200) showToast('密码修改成功');
+            else showToast(result.msg || '修改失败', 'error');
+        } catch (error) { showToast('网络异常，修改失败', 'error'); }
+    }
+
+    // ==========================================
+    // 2. 角色与权限
+    // ==========================================
+    async function loadRoleMatrix() {
+        try {
+            const matrixRes = await fetch('http://localhost:8080/api/sysRolePermission/matrix');
+            const matrixResult = await matrixRes.json();
+            if (matrixResult.code !== 200) { showToast('加载权限矩阵失败', 'error'); return; }
+            
+            const { roles, permissions, rolePermissions } = matrixResult.data;
+            
+            // 渲染表头
+            const thead = document.querySelector('#paneRole table thead tr');
+            while (thead.children.length > 1) thead.removeChild(thead.lastElementChild);
+            roles.forEach(role => {
+                const th = document.createElement('th');
+                th.className = 'font-normal py-3 px-3 text-center';
+                th.textContent = role.roleName;
+                thead.appendChild(th);
+            });
+            
+            // 渲染矩阵行
+            const tbody = document.querySelector('#paneRole table tbody');
+            tbody.innerHTML = '';
+            permissions.forEach(perm => {
+                const tr = document.createElement('tr');
+                let tds = `<td class="py-4 pr-4 text-white/75">${perm.permName}</td>`;
+                
+                roles.forEach(role => {
+                    const isSuperAdmin = (role.id === 1);
+                    const isChecked = isSuperAdmin ? true : (rolePermissions[role.id] || []).includes(perm.id);
+                    const disabledAttr = isSuperAdmin ? 'disabled' : '';
+                    const disabledClass = isSuperAdmin ? 'opacity-40 cursor-not-allowed' : '';
+                    
+                    tds += `<td class="px-3 text-center">
+                        <input class="perm-checkbox w-4 h-4 accent-[#c8102e] ${disabledClass}" 
+                               data-role-id="${role.id}" data-perm-id="${perm.id}" 
+                               type="checkbox" ${isChecked ? 'checked' : ''} ${disabledAttr}/>
+                    </td>`;
+                });
+                tr.innerHTML = tds;
+                tbody.appendChild(tr);
+            });
+            
+            await loadMemberAccounts();
+        } catch (error) {
+            console.error('加载角色权限失败:', error);
+            showToast('加载角色权限失败', 'error');
+        }
+    }
+
+    async function loadMemberAccounts() {
+        const memberList = document.querySelector('#paneRole ul');
+        memberList.innerHTML = '<li class="py-4 text-center text-white/40 text-[12px]">加载中...</li>';
+        try {
+            const userRes = await fetch('http://localhost:8080/api/sysUser/listWithRole');
+            const userResult = await userRes.json();
+            if (userResult.code !== 200) { memberList.innerHTML = '<li class="py-4 text-center text-red-400">加载失败</li>'; return; }
+            memberList.innerHTML = '';
+            
+            userResult.data.forEach(user => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center gap-4 py-4';
+                const firstChar = (user.realName || user.username || '?').charAt(0);
+                
+                let loginTime = '从未登录';
+                if (user.lastLoginAt && !user.lastLoginAt.startsWith('1970-01-01')) {
+                    const dateObj = new Date(user.lastLoginAt);
+                    const y = dateObj.getFullYear();
+                    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const d = String(dateObj.getDate()).padStart(2, '0');
+                    const h = String(dateObj.getHours()).padStart(2, '0');
+                    const min = String(dateObj.getMinutes()).padStart(2, '0');
+                    loginTime = `${y}-${m}-${d} ${h}:${min}`;
+                }
+                
+                const isEnabled = user.status === 1;
+                const statusText = isEnabled ? '已启用' : '已停用';
+                const statusClass = isEnabled 
+                    ? 'text-emerald-400 border-emerald-400/40 hover:bg-emerald-400/10' 
+                    : 'text-white/40 border-white/20 hover:bg-white/[0.06]';
+                
+                li.innerHTML = `
+                    <span class="w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 flex items-center justify-center text-[12px] text-white/70">${firstChar}</span>
+                    <div class="flex-1">
+                        <p class="text-[13px] text-white">${user.realName || user.username} 
+                            <span class="ml-2 px-2 py-0.5 rounded-md text-[10px] border border-white/15 text-white/60">${user.roleName}</span>
+                        </p>
+                        <p class="mt-0.5 text-[11px] text-white/40">${user.email || '-'} · 最近登录 ${loginTime}</p>
+                    </div>
+                    <button class="text-[11px] px-3 py-1 rounded-md border transition ${statusClass}"
+                            onclick="toggleUserStatus(${user.id}, ${isEnabled ? 0 : 1}, '${user.realName || user.username}')">
+                        ${statusText}
+                    </button>
+                `;
+                memberList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('加载成员列表失败:', error);
+            memberList.innerHTML = '<li class="py-4 text-center text-red-400">网络异常</li>';
+        }
+    }
+
+    async function toggleUserStatus(userId, newStatus, userName) {
+        const action = newStatus === 1 ? '启用' : '停用';
+        if (!confirm(`确定要${action}「${userName}」这个账号吗？`)) return;
+
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/sysUser/${userId}/status?status=${newStatus}`,
+                { method: 'PUT' }
+            );
+            const result = await response.json();
+            if (result.code === 200) {
+                showToast(`账号已${action}`);
+                await loadMemberAccounts();
+            } else {
+                showToast(result.msg || `${action}失败`, 'error');
+            }
+        } catch (error) {
+            console.error('切换状态失败:', error);
+            showToast('网络异常，操作失败', 'error');
+        }
+    }
+
+    async function saveRoleMatrix() {
+        const matrix = {};
+        document.querySelectorAll('.perm-checkbox').forEach(cb => {
+            if (cb.dataset.roleId === '1') return;
+            if (cb.checked) {
+                const roleId = cb.dataset.roleId;
+                const permId = parseInt(cb.dataset.permId);
+                if (!matrix[roleId]) matrix[roleId] = [];
+                matrix[roleId].push(permId);
+            }
+        });
+        const superAdminPerms = [];
+        document.querySelectorAll('.perm-checkbox[data-role-id="1"]').forEach(cb => {
+            superAdminPerms.push(parseInt(cb.dataset.permId));
+        });
+        matrix['1'] = superAdminPerms;
+
+        try {
+            const response = await fetch('http://localhost:8080/api/sysRolePermission/matrix/save', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rolePermissions: matrix })
+            });
+            const result = await response.json();
+            if (result.code === 200) {
+                showToast('权限已保存');
+                // 权限改了，清空所有角色的权限缓存
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('permKeys_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+            } else {
+                showToast(result.msg || '保存失败', 'error');
+            }
+        } catch (error) {
+            console.error('保存权限失败:', error);
+            showToast('网络异常', 'error');
+        }
+    }
+
+    // ==========================================
+    // 3. 通知设置
+    // ==========================================
+    async function loadNotifySettings() {
+      const container = document.getElementById('notifyListContainer');
+      container.innerHTML = '<div class="py-4 text-center text-white/40 text-[12px]">加载中...</div>';
+      try {
+          const response = await fetch('http://localhost:8080/api/notifySetting');
+          const text = await response.text();
+          if (!text) { container.innerHTML = '<div class="py-4 text-center text-red-400 text-[12px]">后端接口未返回任何内容</div>'; return; }
+          let result;
+          try { result = JSON.parse(text); } catch (e) { container.innerHTML = '<div class="py-4 text-center text-red-400 text-[12px]">接口格式异常</div>'; return; }
+          if (result.code === 200 && result.data) {
+              notifySettingsCache = result.data; 
+              container.innerHTML = '';
+              if (result.data.length === 0) { container.innerHTML = '<div class="py-4 text-center text-white/40 text-[12px]">暂无通知设置</div>'; return; }
+              result.data.forEach(setting => {
+                  const div = document.createElement('div');
+                  div.className = 'flex items-center justify-between py-4';
+                  div.innerHTML = `
+                    <div>
+                        <p class="text-[13px] text-white">${setting.notifyName}</p>
+                        <p class="mt-1 text-[11px] text-white/40">触发条件：${setting.triggerRule || '无'}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 rounded-md text-[11px] ${setting.notifyType.includes('短信') ? 'bg-[#c8102e]/15 border border-[#c8102e]/35 text-[#f0c3ca]' : 'border border-white/15 text-white/55'}">
+                            ${setting.notifyType}
+                        </span>
+                        <input class="notify-checkbox w-4 h-4 accent-[#c8102e]" data-id="${setting.id}" type="checkbox" ${setting.enable === 1 ? 'checked' : ''} />
+                    </div>
+                  `;
+                  container.appendChild(div);
+              });
+          } else { container.innerHTML = `<div class="py-4 text-center text-red-400 text-[12px]">获取失败：${result.msg}</div>`; }
+      } catch (error) { container.innerHTML = '<div class="py-4 text-center text-red-400 text-[12px]">网络异常，加载失败</div>'; }
+    }
+
+    async function saveNotifySettings() {
+      const payloadList = [];
+      document.querySelectorAll('.notify-checkbox').forEach(checkbox => {
+          const id = checkbox.dataset.id;
+          const cachedItem = notifySettingsCache.find(item => item.id == id);
+          if (cachedItem) {
+              payloadList.push({
+                  id: cachedItem.id, notifyType: cachedItem.notifyType,
+                  notifyName: cachedItem.notifyName, triggerRule: cachedItem.triggerRule,
+                  enable: checkbox.checked ? 1 : 0
+              });
+          }
+      });
+      if (payloadList.length === 0) { showToast('没有可保存的设置', 'error'); return; }
+      try {
+          const response = await fetch('http://localhost:8080/api/notifySetting/batch', {
+              method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadList)
+          });
+          const result = await response.json();
+          if (result.code === 200) showToast('设置已保存');
+          else showToast(result.msg || '保存失败', 'error');
+      } catch (error) { showToast('网络异常，保存失败', 'error'); }
+    }
+
+    // ==========================================
+    // 4. 操作日志
+    // ==========================================
+    async function loadOperateLogs() {
+        const tbody = document.getElementById('logTableBody');
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-white/40">加载中...</td></tr>';
+        try {
+            const response = await fetch('http://localhost:8080/api/sysOperateLog/list');
+            const text = await response.text();
+            if (!text) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">后端返回为空</td></tr>'; return; }
+            let result;
+            try { result = JSON.parse(text); } catch (e) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">接口格式异常</td></tr>'; return; }
+            if (result.code === 200 && result.data) {
+                tbody.innerHTML = '';
+                if (result.data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-white/40">暂无操作日志</td></tr>'; return; }
+                result.data.forEach(log => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-white/[0.03] transition';
+                    const timeStr = log.createdAt || '-';
+                    const operatorName = log.userId ? `用户ID: ${log.userId}` : '-';
+                    const target = `${log.relateType || '-'} · ${log.relateNo || '-'}`;
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 text-white/55">${timeStr}</td>
+                        <td class="px-3 py-4 text-white">${operatorName}</td>
+                        <td class="px-3 py-4 text-white/70">${log.operateContent || '-'}</td>
+                        <td class="px-3 py-4 text-white/55">${target}</td>
+                        <td class="px-6 py-4 text-white/55">${log.ip || '-'} · ${log.device || '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else { tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">获取失败：${result.msg || '未知错误'}</td></tr>`; }
+        } catch (error) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">网络异常，加载失败</td></tr>'; }
+    }
+
+    // ==========================================
+    // 5. 全局逻辑
+    // ==========================================
+    async function saveCurrentSettings() {
+      if (!document.getElementById('paneAccount').classList.contains('hidden')) {
+          await saveUserProfile();
+      } else if (!document.getElementById('paneRole').classList.contains('hidden')) {
+          await saveRoleMatrix();
+      } else if (!document.getElementById('paneNotify').classList.contains('hidden')) {
+          await saveNotifySettings();
+      } else {
+          showToast('当前页面无需保存');
+      }
+    }
+    
+    function switchPane(pane) {
+        // 1. 切换右侧内容面板显示
+        var panes = {
+            account: 'paneAccount',
+            role: 'paneRole',
+            notify: 'paneNotify',
+            log: 'paneLog'
+        };
+        Object.keys(panes).forEach(function (key) {
+            document.getElementById(panes[key]).classList.toggle('hidden', key !== pane);
+        });
+    
+        // 2. 切换左侧二级菜单高亮
+        var tabs = document.querySelectorAll('.stab');
+        for (var i = 0; i < tabs.length; i++) {
+            var tab = tabs[i];
+            var isActive = tab.dataset.pane === pane;
+            var baseClass = 'stab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-left transition ';
+            if (isActive) {
+                tab.className = baseClass + 'bg-[#c8102e]/15 text-white ring-1 ring-inset ring-[#c8102e]/30';
+            } else {
+                tab.className = baseClass + 'text-white/55 hover:text-white hover:bg-white/[0.05]';
+            }
+            if (tab.style.display !== 'none') {
+                tab.style.display = '';
+            }
+        }
+    
+        // 3. 加载对应面板的数据
+        if (pane === 'account') {
+            loadUserProfile();
+        } else if (pane === 'role') {
+            loadRoleMatrix();
+        } else if (pane === 'notify') {
+            loadNotifySettings();
+        } else if (pane === 'log') {
+            loadOperateLogs();
+        }
+    }
+
+    // ==========================================
+    // 6. 页面初始化
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        loadUserProfile();
+        // 确保「账号与安全」是默认激活状态
+        const defaultTab = document.querySelector('.stab[data-pane="account"]');
+        if (defaultTab && defaultTab.style.display !== 'none') {
+            switchPane('account');
+        }
+    });
+</script>
+</body>
+</html>

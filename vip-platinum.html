@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html class="w-full h-full" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>包季 · 铂金会员</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style> 
+        body { background-color: #0d0708; color: white; } 
+        .gold-gradient-text {
+            background: linear-gradient(to right, #f3d59f, #d8b06a, #f3d59f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen antialiased">
+
+    <div class="text-center p-10 bg-gradient-to-b from-[#1b0f12] to-[#0d0708] rounded-3xl shadow-2xl border border-[#d8b06a]/30 max-w-md w-full mx-4 relative overflow-hidden">
+        
+        <!-- 背景装饰光晕 -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#d8b06a]/10 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10">
+            <!-- 皇冠图标 -->
+            <div class="w-24 h-24 bg-gradient-to-br from-[#d8b06a] to-[#8b6b2e] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(216,176,106,0.3)]">
+                <iconify-icon class="text-[48px] text-black" icon="solar:crown-bold"></iconify-icon>
+            </div>
+            
+            <h1 class="text-3xl font-bold gold-gradient-text mb-3 tracking-widest">⭐ 铂金尊享会员</h1>
+            <p class="text-gray-400 mb-8 text-sm">感谢您的信任，您已解锁全站最高特权。</p>
+            
+            <!-- 专属特权列表 -->
+            <div class="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-5 mb-8 text-left space-y-3">
+                <div class="flex items-center gap-3 text-sm text-gray-300">
+                    <iconify-icon class="text-[#d8b06a]" icon="solar:check-circle-bold"></iconify-icon>
+                    节假日优先发货，绝不延误
+                </div>
+                <div class="flex items-center gap-3 text-sm text-gray-300">
+                    <iconify-icon class="text-[#d8b06a]" icon="solar:check-circle-bold"></iconify-icon>
+                    专属一对一花艺管家服务
+                </div>
+                <div class="flex items-center gap-3 text-sm text-gray-300">
+                    <iconify-icon class="text-[#d8b06a]" icon="solar:check-circle-bold"></iconify-icon>
+                    每月免费赠送一次精美花器
+                </div>
+            </div>
+
+            <!-- 按钮区域 -->
+            <div class="space-y-3">
+                <!-- 已经是最高级了，没有升级按钮，只有返回首页 -->
+                <a href="shop.html" class="block w-full py-3.5 bg-gradient-to-r from-[#d8b06a] to-[#f3d59f] text-black font-bold rounded-xl shadow-lg hover:shadow-[0_0_20px_rgba(216,176,106,0.4)] transition duration-300">
+                    返回商城 尊享购物
+                </a>
+                <a href="profile.html" class="block w-full py-3 border border-[#d8b06a]/30 text-[#d8b06a] rounded-xl hover:bg-[#d8b06a]/10 transition">
+                    查看个人中心
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
