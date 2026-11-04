@@ -295,7 +295,7 @@
   // ================== 2. 会员统计接口 ==================
   async function fetchStatistics() {
     try {
-      const res = await fetch('http://localhost:8080/api/members/statistics').then(r => r.json());
+      const res = await fetch('https://api.zhuys.dpdns.org/api/members/statistics').then(r => r.json());
       if (res.code === 200) {
         const d = res.data;
         const setText = (id, val) => {
@@ -341,7 +341,7 @@
   // ================== 3. 会员趋势接口 ==================
   async function fetchTrend() {
     try {
-      const res = await fetch('http://localhost:8080/api/members/trend').then(r => r.json());
+      const res = await fetch('https://api.zhuys.dpdns.org/api/members/trend').then(r => r.json());
       if (res.code === 200) {
         const d = res.data;
         memberChart.setOption({
@@ -368,7 +368,7 @@
     });
 
     try {
-      const res = await fetch(`http://localhost:8080/api/members/list?${params.toString()}`, {
+      const res = await fetch(`https://api.zhuys.dpdns.org/api/members/list?${params.toString()}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       }).then(r => r.json());
