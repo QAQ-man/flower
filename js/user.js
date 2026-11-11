@@ -4,6 +4,15 @@
 
 const CURRENT_USER_ID = parseInt(localStorage.getItem('userId')) || 1;
 
+// 原生 GET 请求封装 (如果你的项目中已经使用了 request.js 中的 get，可以保留，直接删掉这个函数)
+async function get(url) {
+    const res = await fetch('http://localhost:8080' + url);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    if (data.code !== 200) throw new Error(data.msg || 'API Error');
+    return data.data;
+}
+
 /**
  * 加载侧边栏用户信息（姓名 + 角色）
  */
@@ -22,20 +31,29 @@ async function loadSidebarUser() {
         sideRealName.textContent = realName;
 
         if (roleId) {
-            const roleData = await get('/api/sysRole/' + roleId);
-            sideRoleName.textContent = roleData.roleName;
+            // 1. 先用本地字典兜底显示（防网络慢）
+            const roleNames = { '1': '超级管理员', '2': '门店管理员', '3': '客服' };
+            sideRoleName.textContent = roleNames[roleId] || '未知角色';
+
+            // 2. 异步请求后端获取最准确的角色名
+            try {
+                const roleData = await get('/api/sysRole/' + roleId);
+                if (roleData && roleData.roleName) {
+                    sideRoleName.textContent = roleData.roleName;
+                }
+            } catch (e) {
+                console.warn('获取角色名失败，使用本地兜底:', e);
+            }
         } else {
             sideRoleName.textContent = '未分配角色';
         }
     } catch (error) {
         console.error('加载侧边栏用户信息失败:', error);
-        sideRoleName.textContent = '加载失败';
     }
 }
 
 /**
  * 统一处理左侧菜单：权限控制 + 当前页高亮
- * 【关键】所有请求都包了 try/catch，确保菜单一定会显示
  */
 async function initNavAndPermissions() {
     const roleId = localStorage.getItem('roleId');
@@ -43,39 +61,38 @@ async function initNavAndPermissions() {
         window.location.pathname.lastIndexOf('/') + 1
     ) || 'dashboard.html';
 
-    // ===== 1. 查询权限（带容错） =====
+    // ===== 1. 查询权限 =====
     let permKeys = [];
 
-    // 1.1 优先使用缓存
-    if (roleId) {
-        try {
-            const cached = localStorage.getItem('permKeys_' + roleId);
-            if (cached) permKeys = JSON.parse(cached);
-        } catch (e) {
-            permKeys = [];
-        }
-    }
-
-    // 1.2 系统管理员兜底：全部权限
+    // 1.1 系统管理员兜底：直接赋予所有权限，不走接口
     if (roleId === '1') {
         permKeys = [
             'dashboard:view', 'order:view', 'goods:view', 'member:view',
             'settings:view', 'shop:view',
             'account:view', 'role:view', 'notify:view', 'log:view'
         ];
-    }
-
-    // 1.3 异步拉取最新权限（失败不影响菜单显示）
-    if (roleId && roleId !== '1') {
+    } 
+    // 1.2 其他角色：必须强制去后端拉取最新权限
+    else if (roleId) {
         try {
-            permKeys = await get('/api/sysRolePermission/permKeys/' + roleId);
-            localStorage.setItem('permKeys_' + roleId, JSON.stringify(permKeys));
+            const res = await get('/api/sysRolePermission/permKeys/' + roleId);
+            if (Array.isArray(res)) {
+                permKeys = res;
+                // 更新本地缓存
+                localStorage.setItem('permKeys_' + roleId, JSON.stringify(permKeys));
+            } else {
+                throw new Error("后端返回的权限格式不是数组");
+            }
         } catch (e) {
-            console.warn('拉取最新权限失败，使用缓存或空权限:', e);
+            console.warn('拉取最新权限失败，降级使用旧缓存:', e);
+            const cached = localStorage.getItem('permKeys_' + roleId);
+            if (cached) {
+                try { permKeys = JSON.parse(cached); } catch (err) { permKeys = []; }
+            }
         }
     }
 
-    // ===== 2. 渲染左侧一级菜单（无论权限查没查到，都要显示出来） =====
+    // ===== 2. 渲染左侧一级菜单 =====
     const ACTIVE_CLASS = ['bg-[#c8102e]/15', 'text-white', 'ring-1', 'ring-inset', 'ring-[#c8102e]/30'];
     const DEFAULT_CLASS = ['text-white/55', 'hover:text-white', 'hover:bg-white/[0.05]'];
 
@@ -84,14 +101,17 @@ async function initNavAndPermissions() {
         const linkPage = href.split('?')[0].split('#')[0];
         const requiredPerm = link.dataset.perm;
 
-        // 2.1 权限判断（如果 permKeys 是空的，就不隐藏，防止菜单全消失）
-        if (requiredPerm && permKeys.length > 0 && !permKeys.includes(requiredPerm)) {
+        // ⭐ 核心拦截：超级管理员直接放行，其他人必须鉴权。没权限直接隐藏！
+        const hasPerm = roleId === '1' || (requiredPerm && permKeys.includes(requiredPerm));
+        
+        if (!hasPerm) {
             link.style.display = 'none';
-            link.classList.add('nav-ready');
             return;
+        } else {
+            link.style.display = 'flex'; // 恢复显示
         }
 
-        // 2.2 高亮判断
+        // 高亮判断
         const isActive = linkPage === currentPage;
         if (isActive) {
             link.classList.remove(...DEFAULT_CLASS);
@@ -111,7 +131,7 @@ async function initNavAndPermissions() {
             }
         }
 
-        // 2.3 ⭐ 关键：无论如何都加 .nav-ready，让菜单显示出来
+        // 加 .nav-ready 让菜单最终显示出来
         link.classList.add('nav-ready');
     });
 
@@ -124,14 +144,11 @@ async function initNavAndPermissions() {
     };
     document.querySelectorAll('.stab').forEach(btn => {
         const requiredPerm = PANE_PERMS[btn.dataset.pane];
-        if (requiredPerm && permKeys.length > 0 && !permKeys.includes(requiredPerm)) {
-            btn.style.display = 'none';
-        } else {
-            btn.style.display = '';
-        }
+        const hasPerm = roleId === '1' || (requiredPerm && permKeys.includes(requiredPerm));
+        btn.style.display = hasPerm ? '' : 'none';
     });
 
-    // ===== 4. 只在「当前激活的二级面板无权限」时才切换 =====
+    // ===== 4. 自动切到有权限的第一个面板 =====
     const currentActive = document.querySelector('.stab.bg-\\[\\#c8102e\\]\\/15');
     if (currentActive && currentActive.style.display !== 'none') {
         return permKeys;
@@ -155,14 +172,13 @@ function logout() {
 }
 
 // ==========================================
-// 页面加载时自动执行（只注册一次！）
+// 页面加载时自动执行
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await initNavAndPermissions();
     } catch (e) {
         console.error('initNavAndPermissions 出错，兜底显示所有菜单:', e);
-        // ⭐ 极端兜底：如果初始化失败，直接显示所有菜单
         document.querySelectorAll('aside nav a[data-perm]').forEach(link => {
             link.classList.add('nav-ready');
         });
@@ -171,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
-// 用户切回页面时，重新检查权限
+// 用户切回页面时，重新检查权限（应对多开标签页情况）
 // ==========================================
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
@@ -182,7 +198,7 @@ document.addEventListener('visibilitychange', () => {
 /* ================= 全局通用：自动加载侧边栏花材预警 ================= */
 document.addEventListener('DOMContentLoaded', async function() {
     const warnEl = document.getElementById('flowerWarnText');
-    if (!warnEl) return; // 如果当前页面没有侧边栏预警卡片，直接退出
+    if (!warnEl) return; 
 
     try {
         const res = await get('/api/dashboard/getData');
@@ -202,14 +218,4 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('加载预警失败:', e);
         warnEl.textContent = '获取预警失败，请检查网络';
     }
-
-    // 可选：自动高亮当前所在的左侧菜单
-    const path = window.location.pathname;
-    const page = path.substring(path.lastIndexOf('/') + 1) || 'dashboard.html';
-    document.querySelectorAll('aside nav a').forEach(a => {
-        if (a.getAttribute('href') === page) {
-            a.classList.add('bg-white/[0.05]', 'text-white');
-            a.classList.remove('text-white/55');
-        }
-    });
 });
