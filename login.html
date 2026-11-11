@@ -8,246 +8,318 @@
 <title>登录 · 花加 FLOWERPLUS 运营中台</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <style>
   .serif { font-family: "Songti SC", "Noto Serif SC", Georgia, "Times New Roman", serif; }
+  /* 修复浏览器自动填充的白色背景问题 */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active{
+      -webkit-box-shadow: 0 0 0 30px #1a1114 inset !important;
+      -webkit-text-fill-color: white !important;
+      transition: background-color 5000s ease-in-out 0s;
+  }
 </style>
 </head>
 <body class="w-full h-full m-0 bg-[#0d0708] text-[#f5eef0] antialiased overflow-hidden">
 <div class="flex h-screen w-full">
-<!-- 左侧品牌区 -->
-<section class="relative hidden xl:flex w-[54%] shrink-0 flex-col justify-between overflow-hidden p-12">
-<div class="absolute inset-0">
-<img alt="深红玫瑰花瓣上凝结的水珠特写" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-09-23/179e6b77f5de4245a95ca8803df4555f.jpg"/>
-<div class="absolute inset-0 bg-[radial-gradient(circle_at_28%_24%,rgba(200,16,46,0.62),rgba(9,4,5,0.94)_66%)]"></div>
-<div class="absolute inset-0 bg-gradient-to-t from-[#0a0506] via-[#0a0506]/10 to-[#0a0506]/80"></div>
+
+    <!-- 左侧品牌区 -->
+    <section class="relative hidden xl:flex w-[54%] shrink-0 flex-col justify-between overflow-hidden p-12">
+        <div class="absolute inset-0">
+            <img alt="深红玫瑰花瓣" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-09-23/179e6b77f5de4245a95ca8803df4555f.jpg"/>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_28%_24%,rgba(200,16,46,0.62),rgba(9,4,5,0.94)_66%)]"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0a0506] via-[#0a0506]/10 to-[#0a0506]/80"></div>
+        </div>
+        
+        <header class="relative flex items-center gap-3">
+            <span class="w-9 h-9 rounded-full bg-[#c8102e] flex items-center justify-center shadow-lg shadow-[#c8102e]/40">
+                <iconify-icon class="text-white text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
+            </span>
+            <div class="leading-tight">
+                <p class="serif text-[19px] tracking-[0.22em] text-white">FLOWERPLUS</p>
+                <p class="text-[10px] tracking-[0.42em] text-white/55">花加 · 运营中台</p>
+            </div>
+        </header>
+
+        <div class="relative max-w-[520px]">
+            <p class="text-[11px] tracking-[0.4em] text-[#e0a4ad] mb-5">FRESH FLOWER OPERATION SYSTEM</p>
+            <h1 class="serif text-[52px] leading-[1.18] text-white">用鲜花<br/>点亮生活</h1>
+            <p class="mt-6 text-[13px] leading-relaxed text-white/60">
+                从云南鲜花基地到城市最后一公里，花加运营中台统一承接订单履约、花材库存、会员增长与门店配送，让每一束花都在最佳花期准时抵达。
+            </p>
+            <div class="mt-10 grid grid-cols-3 gap-4">
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-sm">
+                    <p class="serif text-2xl text-white">186<span class="text-sm">座</span></p>
+                    <p class="mt-1 text-[11px] text-white/45">覆盖城市</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-sm">
+                    <p class="serif text-2xl text-white">12<span class="text-sm">h</span></p>
+                    <p class="mt-1 text-[11px] text-white/45">基地到仓时效</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-sm">
+                    <p class="serif text-2xl text-white">98.6<span class="text-sm">%</span></p>
+                    <p class="mt-1 text-[11px] text-white/45">鲜花完好率</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="relative flex items-center justify-between text-[11px] text-white/35">
+            <p>© 2013-2026 上海分尚网络科技有限公司</p>
+            <p>沪ICP备13016979号-1</p>
+        </footer>
+    </section>
+
+    <!-- 右侧登录表单 -->
+    <section class="flex-1 min-w-0 flex items-center justify-center px-6 py-10 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+        <div class="w-full max-w-[404px]">
+            
+            <div class="xl:hidden flex items-center gap-3 mb-10">
+                <span class="w-8 h-8 rounded-full bg-[#c8102e] flex items-center justify-center">
+                    <iconify-icon class="text-white" icon="solar:flower-2-bold"></iconify-icon>
+                </span>
+                <p class="serif text-lg tracking-[0.2em]">FLOWERPLUS 运营中台</p>
+            </div>
+
+            <h2 class="serif text-[30px] text-white">欢迎回来</h2>
+            <p class="mt-2 text-[13px] text-white/45">请使用企业账号登录花加运营中台</p>
+
+            <!-- 登录方式切换 -->
+            <div class="mt-8 inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-1">
+                <button class="px-4 py-1.5 text-[13px] rounded-md bg-[#c8102e] text-white transition" id="tabPwd" onclick="switchLogin('pwd')" type="button">账号密码</button>
+                <button class="px-4 py-1.5 text-[13px] rounded-md text-white/55 hover:text-white transition" id="tabSms" onclick="switchLogin('sms')" type="button">短信验证码</button>
+            </div>
+
+            <form class="mt-6 space-y-4" onsubmit="return false;">
+                <div>
+                    <label class="block text-[12px] text-white/50 mb-2">企业账号 / 手机号</label>
+                    <div class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 h-12 focus-within:border-[#c8102e]/70 focus-within:bg-white/[0.06] transition">
+                        <iconify-icon class="text-white/40 text-[18px]" icon="solar:user-id-linear"></iconify-icon>
+                        <input id="username" class="flex-1 bg-transparent outline-none text-[14px] text-white placeholder:text-white/25" placeholder="请输入账号或手机号" type="text" value="admin"/>
+                        <span class="text-[11px] text-white/30">上海 · 华东大区</span>
+                    </div>
+                </div>
+
+                <!-- 密码登录 -->
+                <div id="panePwd">
+                    <label class="block text-[12px] text-white/50 mb-2">登录密码</label>
+                    <div class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 h-12 focus-within:border-[#c8102e]/70 focus-within:bg-white/[0.06] transition">
+                        <iconify-icon class="text-white/40 text-[18px]" icon="solar:lock-password-linear"></iconify-icon>
+                        <input class="flex-1 bg-transparent outline-none text-[14px] text-white placeholder:text-white/25" id="pwdInput" placeholder="请输入登录密码" type="password" value="123456"/>
+                        <button class="text-white/40 hover:text-white/80 transition" onclick="togglePwd()" type="button">
+                            <iconify-icon class="text-[18px]" icon="solar:eye-linear" id="eyeIcon"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 短信登录 -->
+                <div class="hidden" id="paneSms">
+                    <label class="block text-[12px] text-white/50 mb-2">短信验证码</label>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 h-12 focus-within:border-[#c8102e]/70 transition">
+                            <iconify-icon class="text-white/40 text-[18px]" icon="solar:shield-keyhole-linear"></iconify-icon>
+                            <input id="smsCodeInput" class="flex-1 bg-transparent outline-none text-[14px] tracking-[0.3em] text-white placeholder:text-white/25" inputmode="numeric" maxlength="6" placeholder="6 位数字" type="text"/>
+                        </div>
+                        <button class="h-12 w-[118px] rounded-lg border border-[#c8102e]/50 text-[13px] text-[#e6a6b0] hover:bg-[#c8102e]/15 transition" id="codeBtn" onclick="sendCode()" type="button">获取验证码</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center gap-2 text-[12px] text-white/50 cursor-pointer select-none">
+                        <input checked="" class="w-3.5 h-3.5 rounded accent-[#c8102e]" type="checkbox" id="rememberMe"/>
+                        7 天内自动登录
+                    </label>
+                    <button class="text-[12px] text-[#e6a6b0] hover:text-white transition" type="button">忘记密码？</button>
+                </div>
+
+                <button id="loginBtn" class="mt-2 w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-white text-[14px] tracking-[0.2em] shadow-lg shadow-[#c8102e]/25 transition" type="button">
+                    登 录
+                    <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                </button>
+            </form>
+
+            <p class="mt-8 text-[12px] text-white/40">
+                还没有企业账号？
+                <a class="text-[#e6a6b0] hover:text-white underline decoration-[#c8102e]/60 underline-offset-4 transition" href="register.html">申请入驻注册</a>
+            </p>
+        </div>
+    </section>
 </div>
-<header class="relative flex items-center gap-3">
-<span class="w-9 h-9 rounded-full bg-[#c8102e] flex items-center justify-center shadow-lg shadow-[#c8102e]/40">
-<iconify-icon class="text-white text-[18px]" icon="solar:flower-2-bold"></iconify-icon>
-</span>
-<div class="leading-tight">
-<p class="serif text-[19px] tracking-[0.22em] text-white">FLOWERPLUS</p>
-<p class="text-[10px] tracking-[0.42em] text-white/55">花加 · 运营中台</p>
-</div>
-</header>
-<div class="relative max-w-[520px]">
-<p class="text-[11px] tracking-[0.4em] text-[#e0a4ad] mb-5">FRESH FLOWER OPERATION SYSTEM</p>
-<h1 class="serif text-[52px] leading-[1.18] text-white">用鲜花<br/>点亮生活</h1>
-<p class="mt-6 text-[13px] leading-relaxed text-white/60">
-          从云南鲜花基地到城市最后一公里，花加运营中台统一承接订单履约、花材库存、会员增长与门店配送，
-          让每一束花都在最佳花期准时抵达。
-        </p>
-<div class="mt-10 grid grid-cols-3 gap-4">
-<div class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-sm">
-<p class="serif text-2xl text-white">186<span class="text-sm">座</span></p>
-<p class="mt-1 text-[11px] text-white/45">覆盖城市</p>
-</div>
-<div class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-sm">
-<p class="serif text-2xl text-white">12<span class="text-sm">h</span></p>
-<p class="mt-1 text-[11px] text-white/45">基地到仓时效</p>
-</div>
-<div class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-sm">
-<p class="serif text-2xl text-white">98.6<span class="text-sm">%</span></p>
-<p class="mt-1 text-[11px] text-white/45">鲜花完好率</p>
-</div>
-</div>
-</div>
-<footer class="relative flex items-center justify-between text-[11px] text-white/35">
-<p>© 2013-2026 上海分尚网络科技有限公司</p>
-<p>沪ICP备13016979号-1</p>
-</footer>
-</section>
-<!-- 右侧登录表单 -->
-<section class="flex-1 min-w-0 flex items-center justify-center px-6 py-10 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
-<div class="w-full max-w-[404px]">
-<div class="xl:hidden flex items-center gap-3 mb-10">
-<span class="w-8 h-8 rounded-full bg-[#c8102e] flex items-center justify-center">
-<iconify-icon class="text-white" icon="solar:flower-2-bold"></iconify-icon>
-</span>
-<p class="serif text-lg tracking-[0.2em]">FLOWERPLUS 运营中台</p>
-</div>
-<h2 class="serif text-[30px] text-white">欢迎回来</h2>
-<p class="mt-2 text-[13px] text-white/45">请使用企业账号登录花加运营中台</p>
-<!-- 登录方式切换 -->
-<div class="mt-8 inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-1">
-<button class="px-4 py-1.5 text-[13px] rounded-md bg-[#c8102e] text-white transition" id="tabPwd" onclick="switchLogin('pwd')" type="button">账号密码</button>
-<button class="px-4 py-1.5 text-[13px] rounded-md text-white/55 hover:text-white transition" id="tabSms" onclick="switchLogin('sms')" type="button">短信验证码</button>
-</div>
-<form class="mt-6 space-y-4" onsubmit="return false;">
-<div>
-<label class="block text-[12px] text-white/50 mb-2">企业账号 / 手机号</label>
-<div class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 h-12 focus-within:border-[#c8102e]/70 focus-within:bg-white/[0.06] transition">
-<iconify-icon class="text-white/40 text-[18px]" icon="solar:user-id-linear"></iconify-icon>
-<input id="username" class="flex-1 bg-transparent outline-none text-[14px] text-white placeholder:text-white/25" placeholder="请输入手机号" type="text" value="admin"/>
-<span class="text-[11px] text-white/30">上海 · 华东大区</span>
-</div>
-</div>
-<!-- 密码登录 -->
-<div id="panePwd">
-<label class="block text-[12px] text-white/50 mb-2">登录密码</label>
-<div class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 h-12 focus-within:border-[#c8102e]/70 focus-within:bg-white/[0.06] transition">
-<iconify-icon class="text-white/40 text-[18px]" icon="solar:lock-password-linear"></iconify-icon>
-<input class="flex-1 bg-transparent outline-none text-[14px] text-white placeholder:text-white/25" id="pwdInput" placeholder="请输入登录密码" type="password" value="123456"/>
-<button class="text-white/40 hover:text-white/80 transition" onclick="togglePwd()" type="button">
-<iconify-icon class="text-[18px]" icon="solar:eye-linear" id="eyeIcon"></iconify-icon>
-</button>
-</div>
-</div>
-<!-- 短信登录 -->
-<div class="hidden" id="paneSms">
-<label class="block text-[12px] text-white/50 mb-2">短信验证码</label>
-<div class="flex items-center gap-2">
-<div class="flex-1 flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 h-12 focus-within:border-[#c8102e]/70 transition">
-<iconify-icon class="text-white/40 text-[18px]" icon="solar:shield-keyhole-linear"></iconify-icon>
-<input class="flex-1 bg-transparent outline-none text-[14px] tracking-[0.3em] text-white placeholder:text-white/25" inputmode="numeric" maxlength="6" placeholder="6 位数字" type="text"/>
-</div>
-<button class="h-12 w-[118px] rounded-lg border border-[#c8102e]/50 text-[13px] text-[#e6a6b0] hover:bg-[#c8102e]/15 transition" id="codeBtn" onclick="sendCode()" type="button">获取验证码</button>
-</div>
-</div>
-<div class="flex items-center justify-between pt-1">
-<label class="flex items-center gap-2 text-[12px] text-white/50 cursor-pointer select-none">
-<input checked="" class="w-3.5 h-3.5 rounded accent-[#c8102e]" type="checkbox"/>
-              7 天内自动登录
-            </label>
-<button class="text-[12px] text-[#e6a6b0] hover:text-white transition" type="button">忘记密码？</button>
-</div>
-<button id="loginBtn" class="mt-2 w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-[#c8102e] hover:bg-[#a80d26] text-white text-[14px] tracking-[0.2em] shadow-lg shadow-[#c8102e]/25 transition" type="button">
-            登 录
-            <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
-</button>
-</form>
-<div class="mt-6 flex items-center gap-3">
-<span class="h-px flex-1 bg-white/10"></span>
-<span class="text-[11px] text-white/30">其他方式</span>
-<span class="h-px flex-1 bg-white/10"></span>
-</div>
-<div class="mt-4 grid grid-cols-3 gap-3">
-<button class="h-10 rounded-lg border border-white/10 bg-white/[0.03] text-[12px] text-white/60 hover:text-white hover:bg-white/[0.06] transition flex items-center justify-center gap-1.5" type="button">
-<iconify-icon icon="solar:smartphone-linear"></iconify-icon> 企业微信
-          </button>
-<button class="h-10 rounded-lg border border-white/10 bg-white/[0.03] text-[12px] text-white/60 hover:text-white hover:bg-white/[0.06] transition flex items-center justify-center gap-1.5" type="button">
-<iconify-icon icon="solar:qr-code-linear"></iconify-icon> 扫码登录
-          </button>
-<button class="h-10 rounded-lg border border-white/10 bg-white/[0.03] text-[12px] text-white/60 hover:text-white hover:bg-white/[0.06] transition flex items-center justify-center gap-1.5" type="button">
-<iconify-icon icon="solar:buildings-2-linear"></iconify-icon> SSO 单点
-          </button>
-</div>
-<p class="mt-8 text-[12px] text-white/40">
-          还没有企业账号？
-          <a class="text-[#e6a6b0] hover:text-white underline decoration-[#c8102e]/60 underline-offset-4 transition" href="register.html">申请入驻注册</a>
-</p>
-<p class="mt-4 text-[11px] leading-relaxed text-white/25">
-          演示提示：账号密码已预填，直接点击「登录」进入运营中台数据看板。
-        </p>
-</div>
-</section>
-</div>
+
 <script>
-  function switchLogin(mode) {
-    var isPwd = mode === 'pwd';
-    document.getElementById('panePwd').classList.toggle('hidden', !isPwd);
-    document.getElementById('paneSms').classList.toggle('hidden', isPwd);
-    document.getElementById('tabPwd').className = isPwd
-      ? 'px-4 py-1.5 text-[13px] rounded-md bg-[#c8102e] text-white transition'
-      : 'px-4 py-1.5 text-[13px] rounded-md text-white/55 hover:text-white transition';
-    document.getElementById('tabSms').className = isPwd
-      ? 'px-4 py-1.5 text-[13px] rounded-md text-white/55 hover:text-white transition'
-      : 'px-4 py-1.5 text-[13px] rounded-md bg-[#c8102e] text-white transition';
-  }
-
-  function togglePwd() {
-    var input = document.getElementById('pwdInput');
-    var icon = document.getElementById('eyeIcon');
-    var show = input.type === 'password';
-    input.type = show ? 'text' : 'password';
-    icon.setAttribute('icon', show ? 'solar:eye-closed-linear' : 'solar:eye-linear');
-  }
-
-  function sendCode() {
-    var btn = document.getElementById('codeBtn');
-    if (btn.dataset.running === '1') return;
-    btn.dataset.running = '1';
-    var left = 60;
-    btn.textContent = left + ' 秒后重发';
-    btn.classList.add('opacity-50');
-    var timer = setInterval(function () {
-      left -= 1;
-      if (left <= 0) {
-        clearInterval(timer);
-        btn.dataset.running = '0';
-        btn.classList.remove('opacity-50');
-        btn.textContent = '获取验证码';
-        return;
-      }
-      btn.textContent = left + ' 秒后重发';
-    }, 1000);
-  }
-
-  // ============ 登录提交逻辑 ============
-  document.getElementById("loginBtn").onclick = async function() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("pwdInput").value.trim();
-    if (!username || !password) {
-      alert("请输入账号和密码");
-      return;
+    // 切换登录方式
+    function switchLogin(mode) {
+        var isPwd = mode === 'pwd';
+        document.getElementById('panePwd').classList.toggle('hidden', !isPwd);
+        document.getElementById('paneSms').classList.toggle('hidden', isPwd);
+        document.getElementById('tabPwd').className = isPwd
+            ? 'px-4 py-1.5 text-[13px] rounded-md bg-[#c8102e] text-white transition'
+            : 'px-4 py-1.5 text-[13px] rounded-md text-white/55 hover:text-white transition';
+        document.getElementById('tabSms').className = isPwd
+            ? 'px-4 py-1.5 text-[13px] rounded-md text-white/55 hover:text-white transition'
+            : 'px-4 py-1.5 text-[13px] rounded-md bg-[#c8102e] text-white transition';
     }
 
-    try {
-      // 1. 调用后端登录接口
-      const res = await post("/api/sysUser/login", {
-        username: username,
-        password: password
-      });
+    // 密码可见切换
+    function togglePwd() {
+        var input = document.getElementById('pwdInput');
+        var icon = document.getElementById('eyeIcon');
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        icon.setAttribute('icon', show ? 'solar:eye-closed-linear' : 'solar:eye-linear');
+    }
 
-      // res 结构：{ userId, username, realName, roleId }
-
-      // 2. 清空旧的权限缓存（防止角色切换后读到旧数据）
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('permKeys_')) {
-          localStorage.removeItem(key);
-        }
-      });
-
-      // 3. 存储当前用户信息
-      localStorage.setItem('userId', res.userId);
-      localStorage.setItem('username', res.username);
-      localStorage.setItem('realName', res.realName);
-      localStorage.setItem('roleId', res.roleId);
-
-      // 4. 根据权限决定跳转目标
-      let targetPage = 'dashboard.html';
-      if (res.roleId !== 1) {
-        // 非系统管理员：先查权限，按优先级选择第一个有权限的页面
-        try {
-          const permRes = await fetch('https://api.zhuys.dpdns.org/api/sysRolePermission/permKeys/' + res.roleId);
-          const permResult = await permRes.json();
-          const permKeys = (permResult.code === 200 && permResult.data) ? permResult.data : [];
-
-          if (permKeys.includes('dashboard:view')) targetPage = 'dashboard.html';
-          else if (permKeys.includes('order:view')) targetPage = 'orders.html';
-          else if (permKeys.includes('goods:view')) targetPage = 'products.html';
-          else if (permKeys.includes('member:view')) targetPage = 'members.html';
-          else if (permKeys.includes('settings:view')) targetPage = 'settings.html';
-          else if (permKeys.includes('shop:view')) targetPage = 'register.html';
-          else {
-            alert('该账号暂无任何页面访问权限，请联系管理员');
-            localStorage.clear();
+    // ============ 发送短信验证码 ============
+    async function sendCode() {
+        var username = document.getElementById("username").value.trim();
+        var btn = document.getElementById('codeBtn');
+        
+        if (!/^1[3-9]\d{9}$/.test(username) && username !== 'admin') {
+            alert("演示环境，请在账号栏输入 admin 或 真实手机号 获取验证码");
             return;
-          }
-        } catch (e) {
-          console.error('查询权限失败:', e);
         }
-      }
 
-      // 5. 跳转
-      window.location.href = targetPage;
+        if (btn.dataset.running === '1') return;
 
-    } catch (err) {
-      alert("登录失败：" + err.message);
-      console.error(err);
+        try {
+            btn.textContent = '发送中...';
+            btn.disabled = true;
+
+            // 调用你的后端发验证码接口
+            const response = await fetch('https://api.zhuys.dpdns.org/api/sysUser/sendSms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: username })
+            });
+            
+            const result = await response.json();
+            if (result.code !== 200) throw new Error(result.msg || '后端接口返回异常');
+
+            alert("验证码已发送，请查看后端 Java 控制台打印的 6 位数字！");
+
+            // 倒计时
+            btn.dataset.running = '1';
+            var left = 60;
+            btn.textContent = left + ' 秒后重发';
+            btn.classList.add('opacity-50');
+            var timer = setInterval(function () {
+                left -= 1;
+                if (left <= 0) {
+                    clearInterval(timer);
+                    btn.dataset.running = '0';
+                    btn.classList.remove('opacity-50');
+                    btn.textContent = '获取验证码';
+                    btn.disabled = false;
+                    return;
+                }
+                btn.textContent = left + ' 秒后重发';
+            }, 1000);
+
+        } catch (e) {
+            btn.textContent = '获取验证码';
+            btn.disabled = false;
+            alert("发送失败！错误信息：" + e.message + "\n\n请检查：后端是否写了 /api/sysUser/sendSms 接口。");
+        }
     }
-  }
+
+    // ============ 核心登录提交逻辑 ============
+    document.getElementById("loginBtn").onclick = async function() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("pwdInput").value.trim();
+        const smsCode = document.getElementById("smsCodeInput").value.trim();
+        const rememberMe = document.getElementById("rememberMe").checked;
+        
+        const isPwdMode = !document.getElementById('panePwd').classList.contains('hidden');
+
+        if (!username) { alert("请输入账号或手机号"); return; }
+        if (isPwdMode && !password) { alert("请输入密码"); return; }
+        if (!isPwdMode && !smsCode) { alert("请输入短信验证码"); return; }
+
+        const btn = document.getElementById("loginBtn");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '登录中...';
+        btn.disabled = true;
+
+        try {
+            let res;
+            let apiUrl = isPwdMode ? 'https://api.zhuys.dpdns.org/api/sysUser/login' : 'https://api.zhuys.dpdns.org/api/sysUser/smsLogin';
+            let payload = isPwdMode ? { username, password } : { phone: username, code: smsCode };
+
+            // 使用原生 fetch 确保请求直达后端
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+
+            if (result.code !== 200) {
+                throw new Error(result.msg || '账号或密码/验证码错误');
+            }
+
+            res = result.data;
+
+            // 2. 清空旧的权限缓存
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('permKeys_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            // 3. 存储当前用户信息
+            localStorage.setItem('userId', res.userId);
+            localStorage.setItem('username', res.username);
+            localStorage.setItem('realName', res.realName);
+            localStorage.setItem('roleId', res.roleId);
+            
+            if (rememberMe) {
+                localStorage.setItem('rememberedAccount', username);
+            } else {
+                localStorage.removeItem('rememberedAccount');
+            }
+
+            // 4. 根据权限决定跳转目标页
+            let targetPage = 'dashboard.html';
+            if (res.roleId !== 1) {
+                try {
+                    const permRes = await fetch('https://api.zhuys.dpdns.org/api/sysRolePermission/permKeys/' + res.roleId);
+                    const permResult = await permRes.json();
+                    const permKeys = (permResult.code === 200 && permResult.data) ? permResult.data : [];
+
+                    if (permKeys.includes('dashboard:view')) targetPage = 'dashboard.html';
+                    else if (permKeys.includes('order:view')) targetPage = 'orders.html';
+                    else if (permKeys.includes('goods:view')) targetPage = 'products.html';
+                    else if (permKeys.includes('member:view')) targetPage = 'members.html';
+                    else if (permKeys.includes('settings:view')) targetPage = 'settings.html';
+                    else if (permKeys.includes('shop:view')) targetPage = 'register.html';
+                    else {
+                        alert('该账号暂无任何页面访问权限，请联系管理员配置。');
+                        localStorage.clear();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('查询权限失败，默认跳转看板:', e);
+                }
+            }
+
+            // 5. 页面跳转
+            window.location.href = targetPage;
+
+        } catch (err) {
+            alert("登录失败：" + (err.message || '请检查网络或账号密码'));
+            console.error(err);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    // 页面加载时回显记住的账号
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedAccount = localStorage.getItem('rememberedAccount');
+        if (savedAccount) {
+            document.getElementById('username').value = savedAccount;
+        }
+    });
 </script>
 </body>
 </html>
